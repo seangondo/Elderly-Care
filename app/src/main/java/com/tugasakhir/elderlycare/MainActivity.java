@@ -44,17 +44,17 @@ public class MainActivity extends AppCompatActivity {
         mqttHelper.setCallback(new MqttCallbackExtended() {
             @Override
             public void connectComplete(boolean b, String s) {
-                Log.d("Debug", "MASOKk!");
+                Log.d("Debug", "Connected!");
             }
 
             @Override
             public void connectionLost(Throwable throwable) {
-                Log.d("Debug", "KELUAR!");
+                Log.d("Debug", "Disconnect!");
 
             }
 
             @Override
-            public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
+            public void messageArrived(String topic, MqttMessage mqttMessage) {
                 Log.w("Debug", mqttMessage.toString());
                 connections.setText(mqttMessage.toString());
             }
