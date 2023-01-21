@@ -44,7 +44,11 @@ public class MainActivity extends AppCompatActivity {
         mqttHelper.setCallback(new MqttCallbackExtended() {
             @Override
             public void connectComplete(boolean b, String s) {
+<<<<<<< HEAD
                 Log.d("Debug", "MASOKKK!");
+=======
+                Log.d("Debug", "MASOK!");
+>>>>>>> 7852b65 (Initial commit)
             }
 
             @Override
