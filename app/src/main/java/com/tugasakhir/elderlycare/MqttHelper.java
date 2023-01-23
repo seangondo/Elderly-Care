@@ -16,15 +16,15 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 public class MqttHelper {
     public MqttAndroidClient mqttAndroidClient;
 
-    final String serverUri = "tcp://private-server.uk.to:1883";
+    final String serverUri = "tcp://192.168.1.109:1883";
 
     final String clientId = "ExampleAndroidClient";
     final String subscriptionTopic = "sensor/+";
 
-    String username = "user";
-    String password = "user";
+    //String username = "user";
+    //String password = "user";
 
-    public MqttHelper(Context context){
+    public MqttHelper(Context context, String u, String p){
         mqttAndroidClient = new MqttAndroidClient(context, serverUri, clientId);
         mqttAndroidClient.setCallback(new MqttCallbackExtended() {
             @Override
@@ -47,22 +47,22 @@ public class MqttHelper {
 
             }
         });
-        connect();
+        Log.d("Mqtt", String.valueOf(mqttAndroidClient.isConnected()));
+        connect(u, p);
     }
 
     public void setCallback(MqttCallbackExtended callback) {
         mqttAndroidClient.setCallback(callback);
     }
 
-    private void connect(){
+    private void connect(String username, String password){
         MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
+        mqttConnectOptions.setConnectionTimeout(1000);
         mqttConnectOptions.setAutomaticReconnect(true);
-        mqttConnectOptions.setCleanSession(false);
+        mqttConnectOptions.setCleanSession(true);
         mqttConnectOptions.setUserName(username);
         mqttConnectOptions.setPassword(password.toCharArray());
-
         try {
-
             mqttAndroidClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
@@ -74,11 +74,13 @@ public class MqttHelper {
                     disconnectedBufferOptions.setDeleteOldestMessages(false);
                     mqttAndroidClient.setBufferOpts(disconnectedBufferOptions);
                     subscribeToTopic();
+                    //MainActivity.recMessage(username);
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                     Log.w("Mqtt", "Failed to connect to: " + serverUri + exception.toString());
+                    //MainActivity.recMessage("Gagal Connect");
                 }
             });
 

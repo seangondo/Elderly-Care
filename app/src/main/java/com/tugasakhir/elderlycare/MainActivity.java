@@ -3,14 +3,18 @@ package com.tugasakhir.elderlycare;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
@@ -21,11 +25,83 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.Objects;
 
+public class MainActivity extends AppCompatActivity {
+    public static MqttAndroidClient client;
+    final String serverUri = "tcp://192.168.1.109:1883";
+    final String subscriptionTopic = "sensor/+";
+    String clientID;
     MqttHelper mqttHelper;
-    TextView connections;
+
+    static TextView connections;
     TextInputEditText user, passw;
+    Button button;
+
+    public static String myUser, myPass;
+
+    private final View.OnClickListener myClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            switch(view.getId()) {
+                case R.id.button:
+                    myUser = user.getText().toString();
+                    myPass = passw.getText().toString();
+                    if(!Objects.equals(myUser, "") & !Objects.equals(myPass, "")) {
+                        try {
+                            Log.d("Token", String.valueOf(client.isConnected()));
+                            if(!client.isConnected()){
+                                MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
+                                mqttConnectOptions.setConnectionTimeout(1000);
+                                mqttConnectOptions.setAutomaticReconnect(true);
+                                mqttConnectOptions.setCleanSession(true);
+                                mqttConnectOptions.setUserName(myUser);
+                                mqttConnectOptions.setPassword(myPass.toCharArray());
+                                IMqttToken token = client.connect(mqttConnectOptions);
+                                token.setActionCallback(new IMqttActionListener() {
+                                    @Override
+                                    public void onSuccess(IMqttToken asyncActionToken) {
+                                        Toast.makeText(MainActivity.this, "connected!!", Toast.LENGTH_LONG).show();
+                                        //setSubscription();
+                                        subscribeToTopic();
+                                        goToHome();
+                                    }
+
+                                    @Override
+                                    public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                                        Toast.makeText(MainActivity.this, "connection failed!!!", Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            } else {
+                                try {
+                                    IMqttToken token = client.disconnect();
+                                    token.setActionCallback(new IMqttActionListener() {
+                                        @Override
+                                        public void onSuccess(IMqttToken asyncActionToken) {
+                                            Toast.makeText(MainActivity.this,"Disconnected!!",Toast.LENGTH_LONG).show();
+
+
+                                        }
+
+                                        @Override
+                                        public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                                            Toast.makeText(MainActivity.this,"Could not diconnect!!",Toast.LENGTH_LONG).show();
+                                        }
+                                    });
+                                } catch (MqttException e) {
+                                    e.printStackTrace();
+                                }
+                                //Toast.makeText(MainActivity.this, "already connected!!!", Toast.LENGTH_LONG).show();
+                            }
+                        } catch (MqttException e) {
+                            throw new RuntimeException(e);
+                        }
+                        //startMqtt(myUser, myPass);
+                    }
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,13 +110,18 @@ public class MainActivity extends AppCompatActivity {
 
         user = (TextInputEditText) findViewById(R.id.user_id);
         passw = (TextInputEditText) findViewById(R.id.user_passw);
-
         connections = (TextView) findViewById(R.id.tv3);
-        startMqtt();
+        button = (Button) findViewById(R.id.button);
+
+        button.setOnClickListener(myClickListener);
+
+        clientID = MqttClient.generateClientId();
+        client = new MqttAndroidClient(this.getApplicationContext(), serverUri, clientID);
+
     }
 
-    private void startMqtt() {
-        mqttHelper = new MqttHelper(getApplicationContext());
+    private void startMqtt(String u, String p) {
+        mqttHelper = new MqttHelper(getApplicationContext(), u, p);
         mqttHelper.setCallback(new MqttCallbackExtended() {
             @Override
             public void connectComplete(boolean b, String s) {
@@ -65,4 +146,35 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void subscribeToTopic() {
+        try {
+            client.subscribe(subscriptionTopic, 0, null, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    Log.w("Mqtt","Subscribed!");
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    Log.w("Mqtt", "Subscribed fail!");
+                }
+            });
+
+        } catch (MqttException ex) {
+            System.err.println("Exception whilst subscribing");
+            ex.printStackTrace();
+        }
+    }
+
+
+    public void goToHome(){
+        Intent i = new Intent(this, MainActivity2.class);
+        startActivity(i);
+        overridePendingTransition(0, 0);
+    }
+//    public static void recMessage(String msg) {
+//        Log.w("Message", msg);
+//        connections.setText(msg.toString());
+//    }
 }
