@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/overview"
+        android:title="Overview"
+        android:icon="@drawable/ic_baseline_text_snippet"/>
+    <item
+        android:id="@+id/smartHome"
+        android:title="Smart Home"
+        android:icon="@drawable/ic_smarthome"/>
+    <item
+        android:id="@+id/telepresence"
+        android:title="Telepresence"
+        android:icon="@drawable/ic_telepresence"/>
+    <item
+        android:id="@+id/wearable"
+        android:title="Wearable"
+        android:icon="@drawable/ic_wearable"/>
+</menu>

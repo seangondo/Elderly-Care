@@ -4,12 +4,28 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.3245" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/drawable/ic_baseline_home_24.xml" value="0.324" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/drawable/ic_baseline_text_snippet.xml" value="0.3675" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/drawable/ic_icon_wearable.xml" value="0.324" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/drawable/ic_launcher_background.xml" value="0.3245" />
-        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/drawable/ic_lock.xml" value="0.324" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/drawable/ic_person.xml" value="0.324" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/drawable/ic_smarthome.xml" value="0.324" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/drawable/ic_telepresence.xml" value="0.324" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/drawable/ic_wearable.xml" value="0.324" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_main.xml" value="0.14343928280358598" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_main2.xml" value="0.1" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_main3.xml" value="0.1" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/fragment_main.xml" value="0.1" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/fragment_overview.xml" value="0.18333333333333332" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/fragment_smart_home.xml" value="0.18333333333333332" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/fragment_telepresence.xml" value="0.1" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/fragment_wearable.xml" value="0.1" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/menu/navmenu.xml" value="0.1" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="11" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

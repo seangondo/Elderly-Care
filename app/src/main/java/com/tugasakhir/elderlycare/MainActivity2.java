@@ -3,10 +3,17 @@ package com.tugasakhir.elderlycare;
 import static com.tugasakhir.elderlycare.MainActivity.client;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Switch;
 import android.widget.TextView;
+
+import com.tugasakhir.elderlycare.databinding.ActivityMain2Binding;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -23,6 +30,8 @@ import java.util.Arrays;
 public class MainActivity2 extends AppCompatActivity {
 
     TextView text;
+    public static ActivityMain2Binding binding;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +40,30 @@ public class MainActivity2 extends AppCompatActivity {
 
         text = (TextView) findViewById(R.id.tv2);
 
+        binding = ActivityMain2Binding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        binding.navigationBar.setOnItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.overview:
+                    Log.d("Halaman", "Overview");
+                    replaceFragment(new Overview());
+                    break;
+                case R.id.smartHome:
+                    Log.d("Halaman", "SmartHome");
+                    replaceFragment(new SmartHome());
+                    break;
+                case R.id.telepresence:
+                    Log.d("Halaman", "Telepresence");
+                    replaceFragment(new Telepresence());
+                    break;
+                case R.id.wearable:
+                    Log.d("Halaman", "Wearable");
+                    replaceFragment(new Wearable());
+                    break;
+            }
+            return true;
+        });
 
         client.setCallback(new MqttCallback() {
             @Override
@@ -57,4 +90,12 @@ public class MainActivity2 extends AppCompatActivity {
             }
         });
     }
+
+    void replaceFragment(Fragment f) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.frameLayout, f);
+        fragmentTransaction.commit();
+    }
+
 }
