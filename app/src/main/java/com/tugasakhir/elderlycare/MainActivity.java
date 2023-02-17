@@ -18,7 +18,6 @@ import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
-//import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -29,8 +28,8 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     public static MqttAndroidClient client;
-    final String serverUri = "tcp://192.168.1.109:1883";
-    final String subscriptionTopic = "sensor/+";
+    public String subscriptionTopic;
+    String serverUri;
     String clientID;
     MqttHelper mqttHelper;
 
@@ -40,11 +39,15 @@ public class MainActivity extends AppCompatActivity {
 
     public static String myUser, myPass;
 
+    final loadingDialog loadingDialog = new loadingDialog(MainActivity.this);
+
     private final View.OnClickListener myClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             switch(view.getId()) {
                 case R.id.button:
+                    loadingDialog.startDialog();
+
                     myUser = user.getText().toString();
                     myPass = passw.getText().toString();
                     if(!Objects.equals(myUser, "") & !Objects.equals(myPass, "")) {
@@ -52,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("Token", String.valueOf(client.isConnected()));
                             if(!client.isConnected()){
                                 MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
-                                mqttConnectOptions.setConnectionTimeout(1000);
+                                mqttConnectOptions.setConnectionTimeout(3000);
                                 mqttConnectOptions.setAutomaticReconnect(true);
                                 mqttConnectOptions.setCleanSession(true);
                                 mqttConnectOptions.setUserName(myUser);
@@ -61,14 +64,19 @@ public class MainActivity extends AppCompatActivity {
                                 token.setActionCallback(new IMqttActionListener() {
                                     @Override
                                     public void onSuccess(IMqttToken asyncActionToken) {
-                                        Toast.makeText(MainActivity.this, "connected!!", Toast.LENGTH_LONG).show();
                                         //setSubscription();
+                                        subscriptionTopic = myUser+"/#";
+                                        Log.d("Topic", subscriptionTopic);
+                                        startService(new Intent(MainActivity.this, mqttServices.class));
+                                        loadingDialog.dismissDialog();
                                         subscribeToTopic();
                                         goToHome();
+                                        Toast.makeText(MainActivity.this, "Login Success!", Toast.LENGTH_LONG).show();
                                     }
 
                                     @Override
                                     public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                                        loadingDialog.dismissDialog();
                                         Toast.makeText(MainActivity.this, "connection failed!!!", Toast.LENGTH_LONG).show();
                                     }
                                 });
@@ -78,13 +86,13 @@ public class MainActivity extends AppCompatActivity {
                                     token.setActionCallback(new IMqttActionListener() {
                                         @Override
                                         public void onSuccess(IMqttToken asyncActionToken) {
+                                            loadingDialog.dismissDialog();
                                             Toast.makeText(MainActivity.this,"Disconnected!!",Toast.LENGTH_LONG).show();
-
-
                                         }
 
                                         @Override
                                         public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                                            loadingDialog.dismissDialog();
                                             Toast.makeText(MainActivity.this,"Could not diconnect!!",Toast.LENGTH_LONG).show();
                                         }
                                     });
@@ -107,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        serverUri = getString(R.string.ipServer);
 
         user = (TextInputEditText) findViewById(R.id.user_id);
         passw = (TextInputEditText) findViewById(R.id.user_passw);
