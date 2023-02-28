@@ -14,14 +14,13 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView1"
 
-            android:layout_width="600dp"
+            android:layout_width="500dp"
             android:layout_height="@dimen/lengthC"
 
             android:layout_marginStart="16dp"
             app:cardCornerRadius="10dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:cardElevation="50dp">
+            app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -48,7 +47,7 @@
                         android:id="@+id/tempLiving"
                         android:layout_width="120dp"
                         android:layout_height="120dp"
-                        android:layout_marginStart="20dp"
+                        android:layout_marginStart="15dp"
                         android:layout_gravity="center"/>
 
                     <androidx.cardview.widget.CardView
@@ -56,9 +55,9 @@
                         android:layout_width="100dp"
                         android:layout_height="100dp"
                         android:layout_gravity="center"
-                        android:layout_marginStart="16dp"
-                        android:backgroundTint="@color/button_Card"
+                        android:layout_marginStart="5dp"
                         app:cardCornerRadius="10dp"
+                        android:backgroundTint="@color/button_Card"
 
                         android:foreground="?android:attr/selectableItemBackground"
                         android:clickable="true"
@@ -99,13 +98,13 @@
                         android:layout_width="1dp"
                         android:layout_height="match_parent"
                         android:background="@color/white"
-                        android:layout_marginStart="44dp"/>
+                        android:layout_marginStart="10dp"/>
 
                     <com.github.mikephil.charting.charts.PieChart
                         android:id="@+id/lightLiving"
                         android:layout_width="120dp"
                         android:layout_height="120dp"
-                        android:layout_marginStart="20dp"
+                        android:layout_marginStart="15dp"
                         android:layout_gravity="center"
                         />
 
@@ -114,7 +113,7 @@
                         android:layout_width="100dp"
                         android:layout_height="100dp"
                         android:layout_gravity="center"
-                        android:layout_marginStart="16dp"
+                        android:layout_marginStart="5dp"
                         android:backgroundTint="@color/button_Card"
                         app:cardCornerRadius="10dp"
 
@@ -161,14 +160,14 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="300dp"
+                        android:layout_width="250dp"
                         android:layout_height="match_parent"
                         android:text="Room Temperature"
                         android:gravity="center"
                         android:textStyle="bold"/>
 
                     <TextView
-                        android:layout_width="300dp"
+                        android:layout_width="250dp"
                         android:layout_height="match_parent"
                         android:text="Room Light"
                         android:gravity="center"
@@ -184,15 +183,14 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView2"
 
-            android:layout_width="600dp"
+            android:layout_width="500dp"
             android:layout_height="@dimen/lengthC"
 
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             app:cardCornerRadius="10dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cardView1"
-            app:cardElevation="50dp" >
+            app:layout_constraintTop_toBottomOf="@+id/cardView1">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -219,7 +217,7 @@
                         android:id="@+id/lightKitchen"
                         android:layout_width="120dp"
                         android:layout_height="120dp"
-                        android:layout_marginStart="20dp"
+                        android:layout_marginStart="15dp"
                         android:layout_gravity="center"/>
 
                     <androidx.cardview.widget.CardView
@@ -227,7 +225,7 @@
                         android:layout_width="100dp"
                         android:layout_height="100dp"
                         android:layout_gravity="center"
-                        android:layout_marginStart="16dp"
+                        android:layout_marginStart="5dp"
                         android:backgroundTint="@color/button_Card"
                         app:cardCornerRadius="10dp"
 
@@ -270,13 +268,13 @@
                         android:layout_width="1dp"
                         android:layout_height="match_parent"
                         android:background="@color/white"
-                        android:layout_marginStart="44dp"/>
+                        android:layout_marginStart="10dp"/>
 
                     <com.github.mikephil.charting.charts.PieChart
                         android:id="@+id/gasKitchen"
                         android:layout_width="120dp"
                         android:layout_height="120dp"
-                        android:layout_marginStart="20dp"
+                        android:layout_marginStart="15dp"
                         android:layout_gravity="center"
                         />
 
@@ -310,14 +308,14 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="300dp"
+                        android:layout_width="250dp"
                         android:layout_height="match_parent"
                         android:text="Kitchen Light"
                         android:gravity="center"
                         android:textStyle="bold"/>
 
                     <TextView
-                        android:layout_width="300dp"
+                        android:layout_width="250dp"
                         android:layout_height="match_parent"
                         android:text="Kitchen Gas Sensor"
                         android:gravity="center"
@@ -334,8 +332,8 @@
 
             android:id="@+id/cardView3"
 
-            android:layout_width="200dp"
-            android:layout_height="285dp"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
 
             android:layout_marginStart="16dp"
             app:cardCornerRadius="10dp"
@@ -344,7 +342,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="416dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -362,14 +360,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Living Room Temperature"
-                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
                     android:layout_gravity="center"
-                    android:layout_marginTop="5dp"/>
+                    android:layout_marginTop="6dp"/>
 
                 <com.github.mikephil.charting.charts.LineChart
-                    android:id="@+id/LivingRoomTemp"
-                    android:layout_width="150dp"
-                    android:layout_height="100dp"
+                    android:id="@+id/tempTrend"
+                    android:layout_width="280dp"
+                    android:layout_height="160dp"
                     android:layout_gravity="center"
                     />
 
@@ -379,13 +378,14 @@
                     android:layout_height="wrap_content"
                     android:text="Gas Sensor"
                     android:layout_gravity="center"
-                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
                     android:layout_marginTop="5dp"/>
 
                 <com.github.mikephil.charting.charts.LineChart
-                    android:id="@+id/GasSensor"
-                    android:layout_width="150dp"
-                    android:layout_height="100dp"
+                    android:id="@+id/gasTrend"
+                    android:layout_width="280dp"
+                    android:layout_height="160dp"
                     android:layout_gravity="center"/>
 
 
@@ -393,10 +393,10 @@
 
         </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
+        <!--<androidx.cardview.widget.CardView
             android:id="@+id/cardView4"
 
-            android:layout_width="200dp"
+            android:layout_width="300dp"
             android:layout_height="115dp"
 
             android:layout_marginStart="16dp"
@@ -413,7 +413,7 @@
                 android:layout_marginStart="20dp"
                 android:textSize="@dimen/subTextSize"
                 android:textStyle="bold"/>
-        </androidx.cardview.widget.CardView>
+        </androidx.cardview.widget.CardView>-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

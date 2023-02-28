@@ -2,12 +2,21 @@ package com.tugasakhir.elderlycare;
 
 import static com.tugasakhir.elderlycare.MainActivity.client;
 import static com.tugasakhir.elderlycare.MainActivity2.binding;
-import static com.tugasakhir.elderlycare.mqttServices.lampKitchen;
-import static com.tugasakhir.elderlycare.mqttServices.lampLiving;
-import static com.tugasakhir.elderlycare.mqttServices.msg;
+import static com.tugasakhir.elderlycare.MainActivity2.swAuto;
+import static com.tugasakhir.elderlycare.mqttServices.bAutoMode;
+import static com.tugasakhir.elderlycare.mqttServices.bFanLiving;
+import static com.tugasakhir.elderlycare.mqttServices.bLampKitchen;
+import static com.tugasakhir.elderlycare.mqttServices.bLampLiving;
+import static com.tugasakhir.elderlycare.mqttServices.kitchen_gas;
+import static com.tugasakhir.elderlycare.mqttServices.kitchen_light;
+import static com.tugasakhir.elderlycare.mqttServices.kitchen_no;
+import static com.tugasakhir.elderlycare.mqttServices.living_light;
+import static com.tugasakhir.elderlycare.mqttServices.living_no;
+import static com.tugasakhir.elderlycare.mqttServices.living_temp;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -16,6 +25,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.loader.content.AsyncTaskLoader;
 
@@ -29,10 +39,26 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.animation.Easing;
+import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.LimitLine;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.IFillFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
+import com.github.mikephil.charting.utils.Utils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarMenu;
 import com.google.android.material.navigationrail.NavigationRailView;
@@ -42,8 +68,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -55,19 +85,20 @@ import java.util.TimerTask;
  */
 public class SmartHome extends Fragment implements View.OnClickListener{
     PieChart roomTemp, roomLight, kitchenLight, kitchenGas;
-//    Button buttonFan_Living, buttonLight_Living, buttonLight_Kitchen;
+    LineChart trendTemp, trendGas;
+
     CardView buttonFan_Living, buttonLight_Living, buttonLight_Kitchen;
     TextView kitchen_light_label, living_light_label, living_fan_label;
     ImageView living_light_image, living_fan_image, kitchen_light_image;
     TextView COstat;
     NavigationRailView navigationRailView;
 
-    public static String living_temp, living_light, kitchen_light, kitchen_gas;
+//    public static String living_temp, living_light, kitchen_light, kitchen_gas;
 
     //Updater
     Handler handler = new Handler();
     Runnable runnable;
-    int delay = 1*500;
+    int delay = 1*100;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -133,7 +164,6 @@ public class SmartHome extends Fragment implements View.OnClickListener{
         living_light_label = (TextView) view.findViewById(R.id.livingLightsLabel);
         kitchen_light_label = (TextView) view.findViewById(R.id.kitchenLightsLabel);
 
-
         living_fan_image = (ImageView) view.findViewById(R.id.livingFanImg);
         living_light_image = (ImageView) view.findViewById(R.id.livingLightsImg);
         kitchen_light_image= (ImageView) view.findViewById(R.id.kitchenLightsImg);
@@ -142,6 +172,17 @@ public class SmartHome extends Fragment implements View.OnClickListener{
         roomTemp = (PieChart) view.findViewById(R.id.tempLiving);
         kitchenLight = (PieChart) view.findViewById(R.id.lightKitchen);
         kitchenGas = (PieChart) view.findViewById(R.id.gasKitchen);
+
+        trendTemp = (LineChart) view.findViewById(R.id.tempTrend);
+        trendGas = (LineChart) view.findViewById(R.id.gasTrend);
+
+        initTrend(trendTemp, 100, 0);
+        initTrend(trendGas, 1000, 0);
+
+        if(living_no.size()!= 0 & kitchen_no.size() != 0) {
+            setData("living" ,trendTemp);
+            setData("kitchen" ,trendGas);
+        }
 
         buttonFan_Living.setOnClickListener(this);
         buttonLight_Living.setOnClickListener(this);
@@ -162,66 +203,120 @@ public class SmartHome extends Fragment implements View.OnClickListener{
         }
     }
 
-    void getData(){
-        JSONArray myRec = null;
-        try {
-            if(mqttServices.getTopic.equals(MainActivity.myUser + "/apps/data")) {
-                myRec = new JSONArray(mqttServices.msg);
-                for (int i = 0; i < myRec.length(); i++) {
-                    JSONObject arrObj = myRec.getJSONObject(i);
-                    living_temp = arrObj.getString("living_temp");
-                    living_light = arrObj.getString("living_light");
-                    kitchen_light = arrObj.getString("kitchen_light");
-                    kitchen_gas = arrObj.getString("kitchen_gas");
+    private void initTrend(LineChart chartName,int maxVal, int minVal){
 
-                    if(Integer.parseInt(kitchen_gas) >= 700) {
-                        COstat.setTextColor(Color.RED);
-                        COstat.setText("Gas rate too high!");
-                    } else {
-                        COstat.setTextColor(Color.GREEN);
-                        COstat.setText("Normal");
-                    }
-                }
-            }
+        chartName.setBackgroundColor(Color.WHITE);
+        chartName.setTouchEnabled(true);
+        chartName.setDragEnabled(true);
+        chartName.setScaleEnabled(true);
+        chartName.setPinchZoom(true);
 
-            if(lampLiving){
-                living_light_label.setText("ON");
-                living_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_on));
-            } else {
-                living_light_label.setText("OFF");
-                living_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_off));
-            }
-            if(lampKitchen){
-                kitchen_light_label.setText("ON");
-                kitchen_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_on));
-            } else {
-                kitchen_light_label.setText("OFF");
-                kitchen_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_off));
-            }
+        XAxis xAxis = chartName.getXAxis();
+        XAxis.XAxisPosition position = XAxis.XAxisPosition.BOTTOM;
+        xAxis.setPosition(position);
+        xAxis.enableGridDashedLine(10f, 5f, 0f);
 
-//            if(mqttServices.getTopic.equals(MainActivity.myUser + "/livingroom/light/control")) {
-//                JSONObject arrObj = new JSONObject(msg);
-//                if(!arrObj.getBoolean("lights")) {
-//                    living_light_label.setText("OFF");
-//                    living_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_off));
-//                } else {
-//                    living_light_label.setText("ON");
-//                    living_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_on));
-//                }
-//            }
-//            if(mqttServices.getTopic.equals(MainActivity.myUser + "/kitchen/light/control")) {
-//                JSONObject arrObj = new JSONObject(msg);
-//                if(!arrObj.getBoolean("lights")) {
-//                    kitchen_light_label.setText("OFF");
-//                    kitchen_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_off));
-//                } else {
-//                    kitchen_light_label.setText("ON");
-//                    kitchen_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_on));
-//                }
-//            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+
+        YAxis yAxis = chartName.getAxisLeft();
+        chartName.getAxisRight().setEnabled(false);
+        yAxis.enableGridDashedLine(10f, 10f, 0f);
+        yAxis.setAxisMaximum(maxVal);
+        yAxis.setAxisMinimum(minVal);
+
+        chartName.getLegend().setEnabled(false);
+        chartName.getDescription().setEnabled(false);
+    }
+
+    private void setData(String loc, LineChart chartName) {
+        List<String> xAxisValues = null;
+
+        ArrayList<Entry> values = new ArrayList<>();
+        if(loc.equals("kitchen")) {
+            xAxisValues = new ArrayList<>(mqttServices.kitchen_time);
+            for (int i = 0; i < kitchen_no.size(); i++) {
+                values.add(new Entry(i, mqttServices.kitchen_val.get(i)));
+            }
         }
+        if(loc.equals("living")) {
+            xAxisValues = new ArrayList<>(mqttServices.living_time);
+            for (int i = 0; i < mqttServices.living_no.size(); i++) {
+                values.add(new Entry(i, mqttServices.living_val.get(i)));
+            }
+        }
+
+        XAxis xAxis = chartName.getXAxis();
+        xAxis.setValueFormatter(new com.github.mikephil.charting.formatter.IndexAxisValueFormatter(xAxisValues));
+        LineDataSet set1;
+
+        set1 = new LineDataSet(values, "");
+
+        set1.setDrawIcons(false);
+        set1.setColor(Color.BLACK);
+        set1.setCircleColor(Color.BLACK);
+        set1.setLineWidth(1f);
+        set1.setCircleRadius(2f);
+        set1.setDrawCircleHole(false);
+        set1.setFormLineWidth(1f);
+        set1.setFormSize(15.f);
+        set1.setValueTextSize(9f);
+        set1.setDrawFilled(true);
+        set1.setFillFormatter(new IFillFormatter() {
+            @Override
+            public float getFillLinePosition(ILineDataSet dataSet, LineDataProvider dataProvider) {
+                return chartName.getAxisLeft().getAxisMinimum();
+            }
+        });
+
+        set1.setFillColor(Color.BLACK);
+        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        dataSets.add(set1);
+        LineData data = new LineData(dataSets);
+
+        chartName.setData(data);
+        chartName.invalidate();
+    }
+
+    private void getData(){
+        if(living_light!=null & living_temp!=null & kitchen_light!=null & kitchen_gas!=null) {
+            if(Integer.parseInt(kitchen_gas) >= 700) {
+                COstat.setTextColor(Color.RED);
+                COstat.setText("Gas rate too high!");
+            } else {
+                COstat.setTextColor(Color.GREEN);
+                COstat.setText("Normal");
+            }
+        }
+
+        if(bLampLiving.equals("true")){
+            living_light_label.setText("ON");
+            living_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_on));
+        } else if (bLampLiving.equals("false")){
+            living_light_label.setText("OFF");
+            living_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_off));
+        }
+        if(bLampKitchen.equals("true")){
+            kitchen_light_label.setText("ON");
+            kitchen_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_on));
+        } else if (bLampKitchen.equals("false")){
+            kitchen_light_label.setText("OFF");
+            kitchen_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_off));
+        }
+        if(bFanLiving.equals("off")){
+            living_fan_label.setText("OFF");
+            living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_off_icon));
+        } else if (bFanLiving.equals("slow")){
+            living_fan_label.setText("SLOW");
+            living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_slow_icon));
+        } else if (bFanLiving.equals("fast")){
+            living_fan_label.setText("FAST");
+            living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_speed_icon));
+        }
+        if(bAutoMode.equals("true")){
+            swAuto.setChecked(true);
+        } else if (bAutoMode.equals("false")){
+            swAuto.setChecked(false);
+        }
+
     }
 
     @Override
@@ -236,6 +331,12 @@ public class SmartHome extends Fragment implements View.OnClickListener{
                     showPieChart(roomTemp, Integer.parseInt(living_temp), 100, "\u2103");
                     showPieChart(kitchenLight, Integer.parseInt(kitchen_light), 1000, "");
                     showPieChart(kitchenGas, Integer.parseInt(kitchen_gas), 1000, "");
+                }
+                if(living_no.size() != 0 & kitchen_no.size() != 0) {
+                    initTrend(trendTemp, 100, 0);
+                    initTrend(trendGas, 1000, 0);
+                    setData("living" ,trendTemp);
+                    setData("kitchen" ,trendGas);
                 }
                 handler.postDelayed(runnable, delay);
             }
@@ -318,22 +419,42 @@ public class SmartHome extends Fragment implements View.OnClickListener{
         name.invalidate();
     }
 
+
+
     @Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.buttonFanLiving:
-                binding.navigationBar.setSelectedItemId(R.id.smartHome);
+                if(((String) living_fan_label.getText()).equals("OFF")){
+                    try {
+                        client.publish(MainActivity.myUser+"/apps/control_button/livingroom/fan", "{\"value\": \"slow\", \"var\": 1}".getBytes(),0, true);
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    }
+                } else if(((String) living_fan_label.getText()).equals("SLOW")) {
+                    try {
+                        client.publish(MainActivity.myUser + "/apps/control_button/livingroom/fan", "{\"value\": \"fast\", \"var\": 1}".getBytes(), 0, true);
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    }
+                } else if(((String) living_fan_label.getText()).equals("FAST")) {
+                        try {
+                            client.publish(MainActivity.myUser+"/apps/control_button/livingroom/fan", "{\"value\": \"off\", \"var\": 1}".getBytes(),0, true);
+                        } catch (MqttException e) {
+                            e.printStackTrace();
+                        }
+                }
                 break;
             case R.id.buttonLightsLiving:
                 if(((String) living_light_label.getText()).equals("OFF")){
                     try {
-                        client.publish(MainActivity.myUser+"/livingroom/light/control", "{\"lights\": true }".getBytes(),0, true);
+                        client.publish(MainActivity.myUser+"/apps/control_button/livingroom/light", "{\"value\": \"true\", \"var\": 1}".getBytes(),0, true);
                     } catch (MqttException e) {
                         e.printStackTrace();
                     }
                 } else {
                     try {
-                        client.publish(MainActivity.myUser+"/livingroom/light/control", "{\"lights\": false }".getBytes(),0, true);
+                        client.publish(MainActivity.myUser+"/apps/control_button/livingroom/light", "{\"value\": \"false\", \"var\": 1}".getBytes(),0, true);
                     } catch (MqttException e) {
                         e.printStackTrace();
                     }
@@ -342,13 +463,13 @@ public class SmartHome extends Fragment implements View.OnClickListener{
             case R.id.buttonLightsKitchen:
                 if(((String) kitchen_light_label.getText()).equals("OFF")){
                     try {
-                        client.publish(MainActivity.myUser+"/kitchen/light/control", "{\"lights\": true }".getBytes(),0, true);
+                        client.publish(MainActivity.myUser+"/apps/control_button/kitchen/light", "{\"value\": \"true\", \"var\": 1}".getBytes(),0, true);
                     } catch (MqttException e) {
                         e.printStackTrace();
                     }
                 } else {
                     try {
-                        client.publish(MainActivity.myUser+"/kitchen/light/control", "{\"lights\": false }".getBytes(),0, true);
+                        client.publish(MainActivity.myUser+"/apps/control_button/kitchen/light", "{\"value\": \"false\", \"var\": 1}".getBytes(),0, true);
                     } catch (MqttException e) {
                         e.printStackTrace();
                     }

@@ -3,6 +3,7 @@ package com.tugasakhir.elderlycare;
 import static com.tugasakhir.elderlycare.MainActivity.client;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -16,20 +17,23 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.tugasakhir.elderlycare.databinding.ActivityMain2Binding;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class MainActivity2 extends AppCompatActivity {
 
-    TextView tv1;
+    TextView tv1, tvAuto;
     Button b1;
+    public static SwitchCompat swAuto;
 
     //Data
     public static String living_temp, living_light, kitchen_light, kitchen_gas;
@@ -46,6 +50,21 @@ public class MainActivity2 extends AppCompatActivity {
                     Intent callIntent = new Intent(Intent.ACTION_CALL);
                     callIntent.setData(Uri.parse("tel:081330679849"));
                     startActivity(callIntent);
+                    break;
+                case R.id.sw_auto:
+                    if(swAuto.isChecked()) {
+                        try {
+                            client.publish(MainActivity.myUser+"/apps/control_button/automatic_mode", "{\"value\": \"true\", \"var\": 1}".getBytes(),0, true);
+                        } catch (MqttException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        try {
+                            client.publish(MainActivity.myUser+"/apps/control_button/automatic_mode", "{\"value\": \"false\", \"var\": 1}".getBytes(),0, true);
+                        } catch (MqttException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     break;
 
             }
@@ -64,8 +83,12 @@ public class MainActivity2 extends AppCompatActivity {
         replaceFragment(new Overview());
 
         tv1 = (TextView) findViewById(R.id.tv2);
+        tvAuto = (TextView) findViewById(R.id.AutoSmarthome);
+
+        swAuto = (SwitchCompat) findViewById(R.id.sw_auto);
         b1 = findViewById(R.id.emergency);
 
+        swAuto.setOnClickListener(myClickList);
         b1.setOnClickListener(myClickList);
 
         binding.navigationBar.setOnItemSelectedListener(item -> {
@@ -73,18 +96,26 @@ public class MainActivity2 extends AppCompatActivity {
                 case R.id.overview:
                     replaceFragment(new Overview());
                     tv1.setText("Overview");
+                    swAuto.setVisibility(View.INVISIBLE);
+                    tvAuto.setVisibility(View.INVISIBLE);
                     break;
                 case R.id.smartHome:
                     replaceFragment(new SmartHome());
                     tv1.setText("Smart Home");
+                    swAuto.setVisibility(View.VISIBLE);
+                    tvAuto.setVisibility(View.VISIBLE);
                     break;
                 case R.id.telepresence:
                     replaceFragment(new Telepresence());
                     tv1.setText("Telepresence");
+                    swAuto.setVisibility(View.INVISIBLE);
+                    tvAuto.setVisibility(View.INVISIBLE);
                     break;
                 case R.id.wearable:
                     replaceFragment(new Wearable());
                     tv1.setText("Wearable");
+                    swAuto.setVisibility(View.INVISIBLE);
+                    tvAuto.setVisibility(View.INVISIBLE);
                     break;
             }
             return true;

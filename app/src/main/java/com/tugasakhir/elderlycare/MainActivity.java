@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     String clientID;
     MqttHelper mqttHelper;
 
-    static TextView connections;
+//    static TextView connections;
     TextInputEditText user, passw;
     Button button;
 
@@ -46,11 +46,10 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View view) {
             switch(view.getId()) {
                 case R.id.button:
-                    loadingDialog.startDialog();
-
                     myUser = user.getText().toString();
                     myPass = passw.getText().toString();
                     if(!Objects.equals(myUser, "") & !Objects.equals(myPass, "")) {
+                        loadingDialog.startDialog();
                         try {
                             Log.d("Token", String.valueOf(client.isConnected()));
                             if(!client.isConnected()){
@@ -77,7 +76,13 @@ public class MainActivity extends AppCompatActivity {
                                     @Override
                                     public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                                         loadingDialog.dismissDialog();
-                                        Toast.makeText(MainActivity.this, "connection failed!!!", Toast.LENGTH_LONG).show();
+                                        if(String.valueOf(exception).contains("failed to connect")) {
+                                            Toast.makeText(MainActivity.this, "Server unavailable!", Toast.LENGTH_LONG).show();
+                                            Log.e("Login Failed!", "Server unavailable!");
+                                        } else if(String.valueOf(exception).contains("Not authorized to connect")) {
+                                            Toast.makeText(MainActivity.this, "Username/Password wrong!", Toast.LENGTH_LONG).show();
+                                            Log.e("Login Failed!", "Wrong user/password");
+                                        }
                                     }
                                 });
                             } else {
@@ -105,6 +110,13 @@ public class MainActivity extends AppCompatActivity {
                             throw new RuntimeException(e);
                         }
                         //startMqtt(myUser, myPass);
+                    } else {
+                        if(Objects.equals(myUser, "")) {
+                            user.setError("Username can't be empty!");
+                        }
+                        if(Objects.equals(myPass, "")) {
+                            passw.setError("Password can't be empty!");
+                        }
                     }
                     break;
             }
@@ -119,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
         user = (TextInputEditText) findViewById(R.id.user_id);
         passw = (TextInputEditText) findViewById(R.id.user_passw);
-        connections = (TextView) findViewById(R.id.tv3);
+//        connections = (TextView) findViewById(R.id.tv3);
         button = (Button) findViewById(R.id.button);
 
         button.setOnClickListener(myClickListener);
@@ -146,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void messageArrived(String topic, MqttMessage mqttMessage) {
                 Log.w("Debug", mqttMessage.toString());
-                connections.setText(mqttMessage.toString());
+//                connections.setText(mqttMessage.toString());
             }
 
             @Override
@@ -181,9 +193,6 @@ public class MainActivity extends AppCompatActivity {
         Intent i = new Intent(this, MainActivity2.class);
         startActivity(i);
         overridePendingTransition(0, 0);
+        finish();
     }
-//    public static void recMessage(String msg) {
-//        Log.w("Message", msg);
-//        connections.setText(msg.toString());
-//    }
 }

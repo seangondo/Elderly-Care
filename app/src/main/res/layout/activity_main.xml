@@ -6,25 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout2"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="325dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="32dp"
-        android:hint="Username"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:startIconDrawable="@drawable/ic_person">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/user_id"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName" />
-    </com.google.android.material.textfield.TextInputLayout>
-
     <!-- TextView User
     <TextView
         android:id="@+id/tvUser"
@@ -38,25 +19,6 @@
     -->
 
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout3"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="325dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="16dp"
-        android:hint="Enter Password"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout2"
-        app:startIconDrawable="@drawable/ic_lock">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/user_passw"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPassword"/>
-    </com.google.android.material.textfield.TextInputLayout>
-
     <!-- TextView Password
     <TextView
         android:id="@+id/tvPassw"
@@ -69,26 +31,66 @@
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout2" />
     -->
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout3"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="325dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="20dp"
+        app:errorEnabled="true"
+        android:hint="Enter Password"
+        app:endIconMode="password_toggle"
+        app:layout_constraintStart_toStartOf="@+id/button"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout2"
+        app:startIconDrawable="@drawable/ic_lock">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/user_passw"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout2"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="325dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="20dp"
+        app:errorEnabled="true"
+        android:hint="Username"
+        app:layout_constraintStart_toStartOf="@+id/textInputLayout3"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:startIconDrawable="@drawable/ic_person">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/user_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName" />
+    </com.google.android.material.textfield.TextInputLayout>
+
     <Button
         android:id="@+id/button"
-        android:layout_width="wrap_content"
+        android:layout_width="325dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
-        android:text="Button"
+        android:layout_marginEnd="128dp"
+        android:text="Login"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout3" />
 
     <TextView
-        android:id="@+id/tv3"
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="Connections"
+        android:layout_marginTop="84dp"
+        android:layout_marginEnd="248dp"
+        android:text="Welcome,"
+        android:textSize="60dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/textInputLayout2"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
