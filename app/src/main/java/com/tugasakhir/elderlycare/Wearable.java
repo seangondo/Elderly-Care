@@ -2,11 +2,16 @@ package com.tugasakhir.elderlycare;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+
+import com.google.android.material.tabs.TabLayout;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -14,6 +19,9 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class Wearable extends Fragment {
+
+    FrameLayout simpleFrameLayout;
+    TabLayout tabLayout;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -60,5 +68,26 @@ public class Wearable extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_wearable, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        // get the reference of FrameLayout and TabLayout
+        simpleFrameLayout = (FrameLayout) view.findViewById(R.id.simpleFrameLayout);
+        tabLayout = (TabLayout) view.findViewById(R.id.simpleTabLayout);
+        // Create a new Tab named "First"
+        TabLayout.Tab firstTab = tabLayout.newTab();
+        firstTab.setText("First"); // set the Text for the first Tab
+        // first tab
+        tabLayout.addTab(firstTab); // add  the tab at in the TabLayout
+        // Create a new Tab named "Second"
+        TabLayout.Tab secondTab = tabLayout.newTab();
+        secondTab.setText("Second"); // set the Text for the second Tab
+        tabLayout.addTab(secondTab); // add  the tab  in the TabLayout
+        // Create a new Tab named "Third"
+        TabLayout.Tab thirdTab = tabLayout.newTab();
+        thirdTab.setText("Third"); // set the Text for the first Tab
+        tabLayout.addTab(thirdTab); // add  the tab at in the TabLayout
     }
 }

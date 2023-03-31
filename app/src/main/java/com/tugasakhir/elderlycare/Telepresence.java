@@ -22,6 +22,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Switch;
 
@@ -37,6 +38,8 @@ import io.github.controlwear.virtual.joystick.android.JoystickView;
 public class Telepresence extends Fragment implements View.OnClickListener {
 
     ImageButton bUp, bDown;
+    Button bNav;
+    EditText xVal, yVal;
 
     //Updater
     Handler handler = new Handler();
@@ -90,7 +93,6 @@ public class Telepresence extends Fragment implements View.OnClickListener {
         return inflater.inflate(R.layout.fragment_telepresence, container, false);
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -105,15 +107,19 @@ public class Telepresence extends Fragment implements View.OnClickListener {
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
-                Log.d("Joystick Angle", String.valueOf(angle));
-                Log.d("Joystick Strength", String.valueOf(strength));
+//                Log.d("Joystick Angle", String.valueOf(angle));
+//                Log.d("Joystick Strength", String.valueOf(strength));
             }
-        });
+        }, 100);
 
+        xVal = (EditText) view.findViewById(R.id.inputX);
+        yVal = (EditText) view.findViewById(R.id.inputY);
         bUp = (ImageButton) view.findViewById(R.id.teleNeckUp);
         bDown = (ImageButton) view.findViewById(R.id.teleNeckDown);
+        bNav = (Button) view.findViewById(R.id.teleNav);
         bUp.setOnClickListener(this);
         bDown.setOnClickListener(this);
+        bNav.setOnClickListener(this);
     }
 
     @Override
@@ -166,6 +172,14 @@ public class Telepresence extends Fragment implements View.OnClickListener {
                     e.printStackTrace();
                 }
                 break;
+            case R.id.teleNav:
+                Log.e("X : ", xVal.getText().toString());
+                Log.e("Y : ", yVal.getText().toString());
+                try {
+                    client.publish(MainActivity.myUser+"/apps/robot/map_coord/data", ("{\"x\": " + xVal.getText().toString() + ", \"x\": " + yVal.getText().toString() + " }").getBytes(),0, false);
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
         }
     }
 }
