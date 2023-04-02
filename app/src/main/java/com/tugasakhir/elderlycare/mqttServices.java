@@ -1,6 +1,6 @@
 package com.tugasakhir.elderlycare;
 
-import static com.tugasakhir.elderlycare.MainActivity.client;
+import static com.tugasakhir.elderlycare.ElderSelectorActivity.client;
 
 import android.app.Service;
 import android.content.Intent;
@@ -22,7 +22,6 @@ import java.util.List;
 public class mqttServices extends Service {
     public static String msg;
     public static String getTopic;
-    public static boolean lampLiving, lampKitchen;
     public static String living_temp, living_light, kitchen_light, kitchen_gas, bLampLiving, bLampKitchen, bFanLiving, bAutoMode;
 
     public static List<String> kitchen_date, kitchen_time, living_date, living_time;
@@ -32,10 +31,12 @@ public class mqttServices extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.e("Service", "MQTT Service called!");
 
         client.setCallback(new MqttCallback() {
             @Override
             public void connectionLost(Throwable cause) {
+                Log.e("Connection MQTT", String.valueOf(cause));
 
             }
 
@@ -43,8 +44,8 @@ public class mqttServices extends Service {
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 getTopic = topic;
                 msg = new String(message.getPayload());
-//                Log.d("MQTT Topic", getTopic);
-//                Log.d("Mqtt Msg", msg);
+                Log.d("MQTT Topic", getTopic);
+                Log.d("Mqtt Msg", msg);
                 smartHomePieChart();
                 smartHomeLogging();
                 smartHomeButton();
@@ -67,29 +68,23 @@ public class mqttServices extends Service {
 
     private void smartHomeButton() throws JSONException {
         JSONObject arrObj = new JSONObject(msg);
-//        if(getTopic.equals(MainActivity.myUser + "/livingroom/light/control")) {
-        if(getTopic.equals(MainActivity.myUser + "/apps/control_button/livingroom/fan")) {
-//            lampLiving = arrObj.getBoolean("lights");
+        if(getTopic.contains("/apps/control_button/livingroom/fan")) {
             bFanLiving = arrObj.getString("value");
         }
-        if(getTopic.equals(MainActivity.myUser + "/apps/control_button/livingroom/light")) {
-//            lampLiving = arrObj.getBoolean("lights");
+        if(getTopic.contains("/apps/control_button/livingroom/light")) {
             bLampLiving = arrObj.getString("value");
         }
-//        if(getTopic.equals(MainActivity.myUser + "/kitchen/light/control")) {
-        if(getTopic.equals(MainActivity.myUser + "/apps/control_button/kitchen/light")) {
-//            lampKitchen = arrObj.getBoolean("lights");
+        if(getTopic.contains("/apps/control_button/kitchen/light")) {
             bLampKitchen = arrObj.getString("value");
         }
-        if(getTopic.equals(MainActivity.myUser + "/apps/control_button/automatic_mode")) {
-//            lampKitchen = arrObj.getBoolean("lights");
+        if(getTopic.contains("/apps/control_button/automatic_mode")) {
             bAutoMode = arrObj.getString("value");
         }
     }
 
     private void smartHomePieChart() throws JSONException {
         JSONArray myRec = null;
-        if(getTopic.equals(MainActivity.myUser + "/apps/data")) {
+        if(getTopic.contains("/apps/data")) {
             myRec = new JSONArray(mqttServices.msg);
             for (int i = 0; i < myRec.length(); i++) {
                 JSONObject arrObj = myRec.getJSONObject(i);
@@ -99,34 +94,6 @@ public class mqttServices extends Service {
                 kitchen_gas = arrObj.getString("kitchen_gas");
             }
         }
-//        if(getTopic.equals(MainActivity.myUser + "/apps/trend/trend_kitchen_gas")) {
-//            kitchen_no.clear();
-//            kitchen_val.clear();
-//            kitchen_date.clear();
-//            kitchen_time.clear();
-//            myRec = new JSONArray(mqttServices.msg);
-//            for (int i = 0; i < myRec.length(); i++) {
-//                JSONObject arrObj = myRec.getJSONObject(i);
-//                kitchen_no.add(arrObj.getInt("dataNo"));
-//                kitchen_val.add(arrObj.getInt("value"));
-//                kitchen_date.add(arrObj.getString("date"));
-//                kitchen_time.add(arrObj.getString("time"));
-//            }
-//        }
-//        if(getTopic.equals(MainActivity.myUser + "/apps/trend/trend_living_temp")) {
-//            living_no.clear();
-//            living_val.clear();
-//            living_date.clear();
-//            living_time.clear();
-//            myRec = new JSONArray(mqttServices.msg);
-//            for (int i = 0; i < myRec.length(); i++) {
-//                JSONObject arrObj = myRec.getJSONObject(i);
-//                living_no.add(arrObj.getInt("dataNo"));
-//                living_val.add(arrObj.getInt("value"));
-//                living_date.add(arrObj.getString("date"));
-//                living_time.add(arrObj.getString("time"));
-//            }
-//        }
     }
 
     private void smartHomeLogging() throws JSONException {
@@ -137,7 +104,7 @@ public class mqttServices extends Service {
         List<String> time = new ArrayList<>();
 
 
-        if(getTopic.equals(MainActivity.myUser + "/apps/trend/trend_kitchen_gas")) {
+        if(getTopic.contains("/apps/trend/trend_kitchen_gas")) {
             myRec = new JSONArray(mqttServices.msg);
             for (int i = 0; i < myRec.length(); i++) {
                 JSONObject arrObj = myRec.getJSONObject(i);
@@ -155,7 +122,7 @@ public class mqttServices extends Service {
             kitchen_date = date;
             kitchen_time = time;
         }
-        if(getTopic.equals(MainActivity.myUser + "/apps/trend/trend_living_temp")) {
+        if(getTopic.contains("/apps/trend/trend_living_temp")) {
             myRec = new JSONArray(mqttServices.msg);
             for (int i = 0; i < myRec.length(); i++) {
                 JSONObject arrObj = myRec.getJSONObject(i);

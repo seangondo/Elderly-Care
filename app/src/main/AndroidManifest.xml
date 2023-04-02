@@ -19,6 +19,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ElderlyCare.NoActionBar"
         tools:targetApi="31">
+        <activity
+            android:name=".ElderSelectorActivity"
+            android:exported="false" />
 
         <service
             android:name=".mqttServices"

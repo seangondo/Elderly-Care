@@ -1,43 +1,48 @@
 package com.tugasakhir.elderlycare;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
-import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
-import org.eclipse.paho.client.mqttv3.IMqttActionListener;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class MainActivity extends AppCompatActivity {
-    public static MqttAndroidClient client;
     public String subscriptionTopic;
-    String serverUri;
-    String clientID;
-    MqttHelper mqttHelper;
+    public static ArrayList<Object> dataElder = new ArrayList<>();
+
+    public String serverUri;
 
 //    static TextView connections;
     TextInputEditText user, passw;
+    TextView login;
     Button button;
+    CheckBox cbLogin;
 
-    public static String myUser, myPass;
+    public String myUser, myPass;
 
     final loadingDialog loadingDialog = new loadingDialog(MainActivity.this);
 
@@ -46,70 +51,13 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View view) {
             switch(view.getId()) {
                 case R.id.button:
-                    myUser = user.getText().toString();
-                    myPass = passw.getText().toString();
+                    myUser = Objects.requireNonNull(user.getText()).toString();
+                    myPass = Objects.requireNonNull(passw.getText()).toString();
                     if(!Objects.equals(myUser, "") & !Objects.equals(myPass, "")) {
                         loadingDialog.startDialog();
-                        try {
-                            Log.d("Token", String.valueOf(client.isConnected()));
-                            if(!client.isConnected()){
-                                MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
-                                mqttConnectOptions.setConnectionTimeout(3000);
-                                mqttConnectOptions.setAutomaticReconnect(true);
-                                mqttConnectOptions.setCleanSession(true);
-                                mqttConnectOptions.setUserName(myUser);
-                                mqttConnectOptions.setPassword(myPass.toCharArray());
-                                IMqttToken token = client.connect(mqttConnectOptions);
-                                token.setActionCallback(new IMqttActionListener() {
-                                    @Override
-                                    public void onSuccess(IMqttToken asyncActionToken) {
-                                        //setSubscription();
-                                        subscriptionTopic = myUser+"/#";
-                                        Log.d("Topic", subscriptionTopic);
-                                        startService(new Intent(MainActivity.this, mqttServices.class));
-                                        loadingDialog.dismissDialog();
-                                        subscribeToTopic();
-                                        goToHome();
-                                        Toast.makeText(MainActivity.this, "Login Success!", Toast.LENGTH_LONG).show();
-                                    }
+                        login.setText("");
+                        postData(myUser, myPass);
 
-                                    @Override
-                                    public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                                        loadingDialog.dismissDialog();
-                                        if(String.valueOf(exception).contains("failed to connect")) {
-                                            Toast.makeText(MainActivity.this, "Server unavailable!", Toast.LENGTH_LONG).show();
-                                            Log.e("Login Failed!", "Server unavailable!");
-                                        } else if(String.valueOf(exception).contains("Not authorized to connect")) {
-                                            Toast.makeText(MainActivity.this, "Username/Password wrong!", Toast.LENGTH_LONG).show();
-                                            Log.e("Login Failed!", "Wrong user/password");
-                                        }
-                                    }
-                                });
-                            } else {
-                                try {
-                                    IMqttToken token = client.disconnect();
-                                    token.setActionCallback(new IMqttActionListener() {
-                                        @Override
-                                        public void onSuccess(IMqttToken asyncActionToken) {
-                                            loadingDialog.dismissDialog();
-                                            Toast.makeText(MainActivity.this,"Disconnected!!",Toast.LENGTH_LONG).show();
-                                        }
-
-                                        @Override
-                                        public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                                            loadingDialog.dismissDialog();
-                                            Toast.makeText(MainActivity.this,"Could not diconnect!!",Toast.LENGTH_LONG).show();
-                                        }
-                                    });
-                                } catch (MqttException e) {
-                                    e.printStackTrace();
-                                }
-                                //Toast.makeText(MainActivity.this, "already connected!!!", Toast.LENGTH_LONG).show();
-                            }
-                        } catch (MqttException e) {
-                            throw new RuntimeException(e);
-                        }
-                        //startMqtt(myUser, myPass);
                     } else {
                         if(Objects.equals(myUser, "")) {
                             user.setError("Username can't be empty!");
@@ -131,66 +79,74 @@ public class MainActivity extends AppCompatActivity {
 
         user = (TextInputEditText) findViewById(R.id.user_id);
         passw = (TextInputEditText) findViewById(R.id.user_passw);
-//        connections = (TextView) findViewById(R.id.tv3);
         button = (Button) findViewById(R.id.button);
+        login = (TextView) findViewById(R.id.tvLogin);
+        cbLogin = (CheckBox) findViewById(R.id.cbAutoLogin);
 
         button.setOnClickListener(myClickListener);
 
-        clientID = MqttClient.generateClientId();
-        client = new MqttAndroidClient(this.getApplicationContext(), serverUri, clientID);
-
     }
 
-    private void startMqtt(String u, String p) {
-        mqttHelper = new MqttHelper(getApplicationContext(), u, p);
-        mqttHelper.setCallback(new MqttCallbackExtended() {
-            @Override
-            public void connectComplete(boolean b, String s) {
-                Log.d("Debug", "Connected!");
-            }
 
-            @Override
-            public void connectionLost(Throwable throwable) {
-                Log.d("Debug", "Disconnect!");
+    //RETROFIT FUNCTION
+    private void postData(String username, String password) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://192.168.0.30:8000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
 
-            }
+        RetrofitAPI retrofitAPI = retrofit.create(RetrofitAPI.class);
 
-            @Override
-            public void messageArrived(String topic, MqttMessage mqttMessage) {
-                Log.w("Debug", mqttMessage.toString());
-//                connections.setText(mqttMessage.toString());
-            }
-
-            @Override
-            public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
-
-            }
-        });
-    }
-
-    private void subscribeToTopic() {
+        JSONObject loginObject = new JSONObject();
         try {
-            client.subscribe(subscriptionTopic, 0, null, new IMqttActionListener() {
+            loginObject.put("username", username);
+            loginObject.put("password", password);
+            RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"),
+                    (loginObject.toString()));
+            Call<LoginResponse> call = retrofitAPI.createPost(body);
+            call.enqueue(new Callback<LoginResponse>() {
+
                 @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    Log.w("Mqtt","Subscribed!");
+                public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                    LoginResponse responseFromAPI = response.body();
+                    checkLogin(responseFromAPI);
                 }
 
                 @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    Log.w("Mqtt", "Subscribed fail!");
+                public void onFailure(Call<LoginResponse> call, Throwable t) {
+                    loadingDialog.dismissDialog();
+                    login.setText("Server may be unavailable! Try a few moment");
+                    login.setTextColor(Color.RED);
+                    Log.e("Login Failed!", "Server unavailable!");
+                    Log.e("Error", "Error found is : " + t.getMessage());
                 }
             });
-
-        } catch (MqttException ex) {
-            System.err.println("Exception whilst subscribing");
-            ex.printStackTrace();
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
         }
     }
 
+    private void checkLogin(LoginResponse res) {
+        if(res.getResult()) {
+            loadingDialog.dismissDialog();
+
+            // TODO Tambahkan auto login dan simpan data ke sqlite
+            // res.getUser_id(), res.getUser_name(), res.getUsername(), res.getEmail(), res.getPhone_number(), res.getAddress(),
+            Toast.makeText(MainActivity.this, "Login Success!", Toast.LENGTH_LONG).show();
+            dataElder = res.getElder_list();
+            goToHome();
+
+        } else {
+            loadingDialog.dismissDialog();
+            Toast.makeText(MainActivity.this, "Username/Password wrong!", Toast.LENGTH_LONG).show();
+            login.setText("Username / Password wrong!");
+            login.setTextColor(Color.RED);
+            Log.e("Login", "Login Gagal!");
+        }
+    }
 
     public void goToHome(){
-        Intent i = new Intent(this, MainActivity2.class);
+        Intent i = new Intent(this, ElderSelectorActivity.class);
         startActivity(i);
         overridePendingTransition(0, 0);
         finish();

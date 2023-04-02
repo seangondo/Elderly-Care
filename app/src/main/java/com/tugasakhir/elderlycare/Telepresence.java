@@ -1,6 +1,7 @@
 package com.tugasakhir.elderlycare;
 
-import static com.tugasakhir.elderlycare.MainActivity.client;
+import static com.tugasakhir.elderlycare.ElderSelectorActivity.elderSelected;
+import static com.tugasakhir.elderlycare.ElderSelectorActivity.client;
 import static com.tugasakhir.elderlycare.mqttServices.kitchen_gas;
 import static com.tugasakhir.elderlycare.mqttServices.kitchen_light;
 import static com.tugasakhir.elderlycare.mqttServices.kitchen_no;
@@ -102,7 +103,7 @@ public class Telepresence extends Fragment implements View.OnClickListener {
             public void onMove(int angle, int strength) {
                 // do whatever you want
                 try {
-                    client.publish(MainActivity.myUser+"/apps/robot/controller/move", ("{\"angle\": " + angle + ", \"strength\": " + strength + "}").getBytes(),0, false);
+                    client.publish(elderSelected+"/apps/robot/controller/move", ("{\"angle\": " + angle + ", \"strength\": " + strength + "}").getBytes(),0, false);
                     //client.publish(MainActivity.myUser+"/apps/robot/map_coord/data", ("{\"x\": " + angle + ", \"y\": " + strength + "}").getBytes(),0, true);
                 } catch (MqttException e) {
                     e.printStackTrace();
@@ -129,14 +130,16 @@ public class Telepresence extends Fragment implements View.OnClickListener {
             public void run() {
                 if(bUp.isPressed()) {
                     try {
-                        client.publish(MainActivity.myUser+"/apps/robot/controller/neck", ("{\"angle\": \"up\" }").getBytes(),0, false);
+                        Log.e("Topic", String.valueOf(elderSelected)+"/apps/robot/controller/neck");
+                        Log.e("MSG", "{\"angle\": \"up\" }");
+                        client.publish(String.valueOf(elderSelected)+"/apps/robot/controller/neck", ("{\"angle\": \"up\"}").getBytes(),0, false);
                     } catch (MqttException e) {
                         e.printStackTrace();
                     }
                 }
                 if(bDown.isPressed()) {
                     try {
-                        client.publish(MainActivity.myUser+"/apps/robot/controller/neck", ("{\"angle\": \"down\" }").getBytes(),0, false);
+                        client.publish(elderSelected+"/apps/robot/controller/neck", ("{\"angle\": \"down\" }").getBytes(),0, false);
                     } catch (MqttException e) {
                         e.printStackTrace();
                     }
@@ -160,14 +163,14 @@ public class Telepresence extends Fragment implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.teleNeckUp:
                 try {
-                    client.publish(MainActivity.myUser+"/apps/robot/controller/neck", ("{\"angle\": \"up\" }").getBytes(),0, false);
+                    client.publish(elderSelected+"/apps/robot/controller/neck", ("{\"angle\": \"up\" }").getBytes(),0, false);
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
                 break;
             case R.id.teleNeckDown:
                 try {
-                    client.publish(MainActivity.myUser+"/apps/robot/controller/neck", ("{\"angle\": \"down\" }").getBytes(),0, false);
+                    client.publish(elderSelected+"/apps/robot/controller/neck", ("{\"angle\": \"down\" }").getBytes(),0, false);
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
@@ -176,7 +179,7 @@ public class Telepresence extends Fragment implements View.OnClickListener {
                 Log.e("X : ", xVal.getText().toString());
                 Log.e("Y : ", yVal.getText().toString());
                 try {
-                    client.publish(MainActivity.myUser+"/apps/robot/map_coord/data", ("{\"x\": " + xVal.getText().toString() + ", \"x\": " + yVal.getText().toString() + " }").getBytes(),0, false);
+                    client.publish(elderSelected+"/apps/robot/map_coord/data", ("{\"x\": " + xVal.getText().toString() + ", \"x\": " + yVal.getText().toString() + " }").getBytes(),0, false);
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }

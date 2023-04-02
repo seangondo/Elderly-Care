@@ -1,6 +1,7 @@
 package com.tugasakhir.elderlycare;
 
-import static com.tugasakhir.elderlycare.MainActivity.client;
+import static com.tugasakhir.elderlycare.ElderSelectorActivity.elderSelected;
+import static com.tugasakhir.elderlycare.ElderSelectorActivity.client;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
@@ -54,13 +55,13 @@ public class MainActivity2 extends AppCompatActivity {
                 case R.id.sw_auto:
                     if(swAuto.isChecked()) {
                         try {
-                            client.publish(MainActivity.myUser+"/apps/control_button/automatic_mode", "{\"value\": \"true\", \"var\": 1}".getBytes(),0, true);
+                            client.publish(elderSelected +"/apps/control_button/automatic_mode", "{\"value\": \"true\", \"var\": 1}".getBytes(),0, true);
                         } catch (MqttException e) {
                             e.printStackTrace();
                         }
                     } else {
                         try {
-                            client.publish(MainActivity.myUser+"/apps/control_button/automatic_mode", "{\"value\": \"false\", \"var\": 1}".getBytes(),0, true);
+                            client.publish(elderSelected+"/apps/control_button/automatic_mode", "{\"value\": \"false\", \"var\": 1}".getBytes(),0, true);
                         } catch (MqttException e) {
                             e.printStackTrace();
                         }
