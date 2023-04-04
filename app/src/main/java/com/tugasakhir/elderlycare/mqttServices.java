@@ -1,6 +1,6 @@
 package com.tugasakhir.elderlycare;
 
-import static com.tugasakhir.elderlycare.ElderSelectorActivity.client;
+import static com.tugasakhir.elderlycare.MainActivity.client;
 
 import android.app.Service;
 import android.content.Intent;
@@ -44,8 +44,9 @@ public class mqttServices extends Service {
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 getTopic = topic;
                 msg = new String(message.getPayload());
+//                Log.e("Hasil", String.valueOf(living_temp));
                 Log.d("MQTT Topic", getTopic);
-                Log.d("Mqtt Msg", msg);
+//                Log.d("Mqtt Msg", msg);
                 smartHomePieChart();
                 smartHomeLogging();
                 smartHomeButton();
@@ -88,8 +89,8 @@ public class mqttServices extends Service {
             myRec = new JSONArray(mqttServices.msg);
             for (int i = 0; i < myRec.length(); i++) {
                 JSONObject arrObj = myRec.getJSONObject(i);
-                living_temp = arrObj.getString("living_temp");
-                living_light = arrObj.getString("living_light");
+                living_temp = arrObj.getString("livingroom_temp");
+                living_light = arrObj.getString("livingroom_light");
                 kitchen_light = arrObj.getString("kitchen_light");
                 kitchen_gas = arrObj.getString("kitchen_gas");
             }
@@ -104,7 +105,7 @@ public class mqttServices extends Service {
         List<String> time = new ArrayList<>();
 
 
-        if(getTopic.contains("/apps/trend/trend_kitchen_gas")) {
+        if(getTopic.contains("/apps/trend/kitchen_gas")) {
             myRec = new JSONArray(mqttServices.msg);
             for (int i = 0; i < myRec.length(); i++) {
                 JSONObject arrObj = myRec.getJSONObject(i);
@@ -122,7 +123,7 @@ public class mqttServices extends Service {
             kitchen_date = date;
             kitchen_time = time;
         }
-        if(getTopic.contains("/apps/trend/trend_living_temp")) {
+        if(getTopic.contains("/apps/trend/livingroom_temp")) {
             myRec = new JSONArray(mqttServices.msg);
             for (int i = 0; i < myRec.length(); i++) {
                 JSONObject arrObj = myRec.getJSONObject(i);

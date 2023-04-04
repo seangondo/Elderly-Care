@@ -1,7 +1,7 @@
 package com.tugasakhir.elderlycare;
 
 import static com.tugasakhir.elderlycare.ElderSelectorActivity.elderSelected;
-import static com.tugasakhir.elderlycare.ElderSelectorActivity.client;
+import static com.tugasakhir.elderlycare.MainActivity.client;
 import static com.tugasakhir.elderlycare.mqttServices.kitchen_gas;
 import static com.tugasakhir.elderlycare.mqttServices.kitchen_light;
 import static com.tugasakhir.elderlycare.mqttServices.kitchen_no;

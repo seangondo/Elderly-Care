@@ -1,9 +1,9 @@
 package com.tugasakhir.elderlycare;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,7 +16,12 @@ import android.widget.Toast;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,10 +36,21 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
-    public String subscriptionTopic;
-    public static ArrayList<Object> dataElder = new ArrayList<>();
 
+    // INITIALIZE MQTT CONNECTION AND SERVICES
+    public static MqttAndroidClient client;
     public String serverUri;
+
+    String clientID, mqttUser, mqttPass;
+
+    //DB Local
+    DBHandler myDb = new DBHandler(this);
+    Cursor cursorLog;
+
+    public static ArrayList<Object> dataElder = new ArrayList<>();
+    private ArrayList<Integer> elderId = new ArrayList<>();
+
+    public static String myServer;
 
 //    static TextView connections;
     TextInputEditText user, passw;
@@ -42,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     Button button;
     CheckBox cbLogin;
 
-    public String myUser, myPass;
+    public static String myUser, myPass;
 
     final loadingDialog loadingDialog = new loadingDialog(MainActivity.this);
 
@@ -75,7 +91,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        myServer = getString(R.string.ipWeb);
+
+        // MQTT INIT
         serverUri = getString(R.string.ipServer);
+        clientID = MqttClient.generateClientId();
+        client = new MqttAndroidClient(this.getApplicationContext(), serverUri, clientID);
+        mqttUser = getString(R.string.mqttUser);
+        mqttPass = getString(R.string.mqttPass);
 
         user = (TextInputEditText) findViewById(R.id.user_id);
         passw = (TextInputEditText) findViewById(R.id.user_passw);
@@ -85,13 +108,51 @@ public class MainActivity extends AppCompatActivity {
 
         button.setOnClickListener(myClickListener);
 
+        cursorLog = myDb.getLoginInfo();
+        Log.e("Jumlah Cursor", String.valueOf(cursorLog.getCount()));
+
+        if(cursorLog.getCount() != 0) {
+            try {
+                checkLogin();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
+    //CHECK AUTO LOGIN
+    private void checkLogin() throws JSONException {
+//        String uName = cursorLog.getString(2);
+//        String uPass = cursorLog.getString(3);
+//        String autoLog  = cursorLog.getString(7);
+//        ArrayList<Object> getData = myDb.LoginData();
+        JSONArray array = myDb.LoginData();
+        JSONObject obj;
+
+        try {
+            for(int i = 0; i < array.length(); i ++) {
+                obj = array.getJSONObject(i);
+                if(obj.getInt("autoLog") == 1) {
+                    user.setText(obj.getString("username"));
+                    passw.setText(obj.getString("password"));
+                    cbLogin.setChecked(true);
+                    loadingDialog.startDialog();
+                    login.setText("");
+                    postData(obj.getString("username"), obj.getString("password"));
+                } else {
+                    myDb.deleteLogin("caregiver_info", obj.getString("username"));
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 
     //RETROFIT FUNCTION
     private void postData(String username, String password) {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.0.30:8000/")
+                .baseUrl(myServer+":8000/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -131,10 +192,31 @@ public class MainActivity extends AppCompatActivity {
             loadingDialog.dismissDialog();
 
             // TODO Tambahkan auto login dan simpan data ke sqlite
+            JSONArray array = new JSONArray();
+            JSONObject obj = new JSONObject();
+            int autoLog = 0;
+            int val = (cbLogin.isChecked()) ? 1 : 0;
+            try {
+                array = myDb.LoginData();
+                obj = array.getJSONObject(0);
+                autoLog = obj.getInt("autoLog");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            if(cursorLog.getCount() == 0) {
+                myDb.insertLogin(res, myPass, cbLogin.isChecked());
+            } else if (val != autoLog) {
+                myDb.deleteLogin("caregiver_info", res.getUsername());
+            }
+
             // res.getUser_id(), res.getUser_name(), res.getUsername(), res.getEmail(), res.getPhone_number(), res.getAddress(),
             Toast.makeText(MainActivity.this, "Login Success!", Toast.LENGTH_LONG).show();
             dataElder = res.getElder_list();
-            goToHome();
+
+            // TODO Clear elder data table
+            myDb.deleteElderAll();
+            myDb.insertElder(dataElder);
+            startMqtt(dataElder);
 
         } else {
             loadingDialog.dismissDialog();
@@ -145,10 +227,92 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void goToHome(){
+    private void goToHome(){
         Intent i = new Intent(this, ElderSelectorActivity.class);
         startActivity(i);
         overridePendingTransition(0, 0);
         finish();
+    }
+
+    private ArrayList<Integer> subsElder(ArrayList<Object> data) {
+        ArrayList<Integer> getInt = new ArrayList<>();
+        JSONArray jsArray = new JSONArray(data);
+        JSONObject arrObj = null;
+
+        try {
+            for(int i = 0; i < jsArray.length(); i++) {
+                arrObj = jsArray.getJSONObject(i);
+                Log.e("Hasil", String.valueOf(arrObj));
+                getInt.add(arrObj.getInt("elder_id"));
+            }
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        return getInt;
+    }
+
+    private void startMqtt(ArrayList<Object> data) {
+        try {
+            Log.d("Token", String.valueOf(client.isConnected()));
+            if(!client.isConnected()){
+                MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
+                mqttConnectOptions.setConnectionTimeout(3000);
+                mqttConnectOptions.setAutomaticReconnect(true);
+                mqttConnectOptions.setCleanSession(true);
+                mqttConnectOptions.setUserName(mqttUser);
+                mqttConnectOptions.setPassword(mqttPass.toCharArray());
+                IMqttToken token = client.connect(mqttConnectOptions);
+                token.setActionCallback(new IMqttActionListener() {
+                    @Override
+                    public void onSuccess(IMqttToken asyncActionToken) {
+                        //setSubscription();
+                        ArrayList<Integer> getData = subsElder(data);
+                        for (int i = 0; i < getData.size(); i++ ) {
+                            String subscriptionTopic = String.valueOf(getData.get(i))+"/#";
+                            Log.d("Topic", subscriptionTopic);
+                            subscribeToTopic(subscriptionTopic);
+                        }
+                        startService(new Intent(MainActivity.this, mqttServices.class));
+                        loadingDialog.dismissDialog();
+                        goToHome();
+                    }
+
+                    @Override
+                    public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                        loadingDialog.dismissDialog();
+                        if(String.valueOf(exception).contains("failed to connect")) {
+                            Toast.makeText(MainActivity.this, "Server unavailable! Try again in few moment!", Toast.LENGTH_LONG).show();
+                            Log.e("Login Failed!", "Server unavailable!");
+                        } else if(String.valueOf(exception).contains("Not authorized to connect")) {
+                            Toast.makeText(MainActivity.this, "Contact admin! Something wrong with this apps!", Toast.LENGTH_LONG).show();
+                            Log.e("Login Failed!", "Wrong user/password");
+                        }
+                    }
+                });
+            }
+        } catch (MqttException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void subscribeToTopic(String topic) {
+        try {
+            client.subscribe(topic, 0, null, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    Log.w("Mqtt","Subscribed : " + topic);
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    Log.w("Mqtt", "Subscribed fail!");
+                    loadingDialog.dismissDialog();
+                }
+            });
+
+        } catch (MqttException ex) {
+            System.err.println("Exception whilst subscribing");
+            ex.printStackTrace();
+        }
     }
 }

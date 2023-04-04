@@ -19,6 +19,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.util.ArrayList;
 
@@ -54,7 +55,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
 //        holder.elderImage.setImageURI(Uri.parse("https://private-server.uk.to/images/elder1.jpg"));
-        Glide.with(mContext).asBitmap().load(myImage.get(position)).into(holder.elderImage);
+        Glide.with(mContext).asBitmap().load(myImage.get(position)).apply(new RequestOptions().override(600, 200)).into(holder.elderImage);
         holder.name.setText(myName.get(position));
         holder.address.setText(myAddress.get(position));
 //        holder.cardElder.setOnClickListener(new View.OnClickListener() {

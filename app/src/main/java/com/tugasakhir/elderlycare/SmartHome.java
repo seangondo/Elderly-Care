@@ -1,7 +1,7 @@
 package com.tugasakhir.elderlycare;
 
 import static com.tugasakhir.elderlycare.ElderSelectorActivity.elderSelected;
-import static com.tugasakhir.elderlycare.ElderSelectorActivity.client;
+import static com.tugasakhir.elderlycare.MainActivity.client;
 import static com.tugasakhir.elderlycare.MainActivity2.binding;
 import static com.tugasakhir.elderlycare.MainActivity2.swAuto;
 import static com.tugasakhir.elderlycare.mqttServices.bAutoMode;
@@ -76,6 +76,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -180,7 +181,7 @@ public class SmartHome extends Fragment implements View.OnClickListener{
         initTrend(trendTemp, 100, 0);
         initTrend(trendGas, 1000, 0);
 
-        if(living_no.size()!= 0 & kitchen_no.size() != 0) {
+        if(Objects.requireNonNull(living_no).size()!= 0 & Objects.requireNonNull(kitchen_no).size() != 0) {
             setData("living" ,trendTemp);
             setData("kitchen" ,trendGas);
         }

@@ -84,7 +84,7 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="84dp"
+        android:layout_marginTop="36dp"
         android:layout_marginEnd="248dp"
         android:text="Welcome,"
         android:textSize="60dp"
