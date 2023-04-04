@@ -1,7 +1,4 @@
-package com.tugasakhir.elderlycare;
-
-import static com.tugasakhir.elderlycare.MainActivity.dataElder;
-import static com.tugasakhir.elderlycare.MainActivity.myServer;
+package com.tugasakhir.elderlycare.handler;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import com.tugasakhir.elderlycare.model.LoginResponse;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,8 +42,18 @@ public class DBHandler extends SQLiteOpenHelper {
     static String ELDER_image = "image";
 
     //Sensor Table
+    static String SENSOR_TABLE = "db_sensor";
+    static String SENSOR_houseID = "house_id";
+    static String SENSOR_room = "room";
+    static String SENSOR_type = "sensor_type";
+    static String SENSOR_trend = "trend";
 
-    //
+    //Button Table
+    static String BUTTON_TABLE = "db_button";
+    static String BUTTON_houseID = "house_id";
+    static String BUTTON_room = "room";
+    static String BUTTON_type = "button_type";
+
 
     public DBHandler (Context c) {
         super(c, DB_name, null, DB_ver);
@@ -62,6 +71,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 + INFO_address + " VARCHAR(50), "
                 + INFO_autologin + " BOOLEAN);";
         db.execSQL(tbUser);
+        Log.e("Database", tbUser);
 
         // CREATE ELDER TABLE INFO
         String tbElder = "CREATE TABLE " + ELDER_TABLE + " ("
@@ -73,15 +83,33 @@ public class DBHandler extends SQLiteOpenHelper {
                 + ELDER_watch + " VARCHAR(50), "
                 + ELDER_image + " VARCHAR(50));";
         db.execSQL(tbElder);
+        Log.e("Database", tbElder);
 
         // CREATE SENSOR LIST
-        // TODO Create sensor table for sensor value and list
+        String tbSensor = "CREATE TABLE " + SENSOR_TABLE + " ("
+                + SENSOR_houseID + " VARCHAR(50), "
+                + SENSOR_room + " VARCHAR(50), "
+                + SENSOR_type + " VARCHAR(50), "
+                + SENSOR_trend + " VARCHAR(50));";
+        db.execSQL(tbSensor);
+        Log.e("Database", tbSensor);
+
+
+        // CREATE SENSOR LIST
+        String tbButton = "CREATE TABLE " + BUTTON_TABLE + " ("
+                + BUTTON_houseID + " VARCHAR(50), "
+                + BUTTON_room + " VARCHAR(50), "
+                + BUTTON_type + " VARCHAR(50));";
+        db.execSQL(tbButton);
+        Log.e("Database", tbButton);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS "+INFO_TABLE);
         db.execSQL("DROP TABLE IF EXISTS "+ELDER_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS "+SENSOR_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS "+BUTTON_TABLE);
         onCreate(db);
     }
 
@@ -232,4 +260,79 @@ public class DBHandler extends SQLiteOpenHelper {
         }
     }
 
+
+    // ---------------------------------------- < SENSOR DATABASE > ---------------------------------------- //
+    // TODO Create sensor table function
+    public void insertSensor(JSONArray data) {
+        JSONObject arrObj = null;
+        try {
+            for(int i = 0; i < data.length(); i++) {
+                SQLiteDatabase db = this.getWritableDatabase();
+                ContentValues cv = new ContentValues();
+                arrObj = data.getJSONObject(i);
+                cv.put(SENSOR_houseID, arrObj.getString("house_id"));
+                cv.put(SENSOR_room, arrObj.getString("room"));
+                cv.put(SENSOR_type, arrObj.getString("sensor_type"));
+                cv.put(SENSOR_trend, arrObj.getString("trend"));
+                db.insert(SENSOR_TABLE, null, cv);
+            }
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteAllSensor() {
+        SQLiteDatabase dbR = this.getReadableDatabase();
+        Cursor c = dbR.rawQuery("SELECT * FROM " + SENSOR_TABLE, null);
+        ArrayList<String> sensor = new ArrayList<>();
+
+        if(c.moveToFirst()) {
+            do {
+                sensor.add(c.getString(0));
+            } while (c.moveToNext());
+        }
+
+        SQLiteDatabase dbW = this.getWritableDatabase();
+        for(int i = 0; i < sensor.size(); i++) {
+            dbW.delete(SENSOR_TABLE, SENSOR_houseID + "=" + sensor.get(i), null);
+        }
+    }
+
+
+
+    // ---------------------------------------- < BUTTON DATABASE > ---------------------------------------- //
+    // TODO Create button table function
+    public void insertButton(JSONArray data) {
+        JSONObject arrObj = null;
+        try {
+            for(int i = 0; i < data.length(); i++) {
+                SQLiteDatabase db = this.getWritableDatabase();
+                ContentValues cv = new ContentValues();
+                arrObj = data.getJSONObject(i);
+                cv.put(BUTTON_houseID, arrObj.getInt("house_id"));
+                cv.put(BUTTON_room, arrObj.getString("room"));
+                cv.put(BUTTON_type, arrObj.getString("button_type"));
+                db.insert(BUTTON_TABLE, null, cv);
+            }
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteAllButton() {
+        SQLiteDatabase dbR = this.getReadableDatabase();
+        Cursor c = dbR.rawQuery("SELECT * FROM " + BUTTON_TABLE, null);
+        ArrayList<String> button = new ArrayList<>();
+
+        if(c.moveToFirst()) {
+            do {
+                button.add(c.getString(0));
+            } while (c.moveToNext());
+        }
+
+        SQLiteDatabase dbW = this.getWritableDatabase();
+        for(int i = 0; i < button.size(); i++) {
+            dbW.delete(BUTTON_TABLE, BUTTON_houseID + "=" + button.get(i), null);
+        }
+    }
 }

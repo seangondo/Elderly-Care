@@ -1,15 +1,8 @@
-package com.tugasakhir.elderlycare;
+package com.tugasakhir.elderlycare.ui;
 
-import static com.tugasakhir.elderlycare.ElderSelectorActivity.elderSelected;
-import static com.tugasakhir.elderlycare.MainActivity.client;
-import static com.tugasakhir.elderlycare.mqttServices.kitchen_gas;
-import static com.tugasakhir.elderlycare.mqttServices.kitchen_light;
-import static com.tugasakhir.elderlycare.mqttServices.kitchen_no;
-import static com.tugasakhir.elderlycare.mqttServices.living_light;
-import static com.tugasakhir.elderlycare.mqttServices.living_no;
-import static com.tugasakhir.elderlycare.mqttServices.living_temp;
+import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
+import static com.tugasakhir.elderlycare.ui.MainActivity.client;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -19,13 +12,13 @@ import androidx.fragment.app.Fragment;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Switch;
+
+import com.tugasakhir.elderlycare.R;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 

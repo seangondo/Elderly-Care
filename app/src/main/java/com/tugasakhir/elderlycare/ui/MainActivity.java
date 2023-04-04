@@ -1,4 +1,4 @@
-package com.tugasakhir.elderlycare;
+package com.tugasakhir.elderlycare.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,6 +14,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.gson.Gson;
+import com.tugasakhir.elderlycare.handler.DBHandler;
+import com.tugasakhir.elderlycare.model.ButtonResponse;
+import com.tugasakhir.elderlycare.model.LoginResponse;
+import com.tugasakhir.elderlycare.R;
+import com.tugasakhir.elderlycare.api.RetrofitAPI;
+import com.tugasakhir.elderlycare.service.loadingDialog;
+import com.tugasakhir.elderlycare.service.mqttServices;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -26,7 +34,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import okhttp3.RequestBody;
 import retrofit2.Call;
@@ -60,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static String myUser, myPass;
 
-    final loadingDialog loadingDialog = new loadingDialog(MainActivity.this);
+    final com.tugasakhir.elderlycare.service.loadingDialog loadingDialog = new loadingDialog(MainActivity.this);
 
     private final View.OnClickListener myClickListener = new View.OnClickListener() {
         @Override
@@ -191,7 +203,6 @@ public class MainActivity extends AppCompatActivity {
         if(res.getResult()) {
             loadingDialog.dismissDialog();
 
-            // TODO Tambahkan auto login dan simpan data ke sqlite
             JSONArray array = new JSONArray();
             JSONObject obj = new JSONObject();
             int autoLog = 0;
@@ -213,11 +224,34 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "Login Success!", Toast.LENGTH_LONG).show();
             dataElder = res.getElder_list();
 
-            // TODO Clear elder data table
             myDb.deleteElderAll();
+            myDb.deleteAllSensor();
+            myDb.deleteAllButton();
             myDb.insertElder(dataElder);
-            startMqtt(dataElder);
 
+            ArrayList<Integer> getInt = new ArrayList<>();
+            ArrayList<String> getHouseId = new ArrayList<>();
+            JSONArray jsArray = new JSONArray(dataElder);
+            JSONObject arrObj = null;
+            try {
+                for(int i = 0; i < jsArray.length(); i++) {
+                    arrObj = jsArray.getJSONObject(i);
+                    getInt.add(arrObj.getInt("elder_id"));
+                    getHouseId.add(arrObj.getString("house_id"));
+                }
+                // SORT AND REMOVE DUPLICATES HOUSE ID
+                Collections.sort(getHouseId);
+                Log.e("Sort Value", String.valueOf(getHouseId));
+                List<String> houseId = getHouseId.stream().distinct().collect(Collectors.toList());
+                Log.e("Remove duplicates", String.valueOf(houseId));
+                addSensorButtonDB(houseId);
+
+                //START MQTT
+                startMqtt(getInt);
+
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
         } else {
             loadingDialog.dismissDialog();
             Toast.makeText(MainActivity.this, "Username/Password wrong!", Toast.LENGTH_LONG).show();
@@ -238,7 +272,6 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<Integer> getInt = new ArrayList<>();
         JSONArray jsArray = new JSONArray(data);
         JSONObject arrObj = null;
-
         try {
             for(int i = 0; i < jsArray.length(); i++) {
                 arrObj = jsArray.getJSONObject(i);
@@ -251,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
         return getInt;
     }
 
-    private void startMqtt(ArrayList<Object> data) {
+    private void startMqtt(ArrayList<Integer> getData) {
         try {
             Log.d("Token", String.valueOf(client.isConnected()));
             if(!client.isConnected()){
@@ -266,7 +299,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(IMqttToken asyncActionToken) {
                         //setSubscription();
-                        ArrayList<Integer> getData = subsElder(data);
+//                        ArrayList<Integer> getData = subsElder(data);
                         for (int i = 0; i < getData.size(); i++ ) {
                             String subscriptionTopic = String.valueOf(getData.get(i))+"/#";
                             Log.d("Topic", subscriptionTopic);
@@ -313,6 +346,59 @@ public class MainActivity extends AppCompatActivity {
         } catch (MqttException ex) {
             System.err.println("Exception whilst subscribing");
             ex.printStackTrace();
+        }
+    }
+
+    private void addSensorButtonDB(List<String> id) {
+        // TODO Retrofit get
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(myServer+":8000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        RetrofitAPI retrofitAPI = retrofit.create(RetrofitAPI.class);
+
+        for(int i = 0; i < id.size(); i++) {
+            // GET Sensor
+            Call<Object> callSensor = retrofitAPI.getSensor(id.get(i));
+            callSensor.enqueue(new Callback<Object>() {
+                @Override
+                public void onResponse(Call<Object> call, Response<Object> response) {
+                    String res = new Gson().toJson(response.body());
+                    try {
+                        JSONArray arr = new JSONArray(res);
+                        myDb.insertSensor(arr);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Object> call, Throwable t) {
+                    Log.e("Error", String.valueOf(t));
+                }
+            });
+
+            // GET Button
+            Call<Object> callButton = retrofitAPI.getBtn(id.get(i));
+            callButton.enqueue(new Callback<Object>() {
+                @Override
+                public void onResponse(Call<Object> call, Response<Object> response) {
+                    String res = new Gson().toJson(response.body());
+                    try {
+                        JSONArray arr = new JSONArray(res);
+                        myDb.insertButton(arr);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Object> call, Throwable t) {
+                    Log.e("Error", String.valueOf(t));
+                }
+            });
+
         }
     }
 }

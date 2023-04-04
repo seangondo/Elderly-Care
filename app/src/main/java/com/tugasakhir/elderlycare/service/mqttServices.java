@@ -1,10 +1,9 @@
-package com.tugasakhir.elderlycare;
+package com.tugasakhir.elderlycare.service;
 
-import static com.tugasakhir.elderlycare.MainActivity.client;
+import static com.tugasakhir.elderlycare.ui.MainActivity.client;
 
 import android.app.Service;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -26,7 +25,10 @@ public class mqttServices extends Service {
 
     public static List<String> kitchen_date, kitchen_time, living_date, living_time;
     public static List<Integer> living_no, living_val, kitchen_no, kitchen_val;
+
+    // TODO buat mqtt menerima berdasarkan database sensor
     public mqttServices() {
+
     }
 
     @Override

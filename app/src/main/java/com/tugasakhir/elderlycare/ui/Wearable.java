@@ -1,4 +1,4 @@
-package com.tugasakhir.elderlycare;
+package com.tugasakhir.elderlycare.ui;
 
 import android.os.Bundle;
 
@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.google.android.material.tabs.TabLayout;
+import com.tugasakhir.elderlycare.R;
 
 /**
  * A simple {@link Fragment} subclass.

@@ -1,4 +1,4 @@
-package com.tugasakhir.elderlycare;
+package com.tugasakhir.elderlycare.model;
 
 import com.google.gson.annotations.SerializedName;
 

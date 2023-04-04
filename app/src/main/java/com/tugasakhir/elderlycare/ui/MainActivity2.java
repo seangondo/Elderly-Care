@@ -1,10 +1,9 @@
-package com.tugasakhir.elderlycare;
+package com.tugasakhir.elderlycare.ui;
 
 import static android.view.View.VISIBLE;
-import static com.tugasakhir.elderlycare.ElderSelectorActivity.elderSelected;
-import static com.tugasakhir.elderlycare.MainActivity.client;
-import static com.tugasakhir.elderlycare.MainActivity.myServer;
-import static com.tugasakhir.elderlycare.MainActivity.myUser;
+import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
+import static com.tugasakhir.elderlycare.ui.MainActivity.client;
+import static com.tugasakhir.elderlycare.ui.MainActivity.myServer;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
@@ -13,10 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.transition.AutoTransition;
@@ -27,21 +23,18 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
+import com.tugasakhir.elderlycare.handler.DBHandler;
+import com.tugasakhir.elderlycare.R;
 import com.tugasakhir.elderlycare.databinding.ActivityMain2Binding;
+import com.tugasakhir.elderlycare.service.mqttServices;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -229,6 +222,8 @@ public class MainActivity2 extends AppCompatActivity {
     private void logout() {
         myDb.deleteElderAll();
         myDb.deleteLoginAll();
+        myDb.deleteAllSensor();
+        myDb.deleteAllButton();
 //        myDb.deleteLogin("caregiver_info", myUser);
         stopService(new Intent(this, mqttServices.class));
         try {

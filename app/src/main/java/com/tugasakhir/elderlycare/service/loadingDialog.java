@@ -1,4 +1,4 @@
-package com.tugasakhir.elderlycare;
+package com.tugasakhir.elderlycare.service;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -6,15 +6,17 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
 
+import com.tugasakhir.elderlycare.R;
+
 public class loadingDialog {
     private Activity activity;
     private AlertDialog dialog;
 
-    loadingDialog(Activity myActivity) {
+    public loadingDialog(Activity myActivity) {
         activity = myActivity;
     }
 
-    void startDialog() {
+    public void startDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
         LayoutInflater inflater = activity.getLayoutInflater();
@@ -26,7 +28,7 @@ public class loadingDialog {
         dialog.show();
     }
 
-    void dismissDialog(){
+    public void dismissDialog(){
         dialog.dismiss();
     }
 }

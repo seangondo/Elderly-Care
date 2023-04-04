@@ -1,51 +1,38 @@
-package com.tugasakhir.elderlycare;
+package com.tugasakhir.elderlycare.ui;
 
-import static com.tugasakhir.elderlycare.ElderSelectorActivity.elderSelected;
-import static com.tugasakhir.elderlycare.MainActivity.client;
-import static com.tugasakhir.elderlycare.MainActivity2.binding;
-import static com.tugasakhir.elderlycare.MainActivity2.swAuto;
-import static com.tugasakhir.elderlycare.mqttServices.bAutoMode;
-import static com.tugasakhir.elderlycare.mqttServices.bFanLiving;
-import static com.tugasakhir.elderlycare.mqttServices.bLampKitchen;
-import static com.tugasakhir.elderlycare.mqttServices.bLampLiving;
-import static com.tugasakhir.elderlycare.mqttServices.kitchen_gas;
-import static com.tugasakhir.elderlycare.mqttServices.kitchen_light;
-import static com.tugasakhir.elderlycare.mqttServices.kitchen_no;
-import static com.tugasakhir.elderlycare.mqttServices.living_light;
-import static com.tugasakhir.elderlycare.mqttServices.living_no;
-import static com.tugasakhir.elderlycare.mqttServices.living_temp;
+import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
+import static com.tugasakhir.elderlycare.ui.MainActivity.client;
+import static com.tugasakhir.elderlycare.ui.MainActivity2.swAuto;
+import static com.tugasakhir.elderlycare.service.mqttServices.bAutoMode;
+import static com.tugasakhir.elderlycare.service.mqttServices.bFanLiving;
+import static com.tugasakhir.elderlycare.service.mqttServices.bLampKitchen;
+import static com.tugasakhir.elderlycare.service.mqttServices.bLampLiving;
+import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_gas;
+import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_light;
+import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_no;
+import static com.tugasakhir.elderlycare.service.mqttServices.living_light;
+import static com.tugasakhir.elderlycare.service.mqttServices.living_no;
+import static com.tugasakhir.elderlycare.service.mqttServices.living_temp;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.loader.content.AsyncTaskLoader;
 
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.components.AxisBase;
-import com.github.mikephil.charting.components.Description;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -55,30 +42,19 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IFillFormatter;
-import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
-import com.github.mikephil.charting.utils.Utils;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarMenu;
 import com.google.android.material.navigationrail.NavigationRailView;
+import com.tugasakhir.elderlycare.R;
+import com.tugasakhir.elderlycare.service.mqttServices;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * A simple {@link Fragment} subclass.
