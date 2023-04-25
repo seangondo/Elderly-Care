@@ -3,6 +3,7 @@ package com.tugasakhir.elderlycare.ui;
 import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
 import static com.tugasakhir.elderlycare.ui.MainActivity.client;
 
+import android.net.http.SslError;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,16 +12,33 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.ConsoleMessage;
+import android.webkit.PermissionRequest;
+import android.webkit.SslErrorHandler;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.tugasakhir.elderlycare.R;
+import com.tugasakhir.elderlycare.handler.DBHandler;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import io.github.controlwear.virtual.joystick.android.JoystickView;
 
@@ -32,8 +50,13 @@ import io.github.controlwear.virtual.joystick.android.JoystickView;
 public class Telepresence extends Fragment implements View.OnClickListener {
 
     ImageButton bUp, bDown;
-    Button bNav;
+    Button bNav, bRtc;
     EditText xVal, yVal;
+    WebView myWebView;
+
+    TextView tvWeb;
+
+    DBHandler myDb;
 
     //Updater
     Handler handler = new Handler();
@@ -92,7 +115,7 @@ public class Telepresence extends Fragment implements View.OnClickListener {
         super.onViewCreated(view, savedInstanceState);
         JoystickView joystick = (JoystickView) view.findViewById(R.id.JoystickControl);
         joystick.setOnMoveListener(new JoystickView.OnMoveListener() {
-            @Override
+            @Override 
             public void onMove(int angle, int strength) {
                 // do whatever you want
                 try {
@@ -111,9 +134,13 @@ public class Telepresence extends Fragment implements View.OnClickListener {
         bUp = (ImageButton) view.findViewById(R.id.teleNeckUp);
         bDown = (ImageButton) view.findViewById(R.id.teleNeckDown);
         bNav = (Button) view.findViewById(R.id.teleNav);
+        bRtc = (Button) view.findViewById(R.id.startWebrtc);
+        myWebView = (WebView) view.findViewById(R.id.webrtc);
+        tvWeb = (TextView) view.findViewById(R.id.msgWebview);
         bUp.setOnClickListener(this);
         bDown.setOnClickListener(this);
         bNav.setOnClickListener(this);
+        bRtc.setOnClickListener(this);
     }
 
     @Override
@@ -176,6 +203,91 @@ public class Telepresence extends Fragment implements View.OnClickListener {
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
+            case R.id.startWebrtc:
+                Log.e("Val", bRtc.getText().toString());
+                if(bRtc.getText().toString().equals("Start WebRTC")) {
+                    Log.e("RTC", "Masok Start");
+                    bRtc.setText("Stop WebRTC");
+                    myDb = new DBHandler(getActivity());
+                    try {
+                        JSONArray array = myDb.LoginData();
+                        JSONObject obj;
+                        for (int i = 0; i < array.length(); i++) {
+                            obj = array.getJSONObject(i);
+                            if (obj.getInt("autoLog") == 1) {
+                                startWebRTC(obj.getString("username"), obj.getString("password"), String.valueOf(elderSelected));
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else if (bRtc.getText().toString().equals("Stop WebRTC")){
+                    bRtc.setText("Start WebRTC");
+                    tvWeb.setText("Start WebRTC");
+                    Log.e("RTC", "Masok STOP");
+                    myWebView.setVisibility(View.INVISIBLE);
+                    myWebView.loadUrl("https://private-server.uk.to/");
+                }
         }
+    }
+
+    private void startWebRTC(String caregiver, String caregiverPass, String id){
+        Log.e("Data", caregiver + "; " + caregiverPass + "; " + id);
+        WebSettings webSettings = myWebView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setAllowFileAccess(true);
+//        myWebView.addJavascriptInterface(new WebAppInterface(this), "Android");
+        webSettings.setMediaPlaybackRequiresUserGesture(false);
+        myWebView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onPermissionRequest(PermissionRequest request) {
+                request.grant(request.getResources());
+            }
+
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+                Log.e("MyApplication", consoleMessage.message() + " -- From line " + consoleMessage.lineNumber() + " of " + consoleMessage.sourceId());
+                if(consoleMessage.message().contains("connection is closed")) {
+                    tvWeb.setText("Start WebRTC");
+                    bRtc.setText("Start WebRTC");
+                    Log.e("RTC", "Masok STOP");
+                    myWebView.setVisibility(View.INVISIBLE);
+                    myWebView.loadUrl("https://private-server.uk.to/");
+//                } else if(consoleMessage.message().contains("Room full")) {
+//                    tvWeb.setText("Room full, try again later!");
+//                    bRtc.setText("Start WebRTC");
+//                    Log.e("RTC", "Masok STOP");
+//                    myWebView.setVisibility(View.INVISIBLE);
+//                    myWebView.loadUrl("https://private-server.uk.to/");
+//                }
+                }
+                return true;
+            }
+        });
+        myWebView.setWebViewClient(new WebViewClient() {
+
+            @Override
+            public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+                super.onReceivedSslError(view, handler, error);
+                handler.proceed();
+            }
+        });
+        String Post = "";
+        try {
+            Post += "username="+ URLEncoder.encode(caregiver,"UTF-8")
+                    + "&password=" + URLEncoder.encode(caregiverPass,"UTF-8")
+                    + "&elder=" + URLEncoder.encode(id,"UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        myWebView.postUrl("https://private-server.uk.to/caregiver/webrtc.php", Post.getBytes());
+        myWebView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return (event.getAction() == MotionEvent.ACTION_MOVE);
+            }
+        });
+        myWebView.setVisibility(View.VISIBLE);
     }
 }

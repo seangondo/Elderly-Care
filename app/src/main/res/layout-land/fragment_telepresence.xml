@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="1180dp"
+    android:layout_height="700dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.Telepresence">
 
@@ -31,6 +31,35 @@
                 android:layout_marginStart="25dp"
                 android:textSize="@dimen/subTextSize"
                 android:textStyle="bold"/>
+
+            <Button
+                android:id="@+id/startWebrtc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|bottom"
+                android:text="Start WebRTC" />
+
+            <TextView
+                android:id="@+id/msgWebview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Start WebRTC"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:translationZ="0dp"/>
+
+            <WebView
+                android:id="@+id/webrtc"
+                android:layout_width="385dp"
+                android:layout_height="300dp"
+                android:layout_gravity="center"
+                android:visibility="invisible"
+                android:layout_marginTop="10dp"
+                android:translationZ="10dp"
+
+                />
 
         </androidx.cardview.widget.CardView>
 

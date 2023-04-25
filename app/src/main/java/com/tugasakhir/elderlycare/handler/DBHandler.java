@@ -36,6 +36,7 @@ public class DBHandler extends SQLiteOpenHelper {
     static String ELDER_id = "id";
     static String ELDER_name = "name";
     static String ELDER_address = "address";
+    static String ELDER_birthdate = "birthdate";
     static String ELDER_house = "house_id";
     static String ELDER_robot = "robot_id";
     static String ELDER_watch = "watch_id";
@@ -58,6 +59,7 @@ public class DBHandler extends SQLiteOpenHelper {
     public DBHandler (Context c) {
         super(c, DB_name, null, DB_ver);
     }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         // CREATE USER LOGIN INFO
@@ -78,6 +80,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 + ELDER_id + " INTEGER, "
                 + ELDER_name + " VARCHAR(50), "
                 + ELDER_address + " VARCHAR(50), "
+                + ELDER_birthdate + " DATE, "
                 + ELDER_house + " VARCHAR(50), "
                 + ELDER_robot + " VARCHAR(50), "
                 + ELDER_watch + " VARCHAR(50), "
@@ -190,6 +193,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 cv.put(ELDER_id, arrObj.getInt("elder_id"));
                 cv.put(ELDER_name, arrObj.getString("name"));
                 cv.put(ELDER_address, arrObj.getString("address"));
+                cv.put(ELDER_birthdate, arrObj.getString("birthdate"));
                 cv.put(ELDER_house, arrObj.getString("house_id"));
                 cv.put(ELDER_robot, arrObj.getString("robot_id"));
                 cv.put(ELDER_watch, arrObj.getString("watch_id"));
@@ -211,10 +215,11 @@ public class DBHandler extends SQLiteOpenHelper {
                 data.put("elder_id", c.getInt(0));
                 data.put("name", c.getString(1));
                 data.put("address", c.getString(2));
-                data.put("house_id", c.getString(3));
-                data.put("robot_id", c.getString(4));
-                data.put("watch_id", c.getString(5));
-                data.put("image", c.getString(6));
+                data.put("birthdate", c.getString(3));
+                data.put("house_id", c.getString(4));
+                data.put("robot_id", c.getString(5));
+                data.put("watch_id", c.getString(6));
+                data.put("image", c.getString(7));
             } while (c.moveToNext());
         }
 
@@ -279,6 +284,24 @@ public class DBHandler extends SQLiteOpenHelper {
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public JSONObject getSensorFromId (String house_id) throws JSONException {
+        JSONObject data = new JSONObject();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT * FROM " + SENSOR_TABLE + " WHERE house_id= '" + house_id +"'", null);
+
+        if(c.moveToFirst()) {
+            do {
+                data.put("house_id", c.getInt(0));
+                data.put("room", c.getString(1));
+                data.put("type", c.getString(2));
+                data.put("trend", c.getString(3));
+
+            } while (c.moveToNext());
+        }
+
+        return data;
     }
 
     public void deleteAllSensor() {

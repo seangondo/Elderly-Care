@@ -1,5 +1,7 @@
 package com.tugasakhir.elderlycare.ui;
 
+import static com.tugasakhir.elderlycare.service.mqttServices.trend;
+import static com.tugasakhir.elderlycare.service.mqttServices.trendRec;
 import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
 import static com.tugasakhir.elderlycare.ui.MainActivity.client;
 import static com.tugasakhir.elderlycare.ui.MainActivity2.swAuto;
@@ -46,9 +48,12 @@ import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.google.android.material.navigationrail.NavigationRailView;
 import com.tugasakhir.elderlycare.R;
+import com.tugasakhir.elderlycare.handler.DBHandler;
 import com.tugasakhir.elderlycare.service.mqttServices;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -155,10 +160,10 @@ public class SmartHome extends Fragment implements View.OnClickListener{
         trendGas = (LineChart) view.findViewById(R.id.gasTrend);
 
         initTrend(trendTemp, 100, 0);
-        initTrend(trendGas, 1000, 0);
+        initTrend(trendGas, 1024, 0);
 
         if(Objects.requireNonNull(living_no).size()!= 0 & Objects.requireNonNull(kitchen_no).size() != 0) {
-            setData("living" ,trendTemp);
+            setData("livingroom" ,trendTemp);
             setData("kitchen" ,trendGas);
         }
 
@@ -210,12 +215,37 @@ public class SmartHome extends Fragment implements View.OnClickListener{
 
         ArrayList<Entry> values = new ArrayList<>();
         if(loc.equals("kitchen")) {
+
+            // CARA 1
             xAxisValues = new ArrayList<>(mqttServices.kitchen_time);
             for (int i = 0; i < kitchen_no.size(); i++) {
                 values.add(new Entry(i, mqttServices.kitchen_val.get(i)));
             }
+
+            //CARA 2
+
+//            DBHandler myDb = new DBHandler(getContext());
+//            JSONObject obj = null;
+//            JSONObject sensor = null;
+//
+//            try {
+//                obj = myDb.getElderData(elderSelected);
+//                String house_id = obj.getString("house_id");
+//                sensor = myDb.getSensorFromId(house_id);
+//
+//                for(int i = 0; i < trendRec.length(); i++) {
+//                    if((Objects.equals(trendRec.getJSONObject(i).getString("house_id"), house_id)) &&
+//                            (Objects.equals(trendRec.getJSONObject(i).getString("type"), house_id))) {
+//
+//                    }
+//                }
+//
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+
         }
-        if(loc.equals("living")) {
+        if(loc.equals("livingroom")) {
             xAxisValues = new ArrayList<>(mqttServices.living_time);
             for (int i = 0; i < mqttServices.living_no.size(); i++) {
                 values.add(new Entry(i, mqttServices.living_val.get(i)));

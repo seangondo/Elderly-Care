@@ -31,6 +31,7 @@ import com.tugasakhir.elderlycare.handler.DBHandler;
 import com.tugasakhir.elderlycare.R;
 import com.tugasakhir.elderlycare.databinding.ActivityMain2Binding;
 import com.tugasakhir.elderlycare.service.mqttServices;
+import com.tugasakhir.elderlycare.service.notificationServices;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
@@ -72,7 +73,6 @@ public class MainActivity2 extends AppCompatActivity {
                     goToHome();
                     break;
                 case R.id.menu3 :
-                    // TODO Menu logout
                     Log.e("Menu", "Logout!");
                     logout();
                     break;
@@ -226,6 +226,7 @@ public class MainActivity2 extends AppCompatActivity {
         myDb.deleteAllButton();
 //        myDb.deleteLogin("caregiver_info", myUser);
         stopService(new Intent(this, mqttServices.class));
+        stopService(new Intent(this, notificationServices.class));
         try {
             IMqttToken token = client.disconnect();
             token.setActionCallback(new IMqttActionListener() {

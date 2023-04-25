@@ -1,10 +1,20 @@
 package com.tugasakhir.elderlycare.ui;
 
-import androidx.appcompat.app.AppCompatActivity;
+import static android.content.pm.PackageManager.PERMISSION_DENIED;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -20,8 +30,10 @@ import com.tugasakhir.elderlycare.model.ButtonResponse;
 import com.tugasakhir.elderlycare.model.LoginResponse;
 import com.tugasakhir.elderlycare.R;
 import com.tugasakhir.elderlycare.api.RetrofitAPI;
+import com.tugasakhir.elderlycare.model.TrendReceive;
 import com.tugasakhir.elderlycare.service.loadingDialog;
 import com.tugasakhir.elderlycare.service.mqttServices;
+import com.tugasakhir.elderlycare.service.notificationServices;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -47,7 +59,32 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+@RequiresApi(Build.VERSION_CODES.O)
 public class MainActivity extends AppCompatActivity {
+
+    public static ArrayList<ArrayList<TrendReceive>> sensorTrend;
+
+    // Permission
+    int PERMISSION_ALL = 1;
+    String[] PERMISSIONS = {
+            Manifest.permission.WAKE_LOCK,
+            Manifest.permission.ACCESS_NETWORK_STATE,
+            Manifest.permission.INTERNET,
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.CALL_PHONE,
+            Manifest.permission.CAMERA,
+            Manifest.permission.ACCESS_NETWORK_STATE,
+            Manifest.permission.CHANGE_NETWORK_STATE,
+            Manifest.permission.MODIFY_AUDIO_SETTINGS,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.BLUETOOTH,
+            Manifest.permission.INTERNET,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_NOTIFICATION_POLICY,
+            Manifest.permission.VIBRATE,
+            Manifest.permission.FOREGROUND_SERVICE
+    };
 
     // INITIALIZE MQTT CONNECTION AND SERVICES
     public static MqttAndroidClient client;
@@ -120,17 +157,21 @@ public class MainActivity extends AppCompatActivity {
 
         button.setOnClickListener(myClickListener);
 
-        cursorLog = myDb.getLoginInfo();
-        Log.e("Jumlah Cursor", String.valueOf(cursorLog.getCount()));
+        if (!hasPermission(this, PERMISSIONS)) {
+            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+            Log.e("Permission", "TES");
+        } else {
+            cursorLog = myDb.getLoginInfo();
+            Log.e("Jumlah Cursor", String.valueOf(cursorLog.getCount()));
 
-        if(cursorLog.getCount() != 0) {
-            try {
-                checkLogin();
-            } catch (JSONException e) {
-                e.printStackTrace();
+            if(cursorLog.getCount() != 0) {
+                try {
+                    checkLogin();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }
-
     }
 
     //CHECK AUTO LOGIN
@@ -200,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkLogin(LoginResponse res) {
-        if(res.getResult()) {
+         if(res.getResult()) {
             loadingDialog.dismissDialog();
 
             JSONArray array = new JSONArray();
@@ -400,5 +441,48 @@ public class MainActivity extends AppCompatActivity {
             });
 
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        if (requestCode == 0) {
+        boolean permissionGranted = true;
+        for (int i = 0; i < permissions.length; ++i) {
+            if (grantResults[i] == PERMISSION_DENIED) {
+                //User denied permissions twice - permanent denial:
+                if (!shouldShowRequestPermissionRationale(permissions[i]))
+                    Toast.makeText(getApplicationContext(), "Grant permission from settings!", Toast.LENGTH_LONG).show();
+                    //User denied permissions once:
+                else
+                    Toast.makeText(getApplicationContext(), "Permission need for measure heart rate!", Toast.LENGTH_LONG).show();
+                permissionGranted = false;
+                break;
+            }
+        }
+        if (permissionGranted) {
+            Log.e("Permission", "MASOK");
+            cursorLog = myDb.getLoginInfo();
+            Log.e("Jumlah Cursor", String.valueOf(cursorLog.getCount()));
+
+            if(cursorLog.getCount() != 0) {
+                try {
+                    checkLogin();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+//        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    public static boolean hasPermission(Context context, String... permissions) {
+        if(context != null && permissions != null) {
+            for(String permission : permissions) {
+                if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED)
+                    return false;
+            }
+        }
+        return true;
     }
 }
