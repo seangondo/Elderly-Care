@@ -2,16 +2,11 @@ package com.tugasakhir.elderlycare.ui;
 
 import static com.tugasakhir.elderlycare.service.mqttServices.HrData;
 import static com.tugasakhir.elderlycare.service.mqttServices.HrTrendRec;
-import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_gas;
-import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_light;
-import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_no;
-import static com.tugasakhir.elderlycare.service.mqttServices.living_light;
-import static com.tugasakhir.elderlycare.service.mqttServices.living_no;
-import static com.tugasakhir.elderlycare.service.mqttServices.living_temp;
 import static com.tugasakhir.elderlycare.service.mqttServices.onBody;
 import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
-import static com.tugasakhir.elderlycare.ui.MainActivity.dataElder;
 import static com.tugasakhir.elderlycare.ui.MainActivity.myServer;
+
+import static java.time.LocalDate.from;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
@@ -31,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -44,11 +40,15 @@ import com.google.android.material.tabs.TabLayout;
 import com.tugasakhir.elderlycare.R;
 import com.tugasakhir.elderlycare.handler.DBHandler;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -62,7 +62,7 @@ public class Wearable extends Fragment {
 
     DBHandler myDb;
 
-    TextView name, dob, address, hr, wear;
+    TextView name, dob, address, hr, wear, age;
     ImageView img;
 
     LineChart hrTrend;
@@ -128,6 +128,7 @@ public class Wearable extends Fragment {
         name = (TextView) view.findViewById(R.id.infoElderName);
         dob = (TextView) view.findViewById(R.id.infoElderBirthdate);
         address = (TextView) view.findViewById(R.id.infoElderAddress);
+        age = (TextView) view.findViewById(R.id.infoElderAge);
         hr = (TextView) view.findViewById(R.id.hrView);
         wear = (TextView) view.findViewById(R.id.wearStat);
 
@@ -158,12 +159,14 @@ public class Wearable extends Fragment {
             Date birthday = new Date(obj.getString("birthdate"));
             SimpleDateFormat simpleDate = new SimpleDateFormat("dd MMMM yyyy");
 
-            Date now = new Date();
+            // Calculate Birthday
+            LocalDateTime birth = LocalDateTime.ofInstant(birthday.toInstant(), ZoneId.systemDefault());
+            int getAge = Period.between(LocalDate.of(birth.getYear(), birth.getMonth(), birth.getDayOfMonth()), LocalDate.now()).getYears();
 
-//            dob.setText(obj.getString("birthdate"));
+            age.setText("( " + getAge + " Years Old )");
             dob.setText(simpleDate.format(birthday));
             address.setText(obj.getString("address"));
-            Glide.with(getContext()).asBitmap().load(imgUrl).into(img);
+            Glide.with(getContext()).asBitmap().load(imgUrl).apply(new RequestOptions().override(300, 300)).centerCrop().into(img);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -261,7 +264,13 @@ public class Wearable extends Fragment {
             // SET On Body Detect Value
             for(int i = 0; i < onBody.length(); i++) {
                 if(elder.getString("watch_id").equals(onBody.getJSONObject(i).getString("watch_id"))) {
-                    wear.setText(onBody.getJSONObject(i).getString("onbody"));
+                    if(onBody.getJSONObject(i).getString("onbody").equals("false")) {
+                        wear.setText("Jam tidak digunakan!");
+                        wear.setTextColor(Color.RED);
+                    } else if (onBody.getJSONObject(i).getString("onbody").equals("true")) {
+                        wear.setText("Jam sedang digunakan!");
+                        wear.setTextColor(Color.GREEN);
+                    }
                 }
             }
 

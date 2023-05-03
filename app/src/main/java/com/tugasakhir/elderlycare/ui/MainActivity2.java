@@ -27,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.tugasakhir.elderlycare.handler.DBHandler;
 import com.tugasakhir.elderlycare.R;
 import com.tugasakhir.elderlycare.databinding.ActivityMain2Binding;
@@ -67,6 +68,7 @@ public class MainActivity2 extends AppCompatActivity {
             switch (v.getId()) {
                 case R.id.menu1 :
                     // TODO elder change menu
+                    goElderEdit();
                     Log.e("Menu", "Elder settings");
                     break;
                 case R.id.menu2 :
@@ -199,7 +201,7 @@ public class MainActivity2 extends AppCompatActivity {
             String imgUrl = myServer+"/image/"+obj.getString("image");
             eName.setText(obj.getString("name"));
             eAddress.setText(obj.getString("address"));
-            Glide.with(MainActivity2.this).asBitmap().load(imgUrl)  .into(img);
+            Glide.with(MainActivity2.this).asBitmap().load(imgUrl).apply(new RequestOptions().override(300, 300)).centerCrop().into(img);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -219,11 +221,19 @@ public class MainActivity2 extends AppCompatActivity {
         finish();
     }
 
+    private void goElderEdit() {
+        Intent i = new Intent(this, EditElderActivity.class);
+        startActivity(i);
+        overridePendingTransition(0, 0);
+        finish();
+    }
+
     private void logout() {
         myDb.deleteElderAll();
         myDb.deleteLoginAll();
         myDb.deleteAllSensor();
         myDb.deleteAllButton();
+        myDb.deletePointAll();
 //        myDb.deleteLogin("caregiver_info", myUser);
         stopService(new Intent(this, mqttServices.class));
         stopService(new Intent(this, notificationServices.class));

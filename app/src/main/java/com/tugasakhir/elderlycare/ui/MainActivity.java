@@ -268,6 +268,7 @@ public class MainActivity extends AppCompatActivity {
             myDb.deleteElderAll();
             myDb.deleteAllSensor();
             myDb.deleteAllButton();
+            myDb.deletePointAll();
             myDb.insertElder(dataElder);
 
             ArrayList<Integer> getInt = new ArrayList<>();
@@ -408,6 +409,7 @@ public class MainActivity extends AppCompatActivity {
                     String res = new Gson().toJson(response.body());
                     try {
                         JSONArray arr = new JSONArray(res);
+                        Log.e("Receive 1", String.valueOf(arr));
                         myDb.insertSensor(arr);
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -428,6 +430,7 @@ public class MainActivity extends AppCompatActivity {
                     String res = new Gson().toJson(response.body());
                     try {
                         JSONArray arr = new JSONArray(res);
+                        Log.e("Receive 2", String.valueOf(arr));
                         myDb.insertButton(arr);
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -440,6 +443,26 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
+            // GET Point Coordinate
+            Call<Object> callPoint = retrofitAPI.getPoint(id.get(i));
+            callPoint.enqueue(new Callback<Object>() {
+                @Override
+                public void onResponse(Call<Object> call, Response<Object> response) {
+                    String res = new Gson().toJson(response.body());
+                    try {
+                        JSONArray arr = new JSONArray(res);
+                        Log.e("Receive 3", String.valueOf(arr));
+                        myDb.insertPoint(arr);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Object> call, Throwable t) {
+                    Log.e("Error", String.valueOf(t));
+                }
+            });
         }
     }
 

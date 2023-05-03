@@ -27,6 +27,7 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -341,9 +342,10 @@ public class SmartHome extends Fragment implements View.OnClickListener{
                     showPieChart(kitchenGas, Integer.parseInt(kitchen_gas), 1000, "");
                 }
                 if(living_no.size() != 0 & kitchen_no.size() != 0) {
+                    Log.e("Debug", String.valueOf(mqttServices.living_val));
                     initTrend(trendTemp, 100, 0);
-                    initTrend(trendGas, 1000, 0);
-                    setData("living" ,trendTemp);
+                    initTrend(trendGas, 1024, 0);
+                    setData("livingroom" ,trendTemp);
                     setData("kitchen" ,trendGas);
                 }
                 handler.postDelayed(runnable, delay);

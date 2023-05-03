@@ -55,6 +55,14 @@ public class DBHandler extends SQLiteOpenHelper {
     static String BUTTON_room = "room";
     static String BUTTON_type = "button_type";
 
+    // Point Coordinate
+    static String POINT_TABLE = "db_point";
+    static String POINT_HOUSEID = "house_id";
+    static String POINT_NAME = "point_name";
+    static String POINT_X = "x";
+    static String POINT_Y = "y";
+
+
 
     public DBHandler (Context c) {
         super(c, DB_name, null, DB_ver);
@@ -105,6 +113,15 @@ public class DBHandler extends SQLiteOpenHelper {
                 + BUTTON_type + " VARCHAR(50));";
         db.execSQL(tbButton);
         Log.e("Database", tbButton);
+
+        // CREATE POINT TABLE
+        String tbPoint = "CREATE TABLE " + POINT_TABLE + " ("
+                + POINT_HOUSEID + " VARCHAR(50), "
+                + POINT_NAME + " VARCHAR(50), "
+                + POINT_X + " INT, "
+                + POINT_Y + " INT);";
+        db.execSQL(tbPoint);
+        Log.e("Database", tbPoint);
     }
 
     @Override
@@ -113,6 +130,7 @@ public class DBHandler extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS "+ELDER_TABLE);
         db.execSQL("DROP TABLE IF EXISTS "+SENSOR_TABLE);
         db.execSQL("DROP TABLE IF EXISTS "+BUTTON_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS "+POINT_TABLE);
         onCreate(db);
     }
 
@@ -160,7 +178,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public void deleteLogin(String table, String username) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(table, INFO_username + "=" + username, null);
+        db.delete(table, INFO_username + " = " + username, null);
     }
 
     public void deleteLoginAll() {
@@ -176,7 +194,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
         SQLiteDatabase dbW = this.getWritableDatabase();
         for(int i = 0; i < info.size(); i++) {
-            dbW.delete(INFO_TABLE, INFO_id + "=" + info.get(i), null);
+            dbW.delete(INFO_TABLE, INFO_id + " = " + info.get(i), null);
         }
     }
 
@@ -206,7 +224,9 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
     public JSONObject getElderData (int id) throws JSONException {
+        Log.e("WOI", String.valueOf(id));
         JSONObject data = new JSONObject();
+        JSONObject tes = new JSONObject();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery("SELECT * FROM " + ELDER_TABLE + " WHERE id=" + id, null);
 
@@ -248,6 +268,14 @@ public class DBHandler extends SQLiteOpenHelper {
         return allData;
     }
 
+    public void updateElder(ContentValues cv, int elder_id) {
+        JSONArray allData = new JSONArray();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        db.update(ELDER_TABLE, cv, ELDER_id + " = " + elder_id, null);
+
+    }
+
     public void deleteElderAll() {
         SQLiteDatabase dbR = this.getReadableDatabase();
         Cursor c = dbR.rawQuery("SELECT * FROM " + ELDER_TABLE, null);
@@ -261,7 +289,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
         SQLiteDatabase dbW = this.getWritableDatabase();
         for(int i = 0; i < elderId.size(); i++) {
-            dbW.delete(ELDER_TABLE, ELDER_id + "=" + elderId.get(i), null);
+            dbW.delete(ELDER_TABLE, ELDER_id + " = " + elderId.get(i), null);
         }
     }
 
@@ -317,7 +345,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
         SQLiteDatabase dbW = this.getWritableDatabase();
         for(int i = 0; i < sensor.size(); i++) {
-            dbW.delete(SENSOR_TABLE, SENSOR_houseID + "=" + sensor.get(i), null);
+            dbW.delete(SENSOR_TABLE, SENSOR_houseID + " = " + sensor.get(i), null);
         }
     }
 
@@ -355,7 +383,79 @@ public class DBHandler extends SQLiteOpenHelper {
 
         SQLiteDatabase dbW = this.getWritableDatabase();
         for(int i = 0; i < button.size(); i++) {
-            dbW.delete(BUTTON_TABLE, BUTTON_houseID + "=" + button.get(i), null);
+            dbW.delete(BUTTON_TABLE, BUTTON_houseID + " = " + button.get(i), null);
+        }
+    }
+
+    // ---------------------------------------- < POINT COORDINATE DATABASE > ---------------------------------------- //
+    public void insertPoint(JSONArray data) {
+        JSONObject arrObj = null;
+        try {
+            for(int i = 0; i < data.length(); i++) {
+                Log.e("Woi", "MASOK DATA");
+                SQLiteDatabase db = this.getWritableDatabase();
+                ContentValues cv = new ContentValues();
+                arrObj = data.getJSONObject(i);
+                cv.put(POINT_HOUSEID, arrObj.getString("house_id"));
+                cv.put(POINT_NAME, arrObj.getString("coord_name"));
+                cv.put(POINT_X, arrObj.getInt("coord_x"));
+                cv.put(POINT_Y, arrObj.getInt("coord_y"));
+                db.insert(POINT_TABLE, null, cv);
+            }
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public JSONObject getCoordFromPoint (String point) throws JSONException {
+        JSONObject data = new JSONObject();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT * FROM " + POINT_TABLE + " WHERE point_name= '" + point + "'", null);
+        if (c.moveToFirst()) {
+            do {
+                data.put("house_id", c.getInt(0));
+                data.put("name", c.getString(1));
+                data.put("x", c.getString(2));
+                data.put("y", c.getString(3));
+
+            } while (c.moveToNext());
+        }
+        return data;
+    }
+
+    public JSONArray getPointFromId (String house_id) throws JSONException {
+        JSONArray allData = new JSONArray();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT * FROM " + POINT_TABLE + " WHERE house_id= '" + house_id + "'", null);
+
+        if (c.moveToFirst()) {
+            do {
+                JSONObject data = new JSONObject();
+                data.put("house_id", c.getInt(0));
+                data.put("name", c.getString(1));
+                data.put("x", c.getString(2));
+                data.put("y", c.getString(3));
+                allData.put(data);
+
+            } while (c.moveToNext());
+        }
+        return allData;
+    }
+
+    public void deletePointAll() {
+        SQLiteDatabase dbR = this.getReadableDatabase();
+        Cursor c = dbR.rawQuery("SELECT * FROM " + POINT_TABLE, null);
+        ArrayList<String> point = new ArrayList<>();
+
+        if(c.moveToFirst()) {
+            do {
+                point.add(c.getString(0));
+            } while (c.moveToNext());
+        }
+
+        SQLiteDatabase dbW = this.getWritableDatabase();
+        for(int i = 0; i < point.size(); i++) {
+            dbW.delete(POINT_TABLE, POINT_HOUSEID + "=" + point.get(i), null);
         }
     }
 }

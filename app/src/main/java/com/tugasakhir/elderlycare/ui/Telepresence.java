@@ -24,10 +24,14 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tugasakhir.elderlycare.R;
 import com.tugasakhir.elderlycare.handler.DBHandler;
@@ -39,6 +43,8 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.github.controlwear.virtual.joystick.android.JoystickView;
 
@@ -47,11 +53,20 @@ import io.github.controlwear.virtual.joystick.android.JoystickView;
  * Use the {@link Telepresence#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Telepresence extends Fragment implements View.OnClickListener {
+public class Telepresence extends Fragment implements View.OnClickListener,
+    View.OnTouchListener{
 
     ImageButton bUp, bDown;
-    Button bNav, bRtc;
-    EditText xVal, yVal;
+    ImageButton forward, backward, left, right;
+    Button bNav, bRtc, bNavCancel;
+
+    private int strength = 0;
+
+    int xVal, yVal;
+    ArrayList<String> pointItems = new ArrayList<>();
+    AutoCompleteTextView pointCoordName;
+    ArrayAdapter<String> adapterPoint;
+
     WebView myWebView;
 
     TextView tvWeb;
@@ -113,32 +128,84 @@ public class Telepresence extends Fragment implements View.OnClickListener {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        JoystickView joystick = (JoystickView) view.findViewById(R.id.JoystickControl);
-        joystick.setOnMoveListener(new JoystickView.OnMoveListener() {
-            @Override 
-            public void onMove(int angle, int strength) {
-                // do whatever you want
-                try {
-                    client.publish(elderSelected+"/apps/robot/controller/move", ("{\"angle\": " + angle + ", \"strength\": " + strength + "}").getBytes(),0, false);
-                    //client.publish(MainActivity.myUser+"/apps/robot/map_coord/data", ("{\"x\": " + angle + ", \"y\": " + strength + "}").getBytes(),0, true);
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                }
-//                Log.d("Joystick Angle", String.valueOf(angle));
-//                Log.d("Joystick Strength", String.valueOf(strength));
-            }
-        }, 100);
+//        JoystickView joystick = (JoystickView) view.findViewById(R.id.JoystickControl);
+//        joystick.setOnMoveListener(new JoystickView.OnMoveListener() {
+//            @Override
+//            public void onMove(int angle, int strength) {
+//                // do whatever you want
+//                try {
+//                    client.publish(elderSelected+"/apps/robot/controller/move", ("{\"angle\": " + angle + ", \"strength\": " + strength + "}").getBytes(),0, false);
+//                    //client.publish(MainActivity.myUser+"/apps/robot/map_coord/data", ("{\"x\": " + angle + ", \"y\": " + strength + "}").getBytes(),0, true);
+//                } catch (MqttException e) {
+//                    e.printStackTrace();
+//                }
+////                Log.d("Joystick Angle", String.valueOf(angle));
+////                Log.d("Joystick Strength", String.valueOf(strength));
+//            }
+//        }, 100);
 
-        xVal = (EditText) view.findViewById(R.id.inputX);
-        yVal = (EditText) view.findViewById(R.id.inputY);
+        pointCoordName = (AutoCompleteTextView) view.findViewById(R.id.coord_map);
+
+        try {
+            myDb = new DBHandler(getContext());
+            JSONObject elder = myDb.getElderData(elderSelected);
+            String house_id = elder.getString("house_id");
+            JSONArray pointList = myDb.getPointFromId(house_id);
+            Log.e("Tes", String.valueOf(pointList));
+            for(int i = 0; i < pointList.length(); i++) {
+                JSONObject arrObj = pointList.getJSONObject(i);
+                pointItems.add(arrObj.getString("name"));
+            }
+            adapterPoint = new ArrayAdapter<String>(getContext(), R.layout.list_item_point, pointItems);
+            pointCoordName.setAdapter(adapterPoint);
+            pointCoordName.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    String selectedItem = parent.getItemAtPosition(position).toString();
+                    pointCoordName.setListSelection(position);
+                    Log.e("Selected item", selectedItem);
+                    try {
+                        JSONObject getPoint = myDb.getCoordFromPoint(selectedItem);
+                        xVal = getPoint.getInt("x");
+                        yVal = getPoint.getInt("y");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        forward = (ImageButton) view.findViewById(R.id.controlForward);
+        backward = (ImageButton) view.findViewById(R.id.controlBack);
+        left = (ImageButton) view.findViewById(R.id.controlLeft);
+        right = (ImageButton) view.findViewById(R.id.controlRight);
+
         bUp = (ImageButton) view.findViewById(R.id.teleNeckUp);
         bDown = (ImageButton) view.findViewById(R.id.teleNeckDown);
         bNav = (Button) view.findViewById(R.id.teleNav);
+        bNavCancel = (Button) view.findViewById(R.id.teleStop);
         bRtc = (Button) view.findViewById(R.id.startWebrtc);
         myWebView = (WebView) view.findViewById(R.id.webrtc);
         tvWeb = (TextView) view.findViewById(R.id.msgWebview);
+
+//        forward.setOnClickListener(this);
+//        backward.setOnClickListener(this);
+//        left.setOnClickListener(this);
+//        right.setOnClickListener(this);
+
+
+        forward.setOnTouchListener(this);
+        backward.setOnTouchListener(this);
+        left.setOnTouchListener(this);
+        right.setOnTouchListener(this);
+
         bUp.setOnClickListener(this);
         bDown.setOnClickListener(this);
+        bNavCancel.setOnClickListener(this);
         bNav.setOnClickListener(this);
         bRtc.setOnClickListener(this);
     }
@@ -165,6 +232,14 @@ public class Telepresence extends Fragment implements View.OnClickListener {
                     }
                 }
                 handler.postDelayed(runnable, delay);
+                if(!forward.isPressed() && !backward.isPressed() && !left.isPressed() && !right.isPressed() && strength > 0) {
+                    try {
+                        client.publish(elderSelected+"/apps/robot/controller/move", ("{\"angle\": 90 , \"strength\": 0 }").getBytes(),0, false);
+                        strength = 0;
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }, delay);
 
@@ -188,6 +263,7 @@ public class Telepresence extends Fragment implements View.OnClickListener {
                     e.printStackTrace();
                 }
                 break;
+
             case R.id.teleNeckDown:
                 try {
                     client.publish(elderSelected+"/apps/robot/controller/neck", ("{\"angle\": \"down\" }").getBytes(),0, false);
@@ -196,13 +272,15 @@ public class Telepresence extends Fragment implements View.OnClickListener {
                 }
                 break;
             case R.id.teleNav:
-                Log.e("X : ", xVal.getText().toString());
-                Log.e("Y : ", yVal.getText().toString());
+                Log.e("X Coord", String.valueOf(xVal));
+                Log.e("Y Coord", String.valueOf(yVal));
                 try {
-                    client.publish(elderSelected+"/apps/robot/map_coord/data", ("{\"x\": " + xVal.getText().toString() + ", \"x\": " + yVal.getText().toString() + " }").getBytes(),0, false);
+                    client.publish(elderSelected+"/apps/robot/controller/map_coord", ("{\"x\": " + xVal + ", \"y\": " + yVal + " }").getBytes(),0, false);
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
+                break;
+
             case R.id.startWebrtc:
                 Log.e("Val", bRtc.getText().toString());
                 if(bRtc.getText().toString().equals("Start WebRTC")) {
@@ -228,7 +306,60 @@ public class Telepresence extends Fragment implements View.OnClickListener {
                     myWebView.setVisibility(View.INVISIBLE);
                     myWebView.loadUrl("https://private-server.uk.to/");
                 }
+                break;
+
+            case R.id.teleStop:
+                try {
+                    client.publish(elderSelected+"/apps/robot/controller/cancel", ("{\"command\": \"stop\"}").getBytes(),0, false);
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+                break;
         }
+    }
+
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        switch (v.getId()) {
+            // CONTROL ROBOT CONTROLLER
+            case R.id.controlForward:
+                try {
+                    client.publish(elderSelected+"/apps/robot/controller/move", ("{\"angle\": 90 , \"strength\": 100 }").getBytes(),0, false);
+                    strength = 100;
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case R.id.controlBack:
+                try {
+                    client.publish(elderSelected + "/apps/robot/controller/move", ("{\"angle\": 270 , \"strength\": 100 }").getBytes(), 0, false);
+                    strength = 100;
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case R.id.controlLeft:
+                try {
+                    client.publish(elderSelected + "/apps/robot/controller/move", ("{\"angle\": 180 , \"strength\": 100 }").getBytes(), 0, false);
+                    strength = 100;
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case R.id.controlRight:
+                try {
+                    client.publish(elderSelected + "/apps/robot/controller/move", ("{\"angle\": 0 , \"strength\": 100 }").getBytes(), 0, false);
+                    strength = 100;
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+                break;
+        }
+        return false;
     }
 
     private void startWebRTC(String caregiver, String caregiverPass, String id){
@@ -290,4 +421,5 @@ public class Telepresence extends Fragment implements View.OnClickListener {
         });
         myWebView.setVisibility(View.VISIBLE);
     }
+
 }

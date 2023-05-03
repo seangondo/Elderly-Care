@@ -4,11 +4,15 @@ import com.tugasakhir.elderlycare.model.ButtonResponse;
 import com.tugasakhir.elderlycare.model.LoginResponse;
 import com.tugasakhir.elderlycare.model.SensorResponse;
 
+import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 
 public interface RetrofitAPI {
@@ -21,4 +25,39 @@ public interface RetrofitAPI {
 
     @GET("/apps/caregiver/get-button/{house_id}")
     Call<Object> getBtn(@Path("house_id") String house_id);
+
+    @GET("/point/coordinate/{house_id}")
+    Call<Object> getPoint(@Path("house_id") String house_id);
+
+    @GET("/apps/elder/data/{caregiver_id}")
+    Call<Object> getElder(@Path("caregiver_id") String caregiver_id);
+
+    @Multipart
+    @POST("/elder/edit/img")
+    Call<ResponseBody> updateElderImage(@Part("id") RequestBody elder_id,
+                                   @Part("name") RequestBody name,
+                                   @Part("birthdate") RequestBody birthdate,
+                                   @Part("house_id") RequestBody house_id,
+                                   @Part("robot_id") RequestBody robot_id,
+                                   @Part("watch_id") RequestBody watch_id,
+                                   @Part MultipartBody.Part image);
+
+    @Multipart
+    @POST("/elder/edit")
+    Call<ResponseBody> updateElder(@Part("id") RequestBody elder_id,
+                                   @Part("name") RequestBody name,
+                                   @Part("birthdate") RequestBody birthdate,
+                                   @Part("house_id") RequestBody house_id,
+                                   @Part("robot_id") RequestBody robot_id,
+                                   @Part("watch_id") RequestBody watch_id);
+
+    @Multipart
+    @POST("/elder/add")
+    Call<ResponseBody> addElder(@Part("id") RequestBody elder_id,
+                                   @Part("name") RequestBody name,
+                                   @Part("birthdate") RequestBody birthdate,
+                                   @Part("house_id") RequestBody house_id,
+                                   @Part("robot_id") RequestBody robot_id,
+                                   @Part("watch_id") RequestBody watch_id);
+
 }

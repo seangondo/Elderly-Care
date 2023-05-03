@@ -68,7 +68,7 @@ public class mqttServices extends Service {
                 getTopic = topic;
                 msg = new String(message.getPayload());
 //                Log.e("Hasil", String.valueOf(living_temp));
-                Log.d("MQTT Topic", getTopic);
+//                Log.d("MQTT Topic", getTopic);
 //                Log.d("Mqtt Msg", msg);
                 wearableData();
                 checkNotification();
@@ -298,9 +298,7 @@ public class mqttServices extends Service {
     }
 
     private void wearableData() {
-        Log.e("Wearable", "masok awal");
         if(getTopic.contains("/apps/wearable/heart_rate")) {
-            Log.e("Wearable", "masok 1");
             JSONObject heartRate = new JSONObject();
             JSONObject myRec = null;
             try {
@@ -314,7 +312,6 @@ public class mqttServices extends Service {
             }
         }
         if(getTopic.contains("/apps/wearable/onbody")) {
-            Log.e("Wearable", "masok 2");
             JSONObject onbody = new JSONObject();
             JSONObject myRec = null;
             try {
@@ -329,7 +326,6 @@ public class mqttServices extends Service {
         }
 
         if(getTopic.contains("/apps/wearable/trend")) {
-            Log.e("Wearable", "masok 3");
             JSONArray myRec = null;
             try {
                 myRec = new JSONArray(mqttServices.msg);
