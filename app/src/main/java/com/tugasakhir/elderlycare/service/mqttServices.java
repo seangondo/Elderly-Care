@@ -42,8 +42,12 @@ public class mqttServices extends Service {
 
     public static JSONArray trendRec = new JSONArray();
     public static JSONArray HrTrendRec = new JSONArray();
+    public static JSONArray StepsTrend = new JSONArray();
+    public static JSONArray CalsTrend = new JSONArray();
     public static JSONArray HrData = new JSONArray();
     public static JSONArray onBody = new JSONArray();
+    public static JSONArray StepsData = new JSONArray();
+    public static JSONArray CalsData = new JSONArray();
 
     public static ArrayList<TrendReceive> trend;
 
@@ -68,7 +72,7 @@ public class mqttServices extends Service {
                 getTopic = topic;
                 msg = new String(message.getPayload());
 //                Log.e("Hasil", String.valueOf(living_temp));
-//                Log.d("MQTT Topic", getTopic);
+                Log.d("MQTT Topic", getTopic);
 //                Log.d("Mqtt Msg", msg);
                 wearableData();
                 checkNotification();
@@ -311,6 +315,31 @@ public class mqttServices extends Service {
                 e.printStackTrace();
             }
         }
+        if(getTopic.contains("/apps/wearable/steps")) {
+            JSONObject steps = new JSONObject();
+            JSONObject myRec = null;
+            try {
+                myRec = new JSONObject(msg);
+                steps.put("watch_id", myRec.getString("watch_id"));
+                steps.put("steps", myRec.getInt("steps"));
+                StepsData.put(steps);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        if(getTopic.contains("/apps/wearable/calories")) {
+            JSONObject calories = new JSONObject();
+            JSONObject myRec = null;
+            try {
+                myRec = new JSONObject(msg);
+                calories.put("watch_id", myRec.getString("watch_id"));
+                calories.put("calories", myRec.getInt("calories"));
+                CalsData.put(calories);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
         if(getTopic.contains("/apps/wearable/onbody")) {
             JSONObject onbody = new JSONObject();
             JSONObject myRec = null;
@@ -327,27 +356,69 @@ public class mqttServices extends Service {
 
         if(getTopic.contains("/apps/wearable/trend")) {
             JSONArray myRec = null;
+            Log.e("Topic Wearable Trend", getTopic);
             try {
                 myRec = new JSONArray(mqttServices.msg);
                 for (int i = myRec.length() - 1; i >= 0; i--) {
                     JSONObject data = new JSONObject();
                     JSONObject arrObj = myRec.getJSONObject(i);
+                    Log.e("Topic Wearable Trend", arrObj.getString("type"));
 
-                    for (int x = 0; x < HrTrendRec.length(); x++) {
-                        if ((Objects.equals(arrObj.getString("watch_id"), HrTrendRec.getJSONObject(x).getString("watch_id"))) &&
-                                (Objects.equals(arrObj.getString("type"), HrTrendRec.getJSONObject(x).getString("type"))) &&
-                                (Objects.equals(arrObj.getInt("dataNo"), HrTrendRec.getJSONObject(x).getInt("dataNo")))) {
-                            HrTrendRec.remove(x);
+                    if(arrObj.getString("type").equals("heart rate")) {
+
+                        for (int x = 0; x < HrTrendRec.length(); x++) {
+                            if ((Objects.equals(arrObj.getString("watch_id"), HrTrendRec.getJSONObject(x).getString("watch_id"))) &&
+                                    (Objects.equals(arrObj.getString("type"), HrTrendRec.getJSONObject(x).getString("type"))) &&
+                                    (Objects.equals(arrObj.getInt("dataNo"), HrTrendRec.getJSONObject(x).getInt("dataNo")))) {
+                                HrTrendRec.remove(x);
+                            }
                         }
+
+                        data.put("watch_id", arrObj.getString("watch_id"));
+                        data.put("type", arrObj.getString("type"));
+                        data.put("dataNo", arrObj.getInt("dataNo"));
+                        data.put("value", arrObj.getInt("value"));
+                        data.put("date", arrObj.getString("date"));
+                        data.put("time", arrObj.getString("time"));
+                        HrTrendRec.put(data);
+                    }
+                    if(arrObj.getString("type").equals("steps")) {
+
+                        for (int x = 0; x < StepsTrend.length(); x++) {
+                            if ((Objects.equals(arrObj.getString("watch_id"), StepsTrend.getJSONObject(x).getString("watch_id"))) &&
+                                    (Objects.equals(arrObj.getString("type"), StepsTrend.getJSONObject(x).getString("type"))) &&
+                                    (Objects.equals(arrObj.getInt("dataNo"), StepsTrend.getJSONObject(x).getInt("dataNo")))) {
+                                StepsTrend.remove(x);
+                            }
+                        }
+
+                        data.put("watch_id", arrObj.getString("watch_id"));
+                        data.put("type", arrObj.getString("type"));
+                        data.put("dataNo", arrObj.getInt("dataNo"));
+                        data.put("value", arrObj.getInt("value"));
+                        data.put("date", arrObj.getString("date"));
+                        data.put("time", arrObj.getString("time"));
+                        StepsTrend.put(data);
+                    }
+                    if(arrObj.getString("type").equals("calories")) {
+
+                        for (int x = 0; x < CalsTrend.length(); x++) {
+                            if ((Objects.equals(arrObj.getString("watch_id"), CalsTrend.getJSONObject(x).getString("watch_id"))) &&
+                                    (Objects.equals(arrObj.getString("type"), CalsTrend.getJSONObject(x).getString("type"))) &&
+                                    (Objects.equals(arrObj.getInt("dataNo"), CalsTrend.getJSONObject(x).getInt("dataNo")))) {
+                                CalsTrend.remove(x);
+                            }
+                        }
+
+                        data.put("watch_id", arrObj.getString("watch_id"));
+                        data.put("type", arrObj.getString("type"));
+                        data.put("dataNo", arrObj.getInt("dataNo"));
+                        data.put("value", arrObj.getInt("value"));
+                        data.put("date", arrObj.getString("date"));
+                        data.put("time", arrObj.getString("time"));
+                        CalsTrend.put(data);
                     }
 
-                    data.put("watch_id", arrObj.getString("watch_id"));
-                    data.put("type", arrObj.getString("type"));
-                    data.put("dataNo", arrObj.getInt("dataNo"));
-                    data.put("value", arrObj.getInt("value"));
-                    data.put("date", arrObj.getString("date"));
-                    data.put("time", arrObj.getString("time"));
-                    HrTrendRec.put(data);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

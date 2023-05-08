@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.tugasakhir.elderlycare.TestTabLayout;
 import com.tugasakhir.elderlycare.handler.DBHandler;
 import com.tugasakhir.elderlycare.R;
 import com.tugasakhir.elderlycare.databinding.ActivityMain2Binding;
@@ -173,6 +174,13 @@ public class MainActivity2 extends AppCompatActivity {
                 case R.id.wearable:
                     replaceFragment(new Wearable());
                     tv1.setText("Wearable");
+                    swAuto.setVisibility(View.INVISIBLE);
+                    tvAuto.setVisibility(View.INVISIBLE);
+                    break;
+
+                case R.id.testing:
+                    replaceFragment(new TestTabLayout());
+                    tv1.setText("Testing");
                     swAuto.setVisibility(View.INVISIBLE);
                     tvAuto.setVisibility(View.INVISIBLE);
                     break;

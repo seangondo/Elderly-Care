@@ -224,7 +224,6 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
     public JSONObject getElderData (int id) throws JSONException {
-        Log.e("WOI", String.valueOf(id));
         JSONObject data = new JSONObject();
         JSONObject tes = new JSONObject();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -392,7 +391,6 @@ public class DBHandler extends SQLiteOpenHelper {
         JSONObject arrObj = null;
         try {
             for(int i = 0; i < data.length(); i++) {
-                Log.e("Woi", "MASOK DATA");
                 SQLiteDatabase db = this.getWritableDatabase();
                 ContentValues cv = new ContentValues();
                 arrObj = data.getJSONObject(i);

@@ -1,12 +1,14 @@
 package com.tugasakhir.elderlycare.ui;
 
+import static com.tugasakhir.elderlycare.service.mqttServices.CalsData;
+import static com.tugasakhir.elderlycare.service.mqttServices.CalsTrend;
 import static com.tugasakhir.elderlycare.service.mqttServices.HrData;
 import static com.tugasakhir.elderlycare.service.mqttServices.HrTrendRec;
+import static com.tugasakhir.elderlycare.service.mqttServices.StepsData;
+import static com.tugasakhir.elderlycare.service.mqttServices.StepsTrend;
 import static com.tugasakhir.elderlycare.service.mqttServices.onBody;
 import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
-import static com.tugasakhir.elderlycare.ui.MainActivity.myServer;
-
-import static java.time.LocalDate.from;
+import static com.tugasakhir.elderlycare.ui.MainActivity.client;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
@@ -21,36 +23,35 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
+import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IFillFormatter;
 import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.google.android.material.tabs.TabLayout;
 import com.tugasakhir.elderlycare.R;
 import com.tugasakhir.elderlycare.handler.DBHandler;
 
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -61,11 +62,15 @@ import java.util.List;
 public class Wearable extends Fragment {
 
     DBHandler myDb;
+    JSONObject elderData;
 
-    TextView name, dob, address, hr, wear, age;
+    TextView steps, cals, hr, wear;
+    EditText msgText;
+    Button msgSend;
     ImageView img;
 
     LineChart hrTrend;
+    BarChart stepsTrend, calsTrend;
 
     FrameLayout simpleFrameLayout;
     TabLayout tabLayout;
@@ -125,50 +130,93 @@ public class Wearable extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        name = (TextView) view.findViewById(R.id.infoElderName);
-        dob = (TextView) view.findViewById(R.id.infoElderBirthdate);
-        address = (TextView) view.findViewById(R.id.infoElderAddress);
-        age = (TextView) view.findViewById(R.id.infoElderAge);
+        steps = (TextView) view.findViewById(R.id.countSteps);
+        cals = (TextView) view.findViewById(R.id.countCalories);
         hr = (TextView) view.findViewById(R.id.hrView);
         wear = (TextView) view.findViewById(R.id.wearStat);
+        msgText = (EditText) view.findViewById(R.id.msgSendElder);
+        msgSend = (Button) view.findViewById(R.id.btnSendMsg);
 
-        img = (ImageView) view.findViewById(R.id.infoElderImage);
+        msgSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    client.publish(elderSelected+"/apps/wearable/messages", ("\"" + msgText.getText().toString() + "\"").getBytes(),0, false);
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        myDb = new DBHandler(getContext());
 
         hrTrend = (LineChart) view.findViewById(R.id.hrTrend);
+        stepsTrend = (BarChart) view.findViewById(R.id.stepsTrend);
+        calsTrend = (BarChart) view.findViewById(R.id.trendCals);
 
         initTrend(hrTrend, 200, 0);
 
-        if(HrTrendRec.length() != 0) {
-            setChart(hrTrend);
-        }
-
-        Log.e("Elder Id", String.valueOf(elderSelected));
-        setData();
-    }
-
-    private void setData(){
-        myDb = new DBHandler(getContext());
-        JSONObject obj = new JSONObject();
+        initBar(stepsTrend);
+        initBar(calsTrend);
         try {
-            obj = myDb.getElderData(elderSelected);
-            Log.e("Hasil", String.valueOf(obj.getString("image")));
-            String imgUrl = null;
-            imgUrl = myServer+"/image/"+obj.getString("image");
-            name.setText(obj.getString("name"));
-
-            Date birthday = new Date(obj.getString("birthdate"));
-            SimpleDateFormat simpleDate = new SimpleDateFormat("dd MMMM yyyy");
-
-            // Calculate Birthday
-            LocalDateTime birth = LocalDateTime.ofInstant(birthday.toInstant(), ZoneId.systemDefault());
-            int getAge = Period.between(LocalDate.of(birth.getYear(), birth.getMonth(), birth.getDayOfMonth()), LocalDate.now()).getYears();
-
-            age.setText("( " + getAge + " Years Old )");
-            dob.setText(simpleDate.format(birthday));
-            address.setText(obj.getString("address"));
-            Glide.with(getContext()).asBitmap().load(imgUrl).apply(new RequestOptions().override(300, 300)).centerCrop().into(img);
+            elderData = myDb.getElderData(elderSelected);
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+
+        if(HrTrendRec.length() != 0) {
+            for(int i = 0; i < HrTrendRec.length(); i ++) {
+                try {
+//                    JSONObject elder = myDb.getElderData(elderSelected);
+                    JSONObject elder = elderData;
+                    if(HrTrendRec.getJSONObject(i).getString("watch_id").equals(elder.getString("watch_id"))) {
+                        setChart(hrTrend);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            setChart(hrTrend);
+        }
+        if(StepsTrend.length() != 0) {
+            for(int i = 0; i < StepsTrend.length(); i ++) {
+                try {
+//                    JSONObject elder = myDb.getElderData(elderSelected);
+                    JSONObject elder = elderData;
+                    if(StepsTrend.getJSONObject(i).getString("watch_id").equals(elder.getString("watch_id"))) {
+                        setBarData(stepsTrend, "steps", StepsTrend);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        if(CalsTrend.length() != 0) {
+            for(int i = 0; i < CalsTrend.length(); i ++) {
+                try {
+//                    JSONObject elder = myDb.getElderData(elderSelected);
+                    JSONObject elder = elderData;
+                    if(CalsTrend.getJSONObject(i).getString("watch_id").equals(elder.getString("watch_id"))) {
+                        setBarData(calsTrend, "calories", CalsTrend);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+//        Log.e("Elder Id", String.valueOf(elderSelected));
+        Log.e("Data", String.valueOf(StepsTrend));
+        Log.e("Data", String.valueOf(CalsTrend));
+        Log.e("Data", String.valueOf(HrTrendRec));
+        getData();
+        try {
+            Class.forName("dalvik.system.CloseGuard")
+                    .getMethod("setEnabled", boolean.class)
+                    .invoke(null, true);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -202,7 +250,8 @@ public class Wearable extends Fragment {
         ArrayList<Entry> values = new ArrayList<>();
 
         try {
-            JSONObject elder = myDb.getElderData(elderSelected);
+//            JSONObject elder = myDb.getElderData(elderSelected);
+            JSONObject elder = elderData;
 
             for(int i = 0; i < HrTrendRec.length(); i++) {
                 JSONObject obj = HrTrendRec.getJSONObject(i);
@@ -252,12 +301,27 @@ public class Wearable extends Fragment {
     private void getData() {
         DBHandler myDb = new DBHandler(getContext());
         try {
-            JSONObject elder = myDb.getElderData(elderSelected);
+//            JSONObject elder = myDb.getElderData(elderSelected);
+            JSONObject elder = elderData;
 
             // SET Heart Rate Value
             for(int i = 0; i < HrData.length(); i++) {
                 if(elder.getString("watch_id").equals(HrData.getJSONObject(i).getString("watch_id"))) {
                     hr.setText(HrData.getJSONObject(i).getInt("hr") + " Bpm");
+                }
+            }
+
+            // SET Heart Rate Value
+            for(int i = 0; i < StepsData.length(); i++) {
+                if(elder.getString("watch_id").equals(StepsData.getJSONObject(i).getString("watch_id"))) {
+                    steps.setText(StepsData.getJSONObject(i).getInt("steps") + " Steps");
+                }
+            }
+
+            // SET Heart Rate Value
+            for(int i = 0; i < CalsData.length(); i++) {
+                if(elder.getString("watch_id").equals(CalsData.getJSONObject(i).getString("watch_id"))) {
+                    cals.setText(CalsData.getJSONObject(i).getInt("calories") + " Cals");
                 }
             }
 
@@ -279,6 +343,68 @@ public class Wearable extends Fragment {
         }
     }
 
+    private void initBar(BarChart chart) {
+
+        chart.setMaxVisibleValueCount(60);
+        chart.setPinchZoom(false);
+        chart.setDrawBarShadow(false);
+        chart.setDrawGridBackground(false);
+        chart.setTouchEnabled(false);
+        chart.setDragEnabled(false);
+        chart.setScaleEnabled(false);
+
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
+
+        chart.getAxisLeft().setDrawGridLines(false);
+        chart.getLegend().setEnabled(false);
+        chart.getDescription().setEnabled(false);
+    }
+
+    // TODO AMBIL dari HRTrend terus di parse masing2 untuk Step dan Cals
+    private void setBarData(BarChart chart, String type, JSONArray dataType) {
+
+        ArrayList<BarEntry> values = new ArrayList<>();
+        List<String> xAxisValues = new ArrayList<>();
+
+        try {
+//            JSONObject elder = myDb.getElderData(elderSelected);
+            JSONObject elder = elderData;
+            for(int i = 0; i < dataType.length(); i ++) {
+                JSONObject obj = dataType.getJSONObject(i);
+                if(elder.getString("watch_id").equals(obj.getString("watch_id"))
+                        && obj.getString("type").equals(type)) {
+                    values.add(new BarEntry(i, obj.getInt("value")));
+                    xAxisValues.add(obj.getString("date"));
+                }
+            }
+
+            XAxis xAxis = chart.getXAxis();
+            xAxis.setValueFormatter(new com.github.mikephil.charting.formatter.IndexAxisValueFormatter(xAxisValues));
+            BarDataSet set1;
+
+            set1 = new BarDataSet(values, "");
+
+            set1.setDrawIcons(false);
+            set1.setColor(Color.BLACK);
+            set1.setFormLineWidth(1f);
+            set1.setFormSize(15.f);
+            set1.setValueTextSize(9f);
+
+            ArrayList<IBarDataSet> dataSets = new ArrayList<>();
+            dataSets.add(set1);
+
+            BarData data = new BarData(dataSets);
+            chart.setData(data);
+
+            chart.invalidate();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void onResume() {
         handler.postDelayed(runnable = new Runnable() {
@@ -287,8 +413,52 @@ public class Wearable extends Fragment {
                 getData();
 
                 initTrend(hrTrend, 200, 0);
-                setChart(hrTrend);
-                // TODO TAMBAH DISINI
+                initBar(stepsTrend);
+                initBar(calsTrend);
+
+                if(HrTrendRec.length() != 0) {
+                    for(int i = 0; i < HrTrendRec.length(); i ++) {
+                        try {
+//                            JSONObject elder = myDb.getElderData(elderSelected);
+                            JSONObject elder = elderData;
+                            if(HrTrendRec.getJSONObject(i).getString("watch_id").equals(elder.getString("watch_id"))) {
+                                setChart(hrTrend);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    setChart(hrTrend);
+                }
+                if(StepsTrend.length() != 0) {
+                    for(int i = 0; i < StepsTrend.length(); i ++) {
+                        try {
+//                            JSONObject elder = myDb.getElderData(elderSelected);
+                            JSONObject elder = elderData;
+                            if(StepsTrend.getJSONObject(i).getString("watch_id").equals(elder.getString("watch_id"))) {
+                                setBarData(stepsTrend, "steps", StepsTrend);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                if(CalsTrend.length() != 0) {
+                    for(int i = 0; i < CalsTrend.length(); i ++) {
+                        try {
+//                            JSONObject elder = myDb.getElderData(elderSelected);
+                            JSONObject elder = elderData;
+                            if(CalsTrend.getJSONObject(i).getString("watch_id").equals(elder.getString("watch_id"))) {
+                                setBarData(calsTrend, "calories", CalsTrend);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }
+
                 handler.postDelayed(runnable, delay);
             }
         }, delay);
@@ -302,4 +472,5 @@ public class Wearable extends Fragment {
         handler.removeCallbacks(runnable);
         super.onPause();
     }
+
 }

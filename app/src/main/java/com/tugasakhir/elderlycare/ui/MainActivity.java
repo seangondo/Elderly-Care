@@ -9,6 +9,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -159,7 +160,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (!hasPermission(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
-            Log.e("Permission", "TES");
         } else {
             cursorLog = myDb.getLoginInfo();
             Log.e("Jumlah Cursor", String.valueOf(cursorLog.getCount()));
@@ -483,7 +483,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         if (permissionGranted) {
-            Log.e("Permission", "MASOK");
             cursorLog = myDb.getLoginInfo();
             Log.e("Jumlah Cursor", String.valueOf(cursorLog.getCount()));
 

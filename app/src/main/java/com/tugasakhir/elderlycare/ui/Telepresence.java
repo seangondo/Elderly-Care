@@ -151,7 +151,6 @@ public class Telepresence extends Fragment implements View.OnClickListener,
             JSONObject elder = myDb.getElderData(elderSelected);
             String house_id = elder.getString("house_id");
             JSONArray pointList = myDb.getPointFromId(house_id);
-            Log.e("Tes", String.valueOf(pointList));
             for(int i = 0; i < pointList.length(); i++) {
                 JSONObject arrObj = pointList.getJSONObject(i);
                 pointItems.add(arrObj.getString("name"));

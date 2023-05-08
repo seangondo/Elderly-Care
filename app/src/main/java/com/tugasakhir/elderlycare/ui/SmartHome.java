@@ -342,7 +342,6 @@ public class SmartHome extends Fragment implements View.OnClickListener{
                     showPieChart(kitchenGas, Integer.parseInt(kitchen_gas), 1000, "");
                 }
                 if(living_no.size() != 0 & kitchen_no.size() != 0) {
-                    Log.e("Debug", String.valueOf(mqttServices.living_val));
                     initTrend(trendTemp, 100, 0);
                     initTrend(trendGas, 1024, 0);
                     setData("livingroom" ,trendTemp);
