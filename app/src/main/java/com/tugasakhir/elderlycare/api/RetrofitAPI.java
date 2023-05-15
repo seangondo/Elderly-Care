@@ -35,29 +35,80 @@ public interface RetrofitAPI {
     @Multipart
     @POST("/elder/edit/img")
     Call<ResponseBody> updateElderImage(@Part("id") RequestBody elder_id,
-                                   @Part("name") RequestBody name,
-                                   @Part("birthdate") RequestBody birthdate,
-                                   @Part("house_id") RequestBody house_id,
-                                   @Part("robot_id") RequestBody robot_id,
-                                   @Part("watch_id") RequestBody watch_id,
-                                   @Part MultipartBody.Part image);
+                                        @Part("name") RequestBody name,
+                                        @Part("address") RequestBody address,
+                                        @Part("birthdate") RequestBody birthdate,
+                                        @Part("house_id") RequestBody house_id,
+                                        @Part("robot_id") RequestBody robot_id,
+                                        @Part("watch_id") RequestBody watch_id,
+                                        @Part MultipartBody.Part image);
 
     @Multipart
     @POST("/elder/edit")
     Call<ResponseBody> updateElder(@Part("id") RequestBody elder_id,
                                    @Part("name") RequestBody name,
+                                   @Part("address") RequestBody address,
                                    @Part("birthdate") RequestBody birthdate,
                                    @Part("house_id") RequestBody house_id,
                                    @Part("robot_id") RequestBody robot_id,
                                    @Part("watch_id") RequestBody watch_id);
 
     @Multipart
-    @POST("/elder/add")
-    Call<ResponseBody> addElder(@Part("id") RequestBody elder_id,
-                                   @Part("name") RequestBody name,
-                                   @Part("birthdate") RequestBody birthdate,
-                                   @Part("house_id") RequestBody house_id,
-                                   @Part("robot_id") RequestBody robot_id,
-                                   @Part("watch_id") RequestBody watch_id);
+    @POST("/elder/insert/img")
+    Call<ResponseBody> addElderImage(@Part("id") RequestBody elder_id,
+                                        @Part("name") RequestBody name,
+                                        @Part("address") RequestBody address,
+                                        @Part("birthdate") RequestBody birthdate,
+                                        @Part("house_id") RequestBody house_id,
+                                        @Part("robot_id") RequestBody robot_id,
+                                        @Part("watch_id") RequestBody watch_id,
+                                        @Part MultipartBody.Part image);
 
+
+    @Multipart
+    @POST("/elder/insert")
+    Call<ResponseBody> addElder(@Part("id") RequestBody elder_id,
+                                     @Part("name") RequestBody name,
+                                     @Part("address") RequestBody address,
+                                     @Part("birthdate") RequestBody birthdate,
+                                     @Part("house_id") RequestBody house_id,
+                                     @Part("robot_id") RequestBody robot_id,
+                                     @Part("watch_id") RequestBody watch_id);
+
+    @Multipart
+    @POST("/elder/delete")
+    Call<ResponseBody> deleteElder(@Part("caregiver_id") RequestBody caregiver_id,
+                                   @Part("elder_id") RequestBody elder_id);
+
+    @Multipart
+    @POST("/caregiver/signup")
+    Call<ResponseBody> caregiverSignup(@Part("name") RequestBody name,
+                                       @Part("username") RequestBody username,
+                                       @Part("password") RequestBody password,
+                                       @Part("email") RequestBody email,
+                                       @Part("phone") RequestBody phone,
+                                       @Part("address") RequestBody robot_id);
+
+    @Multipart
+    @POST("/caregiver/edit")
+    Call<ResponseBody> caregiverEdit(@Part("id") RequestBody caregiver_id,
+                                   @Part("name") RequestBody name,
+                                   @Part("username") RequestBody username,
+                                   @Part("email") RequestBody email,
+                                   @Part("phone") RequestBody phone,
+                                   @Part("address") RequestBody address);
+
+
+    @Multipart
+    @POST("/caregiver/edit/password")
+    Call<ResponseBody> caregiverEditPassword(@Part("id") RequestBody caregiver_id,
+                                             @Part("username") RequestBody name,
+                                             @Part("passwordOld") RequestBody passwordOld,
+                                             @Part("passwordNew") RequestBody passwordNew);
+
+    @Multipart
+    @POST("/caregiver/elder")
+    Call<ResponseBody> existingElder(@Part("caregiver_id") RequestBody caregiver_id,
+                                             @Part("elder_name") RequestBody name,
+                                             @Part("elder_id") RequestBody elder_id);
 }

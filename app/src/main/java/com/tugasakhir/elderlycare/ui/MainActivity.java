@@ -105,12 +105,12 @@ public class MainActivity extends AppCompatActivity {
 //    static TextView connections;
     TextInputEditText user, passw;
     TextView login;
-    Button button;
+    Button button, signup;
     CheckBox cbLogin;
 
     public static String myUser, myPass;
 
-    final com.tugasakhir.elderlycare.service.loadingDialog loadingDialog = new loadingDialog(MainActivity.this);
+    public final com.tugasakhir.elderlycare.service.loadingDialog loadingDialog = new loadingDialog(this);
 
     private final View.OnClickListener myClickListener = new View.OnClickListener() {
         @Override
@@ -132,6 +132,12 @@ public class MainActivity extends AppCompatActivity {
                             passw.setError("Password can't be empty!");
                         }
                     }
+                    break;
+                case R.id.buttonSignUp:
+                    Intent i = new Intent(MainActivity.this, AddCaregiver.class);
+                    startActivity(i);
+                    overridePendingTransition(0, 0);
+                    finish();
                     break;
             }
         }
@@ -155,8 +161,9 @@ public class MainActivity extends AppCompatActivity {
         button = (Button) findViewById(R.id.button);
         login = (TextView) findViewById(R.id.tvLogin);
         cbLogin = (CheckBox) findViewById(R.id.cbAutoLogin);
-
+        signup = (Button) findViewById(R.id.buttonSignUp);
         button.setOnClickListener(myClickListener);
+        signup.setOnClickListener(myClickListener);
 
         if (!hasPermission(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
@@ -242,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void checkLogin(LoginResponse res) {
          if(res.getResult()) {
-            loadingDialog.dismissDialog();
+//            loadingDialog.dismissDialog();
 
             JSONArray array = new JSONArray();
             JSONObject obj = new JSONObject();
@@ -262,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // res.getUser_id(), res.getUser_name(), res.getUsername(), res.getEmail(), res.getPhone_number(), res.getAddress(),
-            Toast.makeText(MainActivity.this, "Login Success!", Toast.LENGTH_LONG).show();
+//            Toast.makeText(MainActivity.this, "Login Success!", Toast.LENGTH_LONG).show();
             dataElder = res.getElder_list();
 
             myDb.deleteElderAll();
@@ -304,9 +311,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void goToHome(){
+        Toast.makeText(MainActivity.this, "Login Success!", Toast.LENGTH_LONG).show();
         Intent i = new Intent(this, ElderSelectorActivity.class);
         startActivity(i);
         overridePendingTransition(0, 0);
+        loadingDialog.dismissDialog();
         finish();
     }
 
@@ -348,7 +357,7 @@ public class MainActivity extends AppCompatActivity {
                             subscribeToTopic(subscriptionTopic);
                         }
                         startService(new Intent(MainActivity.this, mqttServices.class));
-                        loadingDialog.dismissDialog();
+//                        loadingDialog.dismissDialog();
                         goToHome();
                     }
 

@@ -1,5 +1,6 @@
 package com.tugasakhir.elderlycare.ui;
 
+import static com.tugasakhir.elderlycare.service.mqttServices.statusRobot;
 import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
 import static com.tugasakhir.elderlycare.ui.MainActivity.client;
 
@@ -58,7 +59,7 @@ public class Telepresence extends Fragment implements View.OnClickListener,
 
     ImageButton bUp, bDown;
     ImageButton forward, backward, left, right;
-    Button bNav, bRtc, bNavCancel;
+    Button bNav, bRtc, bNavCancel, bDock;
 
     private int strength = 0;
 
@@ -72,11 +73,15 @@ public class Telepresence extends Fragment implements View.OnClickListener,
     TextView tvWeb;
 
     DBHandler myDb;
+    JSONObject elder;
+
+    boolean stats = true;
+    boolean statsOld = true;
 
     //Updater
     Handler handler = new Handler();
     Runnable runnable;
-    int delay = 1*100;
+    int delay = 100;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -148,7 +153,7 @@ public class Telepresence extends Fragment implements View.OnClickListener,
 
         try {
             myDb = new DBHandler(getContext());
-            JSONObject elder = myDb.getElderData(elderSelected);
+            elder = myDb.getElderData(elderSelected);
             String house_id = elder.getString("house_id");
             JSONArray pointList = myDb.getPointFromId(house_id);
             for(int i = 0; i < pointList.length(); i++) {
@@ -190,6 +195,7 @@ public class Telepresence extends Fragment implements View.OnClickListener,
         bRtc = (Button) view.findViewById(R.id.startWebrtc);
         myWebView = (WebView) view.findViewById(R.id.webrtc);
         tvWeb = (TextView) view.findViewById(R.id.msgWebview);
+        bDock = (Button) view.findViewById(R.id.teleDock);
 
 //        forward.setOnClickListener(this);
 //        backward.setOnClickListener(this);
@@ -207,6 +213,7 @@ public class Telepresence extends Fragment implements View.OnClickListener,
         bNavCancel.setOnClickListener(this);
         bNav.setOnClickListener(this);
         bRtc.setOnClickListener(this);
+        bDock.setOnClickListener(this);
     }
 
     @Override
@@ -214,6 +221,31 @@ public class Telepresence extends Fragment implements View.OnClickListener,
         handler.postDelayed(runnable = new Runnable() {
             @Override
             public void run() {
+
+                for(int i = 0; i < statusRobot.length(); i ++) {
+                    try {
+                        JSONObject myObj = statusRobot.getJSONObject(i);
+                        if(myObj.getString("robot_id").equals(elder.getString("robot_id"))
+                                && myObj.getInt("status") == 3) {
+                            if(statsOld != stats) {
+                                statsOld = stats;
+                                Toast.makeText(getContext(), "Navigation done!", Toast.LENGTH_LONG).show();
+                            }
+                        } else if (myObj.getString("robot_id").equals(elder.getString("robot_id"))
+                                && myObj.getInt("status") == 1){
+                            statsOld = false;
+                        } else if (myObj.getString("robot_id").equals(elder.getString("robot_id"))
+                                && myObj.getInt("status") == 2){
+                            if(statsOld != stats) {
+                                statsOld = stats;
+                                Toast.makeText(getContext(), "Navigation Stopped!", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 if(bUp.isPressed()) {
                     try {
                         Log.e("Topic", String.valueOf(elderSelected)+"/apps/robot/controller/neck");
@@ -273,10 +305,23 @@ public class Telepresence extends Fragment implements View.OnClickListener,
             case R.id.teleNav:
                 Log.e("X Coord", String.valueOf(xVal));
                 Log.e("Y Coord", String.valueOf(yVal));
-                try {
-                    client.publish(elderSelected+"/apps/robot/controller/map_coord", ("{\"x\": " + xVal + ", \"y\": " + yVal + " }").getBytes(),0, false);
-                } catch (MqttException e) {
-                    e.printStackTrace();
+                for(int i = 0; i < statusRobot.length(); i ++) {
+                    try {
+                        JSONObject myObj = statusRobot.getJSONObject(i);
+                        if(myObj.getString("robot_id").equals(elder.getString("robot_id"))
+                                && myObj.getInt("status") != 1) {
+                            try {
+                                client.publish(elderSelected+"/apps/robot/controller/map_coord", ("{\"x\": " + xVal + ", \"y\": " + yVal + " }").getBytes(),0, false);
+                                Toast.makeText(getContext(), "Navigating robot!", Toast.LENGTH_LONG).show();
+                            } catch (MqttException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            Toast.makeText(getContext(), "Robot still navigating, please wait!", Toast.LENGTH_LONG).show();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
                 break;
 
@@ -312,6 +357,27 @@ public class Telepresence extends Fragment implements View.OnClickListener,
                     client.publish(elderSelected+"/apps/robot/controller/cancel", ("{\"command\": \"stop\"}").getBytes(),0, false);
                 } catch (MqttException e) {
                     e.printStackTrace();
+                }
+                break;
+
+            case R.id.teleDock:
+                for(int i = 0; i < statusRobot.length(); i ++) {
+                    try {
+                        JSONObject myObj = statusRobot.getJSONObject(i);
+                        if(myObj.getString("robot_id").equals(elder.getString("robot_id"))
+                                && myObj.getInt("status") != 1) {
+                            try {
+                                client.publish(elderSelected+"/apps/robot/controller/map_coord", ("{\"x\": 2, \"y\": 0 }").getBytes(),0, false);
+                                Toast.makeText(getContext(), "Navigating robot!", Toast.LENGTH_LONG).show();
+                            } catch (MqttException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            Toast.makeText(getContext(), "Robot still navigating, please wait!", Toast.LENGTH_LONG).show();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
                 break;
         }

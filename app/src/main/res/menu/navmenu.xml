@@ -17,8 +17,8 @@
         android:title="Wearable"
         android:icon="@drawable/ic_wearable"/>
 
-    <item
-        android:id="@+id/testing"
-        android:title="Testing"
-        android:icon="@drawable/ic_person"/>
+<!--    <item-->
+<!--        android:id="@+id/testing"-->
+<!--        android:title="Testing"-->
+<!--        android:icon="@drawable/ic_person"/>-->
 </menu>

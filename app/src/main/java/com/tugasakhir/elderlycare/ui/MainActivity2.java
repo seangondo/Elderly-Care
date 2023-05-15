@@ -52,8 +52,9 @@ public class MainActivity2 extends AppCompatActivity {
     TextView eName, eAddress;
 
     LinearLayout layout;
+    LinearLayout dropMenu;
 
-    CardView dropMenu, btn1, btn2, btn3;
+    CardView btn1, btn2, btn3, btn4, btn5;
 
     public static SwitchCompat swAuto;
 
@@ -67,16 +68,29 @@ public class MainActivity2 extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
+
+                // MENU CHANGE CAREGIVER INFO
                 case R.id.menu1 :
-                    // TODO elder change menu
-                    goElderEdit();
-                    Log.e("Menu", "Elder settings");
+                    goToCaregiverEdit();
                     break;
+
+                // MENU EDIT ELDER INFO
                 case R.id.menu2 :
+                    goElderEdit();
+                    break;
+
+                // MENU CHANGE ELDER
+                case R.id.menu3 :
                     goToHome();
                     break;
-                case R.id.menu3 :
-                    Log.e("Menu", "Logout!");
+
+                // MENU ADD ELDER
+                case R.id.menu4 :
+                    goToAddElder();
+                    break;
+
+                // MENU LOGOUT
+                case R.id.menu5 :
                     logout();
                     break;
             }
@@ -121,7 +135,6 @@ public class MainActivity2 extends AppCompatActivity {
 
         binding = ActivityMain2Binding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        replaceFragment(new Overview());
 
         tv1 = (TextView) findViewById(R.id.tv2);
         tvAuto = (TextView) findViewById(R.id.AutoSmarthome);
@@ -135,21 +148,27 @@ public class MainActivity2 extends AppCompatActivity {
         btn1 = (CardView) findViewById(R.id.menu1);
         btn2 = (CardView) findViewById(R.id.menu2);
         btn3 = (CardView) findViewById(R.id.menu3);
+        btn4 = (CardView) findViewById(R.id.menu4);
+        btn5 = (CardView) findViewById(R.id.menu5);
 
         btn1.setOnClickListener(menuClickListener);
         btn2.setOnClickListener(menuClickListener);
         btn3.setOnClickListener(menuClickListener);
+        btn4.setOnClickListener(menuClickListener);
+        btn5.setOnClickListener(menuClickListener);
 
         swAuto = (SwitchCompat) findViewById(R.id.sw_auto);
         b1 = findViewById(R.id.emergency);
 
-        dropMenu = (CardView) findViewById(R.id.dropSetting);
+        dropMenu = (LinearLayout) findViewById(R.id.dropSetting);
         dropMenu.setVisibility(View.GONE);
 
         swAuto.setOnClickListener(myClickList);
         b1.setOnClickListener(myClickList);
 
         setData();
+
+        replaceFragment(new Overview());
 
         binding.navigationBar.setOnItemSelectedListener(item -> {
             switch (item.getItemId()) {
@@ -178,12 +197,12 @@ public class MainActivity2 extends AppCompatActivity {
                     tvAuto.setVisibility(View.INVISIBLE);
                     break;
 
-                case R.id.testing:
-                    replaceFragment(new TestTabLayout());
-                    tv1.setText("Testing");
-                    swAuto.setVisibility(View.INVISIBLE);
-                    tvAuto.setVisibility(View.INVISIBLE);
-                    break;
+//                case R.id.testing:
+//                    replaceFragment(new TestTabLayout());
+//                    tv1.setText("Testing");
+//                    swAuto.setVisibility(View.INVISIBLE);
+//                    tvAuto.setVisibility(View.INVISIBLE);
+//                    break;
             }
             return true;
         });
@@ -220,6 +239,11 @@ public class MainActivity2 extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frameLayout, f);
         fragmentTransaction.commit();
+        if (dropMenu.getVisibility() == VISIBLE) {
+//            TransitionManager.beginDelayedTransition(layout, new AutoTransition());
+            dropMenu.setVisibility(View.GONE);
+            imgBut.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24);
+        }
     }
 
     private void goToHome() {
@@ -231,6 +255,14 @@ public class MainActivity2 extends AppCompatActivity {
 
     private void goElderEdit() {
         Intent i = new Intent(this, EditElderActivity.class);
+        startActivity(i);
+        overridePendingTransition(0, 0);
+        finish();
+    }
+
+    private void goToAddElder() {
+        Intent i = new Intent(this, AddElder.class);
+        i.putExtra("starting", "overview");
         startActivity(i);
         overridePendingTransition(0, 0);
         finish();
@@ -265,6 +297,14 @@ public class MainActivity2 extends AppCompatActivity {
         Toast.makeText(MainActivity2.this, "Logout Success!", Toast.LENGTH_LONG).show();
 
         Intent i = new Intent(this, MainActivity.class);
+        startActivity(i);
+        overridePendingTransition(0, 0);
+        finish();
+    }
+
+    private void goToCaregiverEdit() {
+        Intent i = new Intent(this, EditCaregiver.class);
+        i.putExtra("starting", "overview");
         startActivity(i);
         overridePendingTransition(0, 0);
         finish();

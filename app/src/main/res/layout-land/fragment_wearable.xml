@@ -106,7 +106,7 @@
                             android:layout_marginStart="5dp"
                             android:layout_weight="3"
                             android:adjustViewBounds="true"
-                            android:src="@drawable/ic_baseline_monitor_heart_24" />
+                            android:src="@drawable/ic_heart" />
                     </LinearLayout>
 
                     <com.github.mikephil.charting.charts.LineChart

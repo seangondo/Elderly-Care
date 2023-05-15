@@ -5,8 +5,8 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 
 public class LoginResponse {
-    private int user_id;
-    private String user_name;
+    private int id;
+    private String name;
     private String username;
     private String email;
     private String phone_number;
@@ -17,9 +17,9 @@ public class LoginResponse {
     @SerializedName("elder_list")
     private final ArrayList<Object> elder_list;
 
-    public LoginResponse(int user_id, String user_name, String username, String email, String phone_number, String address, String command, Boolean result, ArrayList<Object> elder_list) {
-        this.user_id = user_id;
-        this.user_name = user_name;
+    public LoginResponse(int id, String name, String username, String email, String phone_number, String address, String command, Boolean result, ArrayList<Object> elder_list) {
+        this.id = id;
+        this.name = name;
         this.username = username;
         this.email = email;
         this.phone_number = phone_number;
@@ -30,12 +30,12 @@ public class LoginResponse {
     }
 
 
-    public int getUser_id() {
-        return user_id;
+    public int getId() {
+        return id;
     }
 
-    public String getUser_name() {
-        return user_name;
+    public String getName() {
+        return name;
     }
 
     public String getEmail() {

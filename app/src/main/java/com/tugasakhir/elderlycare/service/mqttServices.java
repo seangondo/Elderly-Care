@@ -40,6 +40,8 @@ public class mqttServices extends Service {
     public static List<String> kitchen_date, kitchen_time, living_date, living_time;
     public static List<Integer> living_no, living_val, kitchen_no, kitchen_val;
 
+    public static JSONArray poseDetection = new JSONArray();
+
     public static JSONArray trendRec = new JSONArray();
     public static JSONArray HrTrendRec = new JSONArray();
     public static JSONArray StepsTrend = new JSONArray();
@@ -48,6 +50,8 @@ public class mqttServices extends Service {
     public static JSONArray onBody = new JSONArray();
     public static JSONArray StepsData = new JSONArray();
     public static JSONArray CalsData = new JSONArray();
+
+    public static JSONArray statusRobot = new JSONArray();
 
     public static ArrayList<TrendReceive> trend;
 
@@ -72,8 +76,10 @@ public class mqttServices extends Service {
                 getTopic = topic;
                 msg = new String(message.getPayload());
 //                Log.e("Hasil", String.valueOf(living_temp));
-                Log.d("MQTT Topic", getTopic);
+//                Log.d("MQTT Topic", getTopic);
 //                Log.d("Mqtt Msg", msg);
+                getStatus();
+                getPose();
                 wearableData();
                 checkNotification();
                 smartHomePieChart();
@@ -309,7 +315,13 @@ public class mqttServices extends Service {
                 myRec = new JSONObject(msg);
                 heartRate.put("watch_id", myRec.getString("watch_id"));
                 heartRate.put("hr", myRec.getInt("hr"));
-                HrData.put(heartRate);
+                int val = dataExist(HrData, "watch_id", myRec.getString("watch_id"));
+                if(val != -1) {
+                    HrData.put(val, heartRate);
+                } else {
+                    HrData.put(heartRate);
+                }
+//                HrData.put(heartRate);
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -322,7 +334,13 @@ public class mqttServices extends Service {
                 myRec = new JSONObject(msg);
                 steps.put("watch_id", myRec.getString("watch_id"));
                 steps.put("steps", myRec.getInt("steps"));
-                StepsData.put(steps);
+                int val = dataExist(StepsData, "watch_id", myRec.getString("watch_id"));
+                if(val != -1) {
+                    StepsData.put(val, steps);
+                } else {
+                    StepsData.put(steps);
+                }
+//                StepsData.put(steps);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -334,7 +352,13 @@ public class mqttServices extends Service {
                 myRec = new JSONObject(msg);
                 calories.put("watch_id", myRec.getString("watch_id"));
                 calories.put("calories", myRec.getInt("calories"));
-                CalsData.put(calories);
+                int val = dataExist(CalsData, "watch_id", myRec.getString("watch_id"));
+                if(val != -1) {
+                    CalsData.put(val, calories);
+                } else {
+                    CalsData.put(calories);
+                }
+//                CalsData.put(calories);
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -347,7 +371,13 @@ public class mqttServices extends Service {
                 myRec = new JSONObject(msg);
                 onbody.put("watch_id", myRec.getString("watch_id"));
                 onbody.put("onbody", myRec.getString("onbody"));
-                onBody.put(onbody);
+                int val = dataExist(onBody, "watch_id", myRec.getString("watch_id"));
+                if(val != -1) {
+                    onBody.put(val, onbody);
+                } else {
+                    onBody.put(onbody);
+                }
+//                onBody.put(onbody);
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -356,13 +386,13 @@ public class mqttServices extends Service {
 
         if(getTopic.contains("/apps/wearable/trend")) {
             JSONArray myRec = null;
-            Log.e("Topic Wearable Trend", getTopic);
+//            Log.e("Topic Wearable Trend", getTopic);
             try {
                 myRec = new JSONArray(mqttServices.msg);
                 for (int i = myRec.length() - 1; i >= 0; i--) {
                     JSONObject data = new JSONObject();
                     JSONObject arrObj = myRec.getJSONObject(i);
-                    Log.e("Topic Wearable Trend", arrObj.getString("type"));
+//                    Log.e("Topic Wearable Trend", arrObj.getString("type"));
 
                     if(arrObj.getString("type").equals("heart rate")) {
 
@@ -424,5 +454,71 @@ public class mqttServices extends Service {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void getPose() {
+        if(getTopic.contains("/apps/pose")) {
+            JSONObject pose = new JSONObject();
+            JSONObject myRec = null;
+            try {
+                myRec = new JSONObject(msg);
+                pose.put("house_id", myRec.getString("house_id"));
+                pose.put("camera", myRec.getString("camera"));
+                pose.put("pose", myRec.getString("pose"));
+                pose.put("alarm", myRec.getBoolean("alarm"));
+                int val = dataExist(poseDetection, "camera", myRec.getString("camera"));
+//                int val1 = dataExist(poseDetection, "house_id", myRec.getString("house_id"));
+                if(val != -1) {
+                    poseDetection.put(val, pose);
+                } else {
+                    poseDetection.put(pose);
+                }
+//                poseDetection.put(pose);
+
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void getStatus() {
+
+        if(getTopic.contains("/apps/robot/status")) {
+            JSONObject status = new JSONObject();
+            JSONObject myRec = null;
+            try {
+                myRec = new JSONObject(msg);
+                status.put("robot_id", myRec.getString("robot_id"));
+                status.put("status", myRec.getString("status"));
+                int val = dataExist(statusRobot, "robot_id", myRec.getString("robot_id"));
+//                int val1 = dataExist(statusRobot, "status", myRec.getString("status"));
+                if(val != -1) {
+                    statusRobot.put(val, status);
+                } else {
+                    statusRobot.put(status);
+                }
+//                Log.e("Status", String.valueOf(statusRobot));
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public int dataExist(JSONArray arr, String objName, String value) {
+        for(int i = 0; i < arr.length(); i++) {
+            try {
+                JSONObject obj = arr.getJSONObject(i);
+                if(obj.getString(objName).equals(value)) {
+                    return i;
+                } else {
+                    return -1;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return -1;
     }
 }

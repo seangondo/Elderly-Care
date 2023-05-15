@@ -1,16 +1,32 @@
 package com.tugasakhir.elderlycare;
 
+import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
+
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.material.tabs.TabLayout;
+import com.tugasakhir.elderlycare.adapter.RecycleButtonAdapter;
+import com.tugasakhir.elderlycare.adapter.RecycleSensorAdapter;
+import com.tugasakhir.elderlycare.api.RecyclerViewInterface;
+import com.tugasakhir.elderlycare.handler.DBHandler;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,6 +45,11 @@ public class TestTabLayout extends Fragment {
     private String mParam2;
 
     TabLayout tabLayout;
+    JSONObject elder;
+    String house_id = null;
+    ArrayList<String> room = new ArrayList<>();
+    HashSet<String> hashSet = new HashSet<String>();
+    RecyclerView recyclerView, sensorRecycler;
 
     public TestTabLayout() {
         // Required empty public constructor
@@ -71,20 +92,141 @@ public class TestTabLayout extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-//         get the reference of FrameLayout and TabLayout
         tabLayout = (TabLayout) view.findViewById(R.id.simpleTabLayout);
-        // Create a new Tab named "First"
-        TabLayout.Tab firstTab = tabLayout.newTab();
-        firstTab.setText("First"); // set the Text for the first Tab
-        // first tab
-        tabLayout.addTab(firstTab); // add  the tab at in the TabLayout
-        // Create a new Tab named "Second"
-        TabLayout.Tab secondTab = tabLayout.newTab();
-        secondTab.setText("Second"); // set the Text for the second Tab
-        tabLayout.addTab(secondTab); // add  the tab  in the TabLayout
-        // Create a new Tab named "Third"
-        TabLayout.Tab thirdTab = tabLayout.newTab();
-        thirdTab.setText("Third"); // set the Text for the first Tab
-        tabLayout.addTab(thirdTab); // add  the tab at in the TabLayout
+        ArrayList<String> tab = new ArrayList<>();
+
+        recyclerView = view.findViewById(R.id.itemTabButton);
+        sensorRecycler = view.findViewById(R.id.itemTab);
+        DBHandler myDb = new DBHandler(getContext());
+        try {
+            elder = myDb.getElderData(elderSelected);
+            house_id = elder.getString("house_id");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            JSONArray mySensor = myDb.getSensorFromId(house_id);
+            for(int i = 0; i < mySensor.length(); i++){
+                JSONObject list = mySensor.getJSONObject(i);
+                room.add(list.getString("room"));
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            JSONArray mySensor = myDb.getButtonFromHouseID(house_id);
+            for(int i = 0; i < mySensor.length(); i++){
+                JSONObject list = mySensor.getJSONObject(i);
+                room.add(list.getString("room"));
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        myDb.close();
+
+        hashSet.addAll(room);
+        room.clear();
+        room.addAll(hashSet);
+
+//        tab.add("Kitchen");
+//        tab.add("Living Room");
+//        tab.add("Bed Room");
+//        tab.add("Bathroom");
+
+        createTab(room);
+        createInside(tabLayout.getSelectedTabPosition());
+
+
+        Log.e("Current", String.valueOf(tabLayout.getSelectedTabPosition()));
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                Log.e("Selected", String.valueOf(tab.getPosition()));
+                createInside(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                Log.e("UnSelected", String.valueOf(tab.getPosition()));
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+                Log.e("Reselected", String.valueOf(tab.getPosition()));
+            }
+        });
     }
+
+    private void createTab(ArrayList<String> obj) {
+        for(int i = 0; i < obj.size(); i++) {
+            TabLayout.Tab add = tabLayout.newTab();
+            add.setText(obj.get(i));
+            tabLayout.addTab(add);
+        }
+    }
+
+    private void createInside(int tabNum) {
+        DBHandler myDb = new DBHandler(getContext());
+        try {
+            JSONArray buttonList = myDb.getButton(elder.getString("house_id"), room.get(tabNum));
+            LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+            recyclerView.setLayoutManager(layoutManager);
+            ArrayList<String> type1 = new ArrayList<>();
+            ArrayList<String> value = new ArrayList<>();
+            ArrayList<String> type = new ArrayList<>();
+            for(int i = 0; i < buttonList.length(); i++) {
+                JSONObject obj = buttonList.getJSONObject(i);
+                type1.add(obj.getString("type"));
+                value.add("OFF");
+                type.add(obj.getString("type"));
+            }
+
+            RecycleButtonAdapter adapter = new RecycleButtonAdapter(type1, type, value, getContext(), new RecyclerViewInterface() {
+                @Override
+                public void onItemClick(int pos) {
+
+            //        name.get(pos);
+                    Log.e("Pressed", String.valueOf(pos));
+                }
+            });
+            recyclerView.setAdapter(adapter);
+
+
+            JSONArray sensorList = myDb.getSensor(elder.getString("house_id"), room.get(tabNum));
+            Log.e("Sensor list", String.valueOf(sensorList));
+            LinearLayoutManager sensorLayout = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+            sensorRecycler.setLayoutManager(sensorLayout);
+            ArrayList<String> title = new ArrayList<>();
+            ArrayList<String> trend = new ArrayList<>();
+            for(int i = 0; i < sensorList.length(); i++) {
+                JSONObject obj = sensorList.getJSONObject(i);
+                title.add(obj.getString("type"));
+                trend.add(obj.getString("trend"));
+            }
+
+            RecycleSensorAdapter sensorAdapter = new RecycleSensorAdapter(title, trend, getContext(), new RecyclerViewInterface() {
+                @Override
+                public void onItemClick(int pos) {
+
+                    //        name.get(pos);
+                    Log.e("Pressed", String.valueOf(pos));
+                }
+            });
+            sensorRecycler.setAdapter(sensorAdapter);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+//    @Override
+//    public void onItemClick(int pos) {
+////        name.get(pos);
+//        Log.e("Pressed", String.valueOf(pos));
+//    }
 }

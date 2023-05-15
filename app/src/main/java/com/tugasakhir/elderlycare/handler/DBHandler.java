@@ -138,8 +138,8 @@ public class DBHandler extends SQLiteOpenHelper {
     public void insertLogin(LoginResponse user, String password, boolean autoLog) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put(INFO_id, user.getUser_id());
-        cv.put(INFO_name, user.getUser_name());
+        cv.put(INFO_id, user.getId());
+        cv.put(INFO_name, user.getName());
         cv.put(INFO_username, user.getUsername());
         cv.put(INFO_password, password);
         cv.put(INFO_email, user.getEmail());
@@ -165,8 +165,13 @@ public class DBHandler extends SQLiteOpenHelper {
         if(c.moveToFirst()) {
             do {
                 JSONObject dataObj = new JSONObject();
+                dataObj.put("id", c.getInt(0));
+                dataObj.put("name", c.getString(1));
                 dataObj.put("username", c.getString(2));
                 dataObj.put("password", c.getString(3));
+                dataObj.put("email", c.getString(4));
+                dataObj.put("phone_number", c.getString(5));
+                dataObj.put("address", c.getString(6));
                 dataObj.put("autoLog", c.getInt(7));
                 allData.put(dataObj);
 
@@ -178,7 +183,15 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public void deleteLogin(String table, String username) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(table, INFO_username + " = " + username, null);
+        db.delete(table, INFO_username + " = '" + username + "'", null);
+    }
+
+
+    public void updateCaregiver(ContentValues cv, int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        db.update(INFO_TABLE, cv, INFO_id + " = " + id, null);
+
     }
 
     public void deleteLoginAll() {
@@ -223,12 +236,29 @@ public class DBHandler extends SQLiteOpenHelper {
         }
     }
 
+    public void deleteElder (int id) {
+        SQLiteDatabase dbW = this.getWritableDatabase();
+        dbW.delete(ELDER_TABLE, ELDER_id + " = " + id, null);
+    }
+
+    public void insertSingleElder(JSONObject data) throws JSONException {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(ELDER_id, data.getInt("elder_id"));
+        cv.put(ELDER_name, data.getString("name"));
+        cv.put(ELDER_address, data.getString("address"));
+        cv.put(ELDER_birthdate, data.getString("birthdate"));
+        cv.put(ELDER_house, data.getString("house_id"));
+        cv.put(ELDER_robot, data.getString("robot_id"));
+        cv.put(ELDER_watch, data.getString("watch_id"));
+        cv.put(ELDER_image, data.getString("image"));
+        db.insertOrThrow(ELDER_TABLE, null, cv);
+    }
+
     public JSONObject getElderData (int id) throws JSONException {
         JSONObject data = new JSONObject();
-        JSONObject tes = new JSONObject();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery("SELECT * FROM " + ELDER_TABLE + " WHERE id=" + id, null);
-
         if(c.moveToFirst()) {
             do {
                 data.put("elder_id", c.getInt(0));
@@ -241,25 +271,32 @@ public class DBHandler extends SQLiteOpenHelper {
                 data.put("image", c.getString(7));
             } while (c.moveToNext());
         }
-
         return data;
+    }
+
+    public int getElderCount(int id) {
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT * FROM " + ELDER_TABLE + " WHERE id=" + id, null);
+        return c.getCount();
     }
 
     public JSONArray getElderDataAll() throws JSONException {
         JSONArray allData = new JSONArray();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor c = db.rawQuery("SELECT * FROM " + INFO_TABLE, null);
+        Cursor c = db.rawQuery("SELECT * FROM " + ELDER_TABLE, null);
 
         if(c.moveToFirst()) {
             do {
                 JSONObject dataObj = new JSONObject();
-                dataObj.put("elder_id", c.getString(0));
+                dataObj.put("elder_id", c.getInt(0));
                 dataObj.put("name", c.getString(1));
-                dataObj.put("address", c.getInt(2));
-                dataObj.put("house_id", c.getInt(3));
-                dataObj.put("robot_id", c.getInt(4));
-                dataObj.put("watch_id", c.getInt(5));
-                dataObj.put("image", c.getInt(6));
+                dataObj.put("address", c.getString(2));
+                dataObj.put("birthdate", c.getString(3));
+                dataObj.put("house_id", c.getString(4));
+                dataObj.put("robot_id", c.getString(5));
+                dataObj.put("watch_id", c.getString(6));
+                dataObj.put("image", c.getString(7));
                 allData.put(dataObj);
 
             } while (c.moveToNext());
@@ -313,22 +350,24 @@ public class DBHandler extends SQLiteOpenHelper {
         }
     }
 
-    public JSONObject getSensorFromId (String house_id) throws JSONException {
-        JSONObject data = new JSONObject();
+    public JSONArray getSensorFromId (String house_id) throws JSONException {
+        JSONArray allData = new JSONArray();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery("SELECT * FROM " + SENSOR_TABLE + " WHERE house_id= '" + house_id +"'", null);
 
         if(c.moveToFirst()) {
             do {
-                data.put("house_id", c.getInt(0));
+                JSONObject data = new JSONObject();
+                data.put("house_id", c.getString(0));
                 data.put("room", c.getString(1));
                 data.put("type", c.getString(2));
                 data.put("trend", c.getString(3));
+                allData.put(data);
 
             } while (c.moveToNext());
         }
 
-        return data;
+        return allData;
     }
 
     public void deleteAllSensor() {
@@ -346,6 +385,27 @@ public class DBHandler extends SQLiteOpenHelper {
         for(int i = 0; i < sensor.size(); i++) {
             dbW.delete(SENSOR_TABLE, SENSOR_houseID + " = " + sensor.get(i), null);
         }
+    }
+
+    public JSONArray getSensor(String house_id, String room) throws JSONException {
+        JSONArray allData = new JSONArray();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT * FROM " + SENSOR_TABLE + " WHERE house_id= '" + house_id +"' AND room='" + room + "'", null);
+
+        Log.e("Data", String.valueOf(room));
+        if(c.moveToFirst()) {
+            do {
+                JSONObject data = new JSONObject();
+                data.put("house_id", c.getString(0));
+                data.put("room", c.getString(1));
+                data.put("type", c.getString(2));
+                data.put("trend", c.getString(3));
+                allData.put(data);
+
+            } while (c.moveToNext());
+        }
+
+        return allData;
     }
 
 
@@ -384,6 +444,44 @@ public class DBHandler extends SQLiteOpenHelper {
         for(int i = 0; i < button.size(); i++) {
             dbW.delete(BUTTON_TABLE, BUTTON_houseID + " = " + button.get(i), null);
         }
+    }
+
+    public JSONArray getButtonFromHouseID (String house_id) throws JSONException {
+        JSONObject data = new JSONObject();
+        JSONArray allData = new JSONArray();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT * FROM " + SENSOR_TABLE + " WHERE house_id= '" + house_id +"'", null);
+
+        if(c.moveToFirst()) {
+            do {
+                data.put("house_id", c.getInt(0));
+                data.put("room", c.getString(1));
+                data.put("type", c.getString(2));
+                allData.put(data);
+
+            } while (c.moveToNext());
+        }
+
+        return allData;
+    }
+
+    public JSONArray getButton(String house_id, String room) throws JSONException {
+        JSONArray allData = new JSONArray();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT * FROM " + BUTTON_TABLE + " WHERE house_id= '" + house_id +"' AND room='" + room + "'", null);
+
+        if(c.moveToFirst()) {
+            do {
+                JSONObject data = new JSONObject();
+                data.put("house_id", c.getString(0));
+                data.put("room", c.getString(1));
+                data.put("type", c.getString(2));
+                allData.put(data);
+
+            } while (c.moveToNext());
+        }
+
+        return allData;
     }
 
     // ---------------------------------------- < POINT COORDINATE DATABASE > ---------------------------------------- //

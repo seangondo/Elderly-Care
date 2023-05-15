@@ -28,6 +28,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
@@ -142,6 +143,8 @@ public class Wearable extends Fragment {
             public void onClick(View v) {
                 try {
                     client.publish(elderSelected+"/apps/wearable/messages", ("\"" + msgText.getText().toString() + "\"").getBytes(),0, false);
+                    msgText.setText("");
+                    Toast.makeText(getContext(), "Message send to elder!", Toast.LENGTH_LONG).show();
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
@@ -245,7 +248,6 @@ public class Wearable extends Fragment {
     }
 
     private void setChart(LineChart chartName) {
-        DBHandler myDb = new DBHandler(getContext());
         List<String> xAxisValues = new ArrayList<>();
         ArrayList<Entry> values = new ArrayList<>();
 
@@ -299,7 +301,6 @@ public class Wearable extends Fragment {
 
     @SuppressLint("SetTextI18n")
     private void getData() {
-        DBHandler myDb = new DBHandler(getContext());
         try {
 //            JSONObject elder = myDb.getElderData(elderSelected);
             JSONObject elder = elderData;
@@ -311,14 +312,14 @@ public class Wearable extends Fragment {
                 }
             }
 
-            // SET Heart Rate Value
+            // SET Steps Value
             for(int i = 0; i < StepsData.length(); i++) {
                 if(elder.getString("watch_id").equals(StepsData.getJSONObject(i).getString("watch_id"))) {
                     steps.setText(StepsData.getJSONObject(i).getInt("steps") + " Steps");
                 }
             }
 
-            // SET Heart Rate Value
+            // SET Cals Value
             for(int i = 0; i < CalsData.length(); i++) {
                 if(elder.getString("watch_id").equals(CalsData.getJSONObject(i).getString("watch_id"))) {
                     cals.setText(CalsData.getJSONObject(i).getInt("calories") + " Cals");
@@ -381,6 +382,7 @@ public class Wearable extends Fragment {
             }
 
             XAxis xAxis = chart.getXAxis();
+            xAxis.setLabelCount(xAxisValues.size());
             xAxis.setValueFormatter(new com.github.mikephil.charting.formatter.IndexAxisValueFormatter(xAxisValues));
             BarDataSet set1;
 
