@@ -6,6 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".ui.Overview">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
     <!-- TODO: Update blank fragment layout -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -14,23 +18,175 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView1"
 
-            android:layout_width="@dimen/widthC"
+            android:layout_width="450dp"
             android:layout_height="@dimen/lengthC"
 
             android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
             app:cardCornerRadius="10dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:id="@+id/titleBody"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Body Fit"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_marginTop="25dp"
                 android:layout_marginStart="25dp"
-                android:textSize="@dimen/subTextSize"
-                android:textStyle="bold"/>
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/titleBody"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Body Fit"
+                    android:textSize="@dimen/subTextSize"
+                    android:textStyle="bold"/>
+
+                <!--                <View-->
+                <!--                    android:layout_width="match_parent"-->
+                <!--                    android:layout_height="3dp"-->
+                <!--                    android:background="@color/cardview_dark_background"-->
+                <!--                    android:layout_marginEnd="10dp"/>-->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:weightSum="6">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0.5"
+                        android:orientation="vertical"
+                        android:weightSum="8">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:src="@drawable/ic_wearable"
+                            android:layout_weight="2" />
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:src="@drawable/ic_heart"
+                            android:layout_weight="2"/>
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:src="@drawable/ic_steps"
+                            android:layout_weight="2"/>
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:src="@drawable/ic_calories_full"
+                            android:layout_weight="2"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:layout_marginStart="5dp"
+                        android:layout_weight="5"
+                        android:weightSum="8">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Wear Status : "
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/wearOverview"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Tidak dipakai"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Heart Rate : "
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/hrOverview"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0 Bpm"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Steps Today : "
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/stepsOverview"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0 Steps"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Calories Burn : "
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/calsOverview"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0 Cals"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                </LinearLayout>
+            </LinearLayout>
+
 
         </androidx.cardview.widget.CardView>
 
@@ -38,71 +194,436 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView2"
 
-            android:layout_width="@dimen/widthC"
+            android:layout_width="450dp"
             android:layout_height="@dimen/lengthC"
 
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             app:cardCornerRadius="10dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cardView1" >
+            app:layout_constraintTop_toBottomOf="@+id/cardView4" >
 
-            <TextView
-                android:id="@+id/Camera"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Camera"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_marginTop="25dp"
                 android:layout_marginStart="25dp"
-                android:textSize="@dimen/subTextSize"
-                android:textStyle="bold"/>
-        </androidx.cardview.widget.CardView>
+                android:orientation="vertical">
 
+                <TextView
+                    android:id="@+id/titlePose"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pose Detection"
+                    android:textSize="@dimen/subTextSize"
+                    android:textStyle="bold"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:weightSum="6">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:layout_weight="5"
+                        android:weightSum="8">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Living Room 1 : "
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/pose1Overview"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Berdiri"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Living Room 2 : "
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/pose2Overview"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Berdiri"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Dining Room : "
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/pose3Overview"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Baringan di lantai"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                    <!--                    <LinearLayout-->
+                    <!--                        android:layout_width="0dp"-->
+                    <!--                        android:layout_height="match_parent"-->
+                    <!--                        android:layout_weight="1"-->
+                    <!--                        android:orientation="vertical"-->
+                    <!--                        android:weightSum="8">-->
+
+                    <!--                        <ImageView-->
+                    <!--                            android:layout_width="match_parent"-->
+                    <!--                            android:layout_height="0dp"-->
+                    <!--                            android:src="@drawable/ic_wearable"-->
+                    <!--                            android:layout_weight="2" />-->
+
+                    <!--                        <ImageView-->
+                    <!--                            android:layout_width="match_parent"-->
+                    <!--                            android:layout_height="0dp"-->
+                    <!--                            android:src="@drawable/ic_heart"-->
+                    <!--                            android:layout_weight="2"/>-->
+
+                    <!--                        <ImageView-->
+                    <!--                            android:layout_width="match_parent"-->
+                    <!--                            android:layout_height="0dp"-->
+                    <!--                            android:src="@drawable/ic_steps"-->
+                    <!--                            android:layout_weight="2"/>-->
+
+                    <!--                        <ImageView-->
+                    <!--                            android:layout_width="match_parent"-->
+                    <!--                            android:layout_height="0dp"-->
+                    <!--                            android:src="@drawable/ic_calories_full"-->
+                    <!--                            android:layout_weight="2"/>-->
+
+                    <!--                    </LinearLayout>-->
+
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
 
             android:id="@+id/cardView3"
 
-            android:layout_width="@dimen/widthC"
+            android:layout_width="450dp"
             android:layout_height="@dimen/lengthC"
 
-            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
             app:cardCornerRadius="10dp"
-            app:layout_constraintStart_toEndOf="@+id/cardView1"
-            app:layout_constraintTop_toTopOf="parent" >
-            <TextView
-                android:id="@+id/titleSmartHome"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Smart Home"
+            app:layout_constraintStart_toStartOf="@+id/cardView1"
+            app:layout_constraintTop_toBottomOf="@id/cardView1" >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_marginTop="25dp"
                 android:layout_marginStart="25dp"
-                android:textSize="@dimen/subTextSize"
-                android:textStyle="bold"/>
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/titleSmartHome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Smart Home"
+                    android:textSize="@dimen/subTextSize"
+                    android:textStyle="bold"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:weightSum="6">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:layout_weight="5"
+                        android:weightSum="8">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Living Room Light: "
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/lightLivingOverview"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Gelap!"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Living Room Temp : "
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tempLivingOverview"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="30 derajat C"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Kitchen Light : "
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/lightKitchenOverview"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Gelap"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Kitchen Gas : "
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/gasKitchenOverview"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Normal"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                    <!--                    <LinearLayout-->
+                    <!--                        android:layout_width="0dp"-->
+                    <!--                        android:layout_height="match_parent"-->
+                    <!--                        android:layout_weight="1"-->
+                    <!--                        android:orientation="vertical"-->
+                    <!--                        android:weightSum="8">-->
+
+                    <!--                        <ImageView-->
+                    <!--                            android:layout_width="match_parent"-->
+                    <!--                            android:layout_height="0dp"-->
+                    <!--                            android:src="@drawable/ic_wearable"-->
+                    <!--                            android:layout_weight="2" />-->
+
+                    <!--                        <ImageView-->
+                    <!--                            android:layout_width="match_parent"-->
+                    <!--                            android:layout_height="0dp"-->
+                    <!--                            android:src="@drawable/ic_heart"-->
+                    <!--                            android:layout_weight="2"/>-->
+
+                    <!--                        <ImageView-->
+                    <!--                            android:layout_width="match_parent"-->
+                    <!--                            android:layout_height="0dp"-->
+                    <!--                            android:src="@drawable/ic_steps"-->
+                    <!--                            android:layout_weight="2"/>-->
+
+                    <!--                        <ImageView-->
+                    <!--                            android:layout_width="match_parent"-->
+                    <!--                            android:layout_height="0dp"-->
+                    <!--                            android:src="@drawable/ic_calories_full"-->
+                    <!--                            android:layout_weight="2"/>-->
+
+                    <!--                    </LinearLayout>-->
+
+                </LinearLayout>
+            </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView4"
 
-            android:layout_width="@dimen/widthC"
+            android:layout_width="450dp"
             android:layout_height="@dimen/lengthC"
 
-            android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             app:cardCornerRadius="10dp"
-            app:layout_constraintStart_toEndOf="@+id/cardView1"
+            app:layout_constraintStart_toStartOf="@+id/cardView1"
             app:layout_constraintTop_toBottomOf="@+id/cardView3" >
-            <TextView
-                android:id="@+id/PatientData"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Patient Data"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_marginTop="25dp"
                 android:layout_marginStart="25dp"
-                android:textSize="@dimen/subTextSize"
-                android:textStyle="bold"/>
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/elderDataOverview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Elder Data"
+                    android:textSize="@dimen/subTextSize"
+                    android:textStyle="bold"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:weightSum="6">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:layout_weight="5"
+                        android:weightSum="8">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Name: "
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/nameElderOverview"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Name"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Date of Birth : "
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/dobElderOverview"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="18 Agustus 1942"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Address : "
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/addressOverview"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Jalan ......"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <Button
+                                android:id="@+id/btnEditElderOverview"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:textSize="14sp"
+                                android:text="Edit Elder Data"/>
+
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
         </androidx.cardview.widget.CardView>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    </ScrollView>
 </FrameLayout>

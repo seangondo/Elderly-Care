@@ -30,15 +30,15 @@
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/drawable/ic_wearable.xml" value="0.324" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/activity_add_caregiver.xml" value="0.25" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/activity_add_elder.xml" value="0.16" />
-        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/activity_add_existing_elder.xml" value="0.344468546637744" />
-        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/activity_edit_caregiver.xml" value="0.33" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/activity_add_existing_elder.xml" value="0.22" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/activity_edit_caregiver.xml" value="0.18" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/activity_edit_caregiver_password.xml" value="0.25" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/activity_elder_selector.xml" value="0.22" />
-        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/activity_main.xml" value="0.2" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/activity_main.xml" value="0.12" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/activity_main2.xml" value="0.25" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/button_list.xml" value="0.25" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/edit_elder.xml" value="0.18144833197721724" />
-        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/fragment_overview.xml" value="0.33" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/fragment_overview.xml" value="0.16" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/fragment_smart_home.xml" value="0.25" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/fragment_telepresence.xml" value="0.25" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/fragment_test_tab_layout.xml" value="0.15" />
@@ -47,20 +47,21 @@
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/selection_card.xml" value="0.25" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/sensor_list.xml" value="0.16" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/webrtc_popup.xml" value="0.22" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-port/selection_card.xml" value="0.1" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_add_caregiver.xml" value="0.12317708333333334" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_add_elder.xml" value="0.11241749174917491" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_add_existing_elder.xml" value="0.1" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_edit_caregiver.xml" value="0.12317708333333334" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_edit_caregiver_password.xml" value="0.12317708333333334" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_elder_selector.xml" value="0.18333333333333332" />
-        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_main.xml" value="0.22" />
-        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_main2.xml" value="0.33" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_main.xml" value="0.1377887788778878" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_main2.xml" value="0.2" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_main3.xml" value="0.1" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_splash_loading.xml" value="0.128506600660066" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/edit_elder.xml" value="0.18333333333333332" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/fragment_main.xml" value="0.1" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/fragment_overview.xml" value="0.33" />
-        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/fragment_smart_home.xml" value="0.22" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/fragment_smart_home.xml" value="0.25" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/fragment_telepresence.xml" value="0.264" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/fragment_test_tab_layout.xml" value="0.14036458333333332" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/fragment_wearable.xml" value="0.16" />

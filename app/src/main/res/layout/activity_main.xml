@@ -34,13 +34,15 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout3"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="325dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="20dp"
-        app:errorEnabled="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
         android:hint="Enter Password"
         app:endIconMode="password_toggle"
-        app:layout_constraintStart_toStartOf="@+id/button"
+        app:errorEnabled="true"
+        app:layout_constraintEnd_toEndOf="@+id/textInputLayout2"
+        app:layout_constraintStart_toStartOf="@+id/textInputLayout2"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout2"
         app:startIconDrawable="@drawable/ic_lock">
 
@@ -54,12 +56,14 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout2"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="325dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="20dp"
-        app:errorEnabled="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="50dp"
         android:hint="Username"
-        app:layout_constraintStart_toStartOf="@+id/textInputLayout3"
+        app:errorEnabled="true"
+        app:layout_constraintEnd_toEndOf="@+id/textView"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/textView"
         app:layout_constraintTop_toBottomOf="@+id/textView"
         app:startIconDrawable="@drawable/ic_person">
 
@@ -74,23 +78,48 @@
         android:id="@+id/button"
         android:layout_width="325dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="128dp"
+        android:layout_marginTop="30dp"
         android:text="Login"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout3" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cbAutoLogin" />
+
+    <Button
+        android:id="@+id/buttonSignUp"
+        android:layout_width="325dp"
+        android:layout_height="wrap_content"
+        android:text="Caregiver Sign Up"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="84dp"
-        android:layout_marginEnd="248dp"
-        android:text="Welcome,"
+        android:layout_marginTop="92dp"
+        android:text="Elderly Care"
         android:textSize="60dp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/textInputLayout2"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <CheckBox
+        android:id="@+id/cbAutoLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:text="Automatic login"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout3" />
+
+    <TextView
+        android:id="@+id/tvLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/cbAutoLogin"
+        app:layout_constraintTop_toBottomOf="@+id/cbAutoLogin" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

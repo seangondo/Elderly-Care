@@ -2,9 +2,13 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.Telepresence">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
     <!-- TODO: Update blank fragment layout -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -14,10 +18,11 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView1"
 
-            android:layout_width="@dimen/widthC"
-            android:layout_height="415dp"
+            android:layout_width="450dp"
+            android:layout_height="450dp"
 
             android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
             app:cardCornerRadius="10dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -26,11 +31,40 @@
                 android:id="@+id/titleBody"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Telepresence Camera"
-                android:layout_marginTop="25dp"
                 android:layout_marginStart="25dp"
+                android:layout_marginTop="25dp"
+                android:text="Telepresence Camera"
                 android:textSize="@dimen/subTextSize"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/startWebrtc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|bottom"
+                android:text="Start WebRTC" />
+
+            <TextView
+                android:id="@+id/msgWebview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="Start WebRTC"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:translationZ="0dp" />
+
+            <WebView
+                android:id="@+id/webrtc"
+                android:layout_width="400dp"
+                android:layout_height="330dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:translationZ="10dp"
+                android:visibility="invisible"
+
+                />
 
         </androidx.cardview.widget.CardView>
 
@@ -39,16 +73,17 @@
 
             android:id="@+id/cardView3"
 
-            android:layout_width="@dimen/widthC"
+            android:layout_width="450dp"
             android:layout_height="150dp"
 
-            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
             app:cardCornerRadius="10dp"
-            app:layout_constraintStart_toEndOf="@+id/cardView1"
-            app:layout_constraintTop_toTopOf="parent" >
+            app:layout_constraintStart_toStartOf="@+id/cardView1"
+            app:layout_constraintTop_toBottomOf="@id/cardView4">
+
             <LinearLayout
-                android:layout_height="match_parent"
                 android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:weightSum="10">
 
@@ -56,9 +91,9 @@
                     android:id="@+id/titleSmartHome"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
-                    android:layout_weight="3"
                     android:layout_marginStart="25dp"
                     android:layout_marginTop="25dp"
+                    android:layout_weight="2"
                     android:text="Manual Position"
                     android:textSize="@dimen/subTextSize"
                     android:textStyle="bold" />
@@ -66,36 +101,83 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="3"
+                    android:layout_weight="4.5"
                     android:orientation="horizontal"
-                    android:weightSum="10">
-                    <EditText
-                        android:id="@+id/inputX"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="5"
-                        android:ems="10"
-                        android:textSize="16sp"
-                        android:inputType="numberDecimal|numberSigned"
-                        android:hint="X Position..."/>
+                    android:weightSum="5">
 
-                    <EditText
-                        android:id="@+id/inputY"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="5"
-                        android:ems="10"
-                        android:textSize="16sp"
-                        android:inputType="numberDecimal|numberSigned"
-                        android:hint="Y Position..."/>
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/coord_map"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Select Coordinate"
+                            android:inputType="none"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!--                    <EditText-->
+                    <!--                        android:id="@+id/inputX"-->
+                    <!--                        android:layout_width="0dp"-->
+                    <!--                        android:layout_height="wrap_content"-->
+                    <!--                        android:layout_weight="5"-->
+                    <!--                        android:ems="10"-->
+                    <!--                        android:textSize="16sp"-->
+                    <!--                        android:inputType="numberDecimal|numberSigned"-->
+                    <!--                        android:hint="X Position..."/>-->
+
+                    <!--                    <EditText-->
+                    <!--                        android:id="@+id/inputY"-->
+                    <!--                        android:layout_width="0dp"-->
+                    <!--                        android:layout_height="wrap_content"-->
+                    <!--                        android:layout_weight="5"-->
+                    <!--                        android:ems="10"-->
+                    <!--                        android:textSize="16sp"-->
+                    <!--                        android:inputType="numberDecimal|numberSigned"-->
+                    <!--                        android:hint="Y Position..."/>-->
                 </LinearLayout>
-                <Button
-                    android:id="@+id/teleNav"
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="4"
-                    android:layout_gravity="top"
-                    android:text="Auto navigate"/>
+                    android:layout_weight="3.5"
+                    android:orientation="horizontal"
+                    android:weightSum="3">
+
+                    <Button
+                        android:id="@+id/teleNav"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_weight="1"
+                        android:text="Start" />
+
+                    <Button
+                        android:id="@+id/teleStop"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_weight="1"
+                        android:text="Stop" />
+
+                    <Button
+                        android:id="@+id/teleDock"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_weight="1"
+                        android:text="Dock" />
+                </LinearLayout>
+
             </LinearLayout>
 
 
@@ -104,102 +186,166 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView4"
 
-            android:layout_width="@dimen/widthC"
+            android:layout_width="450dp"
             android:layout_height="250dp"
 
-            android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             app:cardCornerRadius="10dp"
-            app:layout_constraintStart_toEndOf="@+id/cardView1"
-            app:layout_constraintTop_toBottomOf="@+id/cardView3" >
+            app:layout_constraintStart_toStartOf="@+id/cardView1"
+            app:layout_constraintTop_toBottomOf="@+id/cardView1">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="fill_parent"
                 android:orientation="vertical"
                 android:weightSum="10">
+
                 <TextView
                     android:id="@+id/Control"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Control"
-                    android:layout_marginTop="25dp"
                     android:layout_marginStart="25dp"
+                    android:layout_marginTop="25dp"
+                    android:layout_weight="0"
+                    android:text="Control"
                     android:textSize="@dimen/subTextSize"
-                    android:textStyle="bold"
-                    android:layout_weight="0"/>
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="10"
+                    android:orientation="vertical">
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="10"
-                        android:orientation="vertical">
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:weightSum="10">
+
                         <LinearLayout
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:weightSum="10">
-                            <LinearLayout
-                                android:layout_width="0dp"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="5"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:layout_weight="5">
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:textStyle="bold"
-                                    android:textSize="14sp"
-                                    android:text="Move"
-                                    android:textAlignment="center"/>
-                                <io.github.controlwear.virtual.joystick.android.JoystickView
-                                    android:id="@+id/JoystickControl"
-                                    android:layout_gravity="center"
-                                    xmlns:custom="http://schemas.android.com/apk/res-auto"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    custom:JV_buttonColor="#FF6E40"
-                                    custom:JV_buttonSizeRatio="30%"
-                                    custom:JV_borderColor="#00796B"
-                                    custom:JV_backgroundColor="#009688"
-                                    custom:JV_borderWidth="4dp"
-                                    custom:JV_fixedCenter="true"/>
-                            </LinearLayout>
+                                android:text="Move"
+                                android:textAlignment="center"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
 
                             <LinearLayout
-                                android:layout_width="0dp"
+                                android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:orientation="vertical"
-                                android:layout_weight="5"
                                 android:weightSum="9">
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="0dp"
-                                    android:textStyle="bold"
-                                    android:text="Neck"
-                                    android:textSize="14sp"
-                                    android:textAlignment="center"
-                                    android:layout_weight="1"/>
+
                                 <ImageButton
-                                    android:id="@+id/teleNeckUp"
+                                    android:id="@+id/controlForward"
+                                    android:layout_width="70dp"
+                                    android:layout_height="0dp"
+                                    android:layout_gravity="center_horizontal"
+                                    android:layout_weight="3"
+                                    android:src="@drawable/ic_baseline_keyboard_arrow_up_24" />
+
+                                <LinearLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="0dp"
-                                    android:src="@drawable/ic_baseline_keyboard_arrow_up_24"
-                                    android:layout_gravity="center"
-                                    android:layout_weight="4" />
+                                    android:layout_weight="3"
+                                    android:weightSum="9">
+
+                                    <ImageButton
+                                        android:id="@+id/controlLeft"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_gravity="center_horizontal"
+                                        android:layout_weight="3.25"
+                                        android:src="@drawable/ic_baseline_keyboard_arrow_left_24" />
+
+
+                                    <ImageView
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_gravity="center_horizontal"
+                                        android:layout_weight="2.5" />
+
+                                    <ImageButton
+                                        android:id="@+id/controlRight"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_gravity="center_horizontal"
+                                        android:layout_weight="3.25"
+                                        android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />
+
+                                </LinearLayout>
+
                                 <ImageButton
-                                    android:id="@+id/teleNeckDown"
-                                    android:layout_width="match_parent"
+                                    android:id="@+id/controlBack"
+                                    android:layout_width="70dp"
                                     android:layout_height="0dp"
-                                    android:src="@drawable/ic_baseline_keyboard_arrow_down_24"
-                                    android:layout_gravity="center"
-                                    android:layout_weight="4"/>
+                                    android:layout_gravity="center_horizontal"
+                                    android:layout_weight="3"
+                                    android:src="@drawable/ic_baseline_keyboard_arrow_down_24" />
 
                             </LinearLayout>
+
+                            <!--                            <io.github.controlwear.virtual.joystick.android.JoystickView xmlns:custom="http://schemas.android.com/apk/res-auto"-->
+                            <!--                                android:id="@+id/JoystickControl"-->
+                            <!--                                android:layout_width="wrap_content"-->
+                            <!--                                android:layout_height="wrap_content"-->
+                            <!--                                android:layout_gravity="center"-->
+                            <!--                                custom:JV_backgroundColor="#009688"-->
+                            <!--                                custom:JV_borderColor="#00796B"-->
+                            <!--                                custom:JV_borderWidth="4dp"-->
+                            <!--                                custom:JV_buttonColor="#FF6E40"-->
+                            <!--                                custom:JV_buttonSizeRatio="30%"-->
+                            <!--                                custom:JV_fixedCenter="true" />-->
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="5"
+                            android:orientation="vertical"
+                            android:weightSum="9">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="0dp"
+                                android:layout_weight="1"
+                                android:text="Neck"
+                                android:textAlignment="center"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <ImageButton
+                                android:id="@+id/teleNeckUp"
+                                android:layout_width="match_parent"
+                                android:layout_height="0dp"
+                                android:layout_gravity="center"
+                                android:layout_weight="4"
+                                android:src="@drawable/ic_baseline_keyboard_arrow_up_24" />
+
+                            <ImageButton
+                                android:id="@+id/teleNeckDown"
+                                android:layout_width="match_parent"
+                                android:layout_height="0dp"
+                                android:layout_gravity="center"
+                                android:layout_weight="4"
+                                android:src="@drawable/ic_baseline_keyboard_arrow_down_24" />
+
                         </LinearLayout>
                     </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    </ScrollView>
 </FrameLayout>

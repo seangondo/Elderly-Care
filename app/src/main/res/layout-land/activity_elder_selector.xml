@@ -45,14 +45,14 @@
             android:id="@+id/btnAddElder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="5dp"
             android:text="Add Elder" />
 
         <Button
             android:id="@+id/btnAddExistingElder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="5dp"
             android:text="Add Existing Elder" />
     </LinearLayout>
 
@@ -70,7 +70,7 @@
             android:id="@+id/editCaregiver"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="5dp"
             android:text="Edit Caregiver" />
 
         <Button
