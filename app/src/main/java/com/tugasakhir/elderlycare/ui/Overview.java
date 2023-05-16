@@ -6,13 +6,16 @@ import static com.tugasakhir.elderlycare.service.mqttServices.HrData;
 import static com.tugasakhir.elderlycare.service.mqttServices.HrTrendRec;
 import static com.tugasakhir.elderlycare.service.mqttServices.StepsData;
 import static com.tugasakhir.elderlycare.service.mqttServices.StepsTrend;
-import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_gas;
-import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_light;
-import static com.tugasakhir.elderlycare.service.mqttServices.living_light;
-import static com.tugasakhir.elderlycare.service.mqttServices.living_temp;
+//import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_gas;
+//import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_light;
+//import static com.tugasakhir.elderlycare.service.mqttServices.living_light;
+//import static com.tugasakhir.elderlycare.service.mqttServices.living_temp;
 import static com.tugasakhir.elderlycare.service.mqttServices.onBody;
 import static com.tugasakhir.elderlycare.service.mqttServices.poseDetection;
+import static com.tugasakhir.elderlycare.service.mqttServices.sensorSmartHome;
 import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
+
+import static java.lang.Integer.parseInt;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -191,45 +194,93 @@ public class Overview extends Fragment {
             }
 
             // ----------------- < BAGIAN SMART HOME > ----------------- //
-            if(living_light!=null & living_temp!=null & kitchen_light!=null & kitchen_gas!=null) {
 
-                // LIVING ROOM LIGHT
-                if(Integer.parseInt(living_light) >= 700) {
-                    lightLiving.setTextColor(Color.RED);
-                    lightLiving.setText("Ruangan gelap!");
-                } else {
-                    lightLiving.setTextColor(Color.GREEN);
-                    lightLiving.setText("Ruangan terang!");
+            try {
+                for(int i = 0; i < sensorSmartHome.length(); i++) {
+                    JSONObject obj = sensorSmartHome.getJSONObject(i);
+                    if(obj.getString("house_id").equals(elderData.getString("house_id"))) {
+                        // LIVING ROOM LIGHT
+                        if(Integer.parseInt(obj.getString("living_light")) >= 700) {
+                            lightLiving.setTextColor(Color.RED);
+                            lightLiving.setText("Ruangan gelap!");
+                        } else {
+                            lightLiving.setTextColor(Color.GREEN);
+                            lightLiving.setText("Ruangan terang!");
+                        }
+
+                        // LIVING ROOM TEMP
+                        if(Integer.parseInt(obj.getString("living_temp")) >= 40) {
+                            tempLiving.setTextColor(Color.RED);
+                            tempLiving.setText((obj.getString("living_temp")) + " \u2103");
+
+                        } else {
+                            tempLiving.setTextColor(Color.GREEN);
+                            tempLiving.setText((obj.getString("living_temp")) + " \u2103");
+                        }
+
+                        // KITCHEN LIGHT
+                        if(Integer.parseInt(obj.getString("kitchen_light")) >= 700) {
+                            lightKitchen.setTextColor(Color.RED);
+                            lightKitchen.setText("Ruangan gelap!");
+                        } else {
+                            lightKitchen.setTextColor(Color.GREEN);
+                            lightKitchen.setText("Ruangan terang!");
+                        }
+
+                        // KITCHEN GAS
+                        if(Integer.parseInt(obj.getString("kitchen_gas")) >= 700) {
+                            gasKitchen.setTextColor(Color.RED);
+                            gasKitchen.setText("Gas rate too high!");
+                        } else {
+                            gasKitchen.setTextColor(Color.GREEN);
+                            gasKitchen.setText("Normal");
+                        }
+                    }
                 }
-
-                // LIVING ROOM TEMP
-                if(Integer.parseInt(living_temp) >= 40) {
-                    tempLiving.setTextColor(Color.RED);
-                    tempLiving.setText((living_temp) + " \u2103");
-
-                } else {
-                    tempLiving.setTextColor(Color.GREEN);
-                    tempLiving.setText((living_temp) + " \u2103");
-                }
-
-                // KITCHEN LIGHT
-                if(Integer.parseInt(kitchen_light) >= 700) {
-                    lightKitchen.setTextColor(Color.RED);
-                    lightKitchen.setText("Ruangan gelap!");
-                } else {
-                    lightKitchen.setTextColor(Color.GREEN);
-                    lightKitchen.setText("Ruangan terang!");
-                }
-
-                // KITCHEN GAS
-                if(Integer.parseInt(kitchen_gas) >= 700) {
-                    gasKitchen.setTextColor(Color.RED);
-                    gasKitchen.setText("Gas rate too high!");
-                } else {
-                    gasKitchen.setTextColor(Color.GREEN);
-                    gasKitchen.setText("Normal");
-                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
+
+//            CARA 1
+//            if(living_light!=null & living_temp!=null & kitchen_light!=null & kitchen_gas!=null) {
+//
+//                // LIVING ROOM LIGHT
+//                if(Integer.parseInt(living_light) >= 700) {
+//                    lightLiving.setTextColor(Color.RED);
+//                    lightLiving.setText("Ruangan gelap!");
+//                } else {
+//                    lightLiving.setTextColor(Color.GREEN);
+//                    lightLiving.setText("Ruangan terang!");
+//                }
+//
+//                // LIVING ROOM TEMP
+//                if(Integer.parseInt(living_temp) >= 40) {
+//                    tempLiving.setTextColor(Color.RED);
+//                    tempLiving.setText((living_temp) + " \u2103");
+//
+//                } else {
+//                    tempLiving.setTextColor(Color.GREEN);
+//                    tempLiving.setText((living_temp) + " \u2103");
+//                }
+//
+//                // KITCHEN LIGHT
+//                if(Integer.parseInt(kitchen_light) >= 700) {
+//                    lightKitchen.setTextColor(Color.RED);
+//                    lightKitchen.setText("Ruangan gelap!");
+//                } else {
+//                    lightKitchen.setTextColor(Color.GREEN);
+//                    lightKitchen.setText("Ruangan terang!");
+//                }
+//
+//                // KITCHEN GAS
+//                if(Integer.parseInt(kitchen_gas) >= 700) {
+//                    gasKitchen.setTextColor(Color.RED);
+//                    gasKitchen.setText("Gas rate too high!");
+//                } else {
+//                    gasKitchen.setTextColor(Color.GREEN);
+//                    gasKitchen.setText("Normal");
+//                }
+//            }
 
             // ----------------- < BAGIAN ELDER DATA > ----------------- //
             Date date = new Date(elderData.getString("birthdate"));

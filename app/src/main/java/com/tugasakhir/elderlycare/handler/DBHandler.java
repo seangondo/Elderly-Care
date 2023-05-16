@@ -256,8 +256,8 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
     public JSONObject getElderData (int id) throws JSONException {
-        JSONObject data = new JSONObject();
         SQLiteDatabase db = this.getReadableDatabase();
+        JSONObject data = new JSONObject();
         Cursor c = db.rawQuery("SELECT * FROM " + ELDER_TABLE + " WHERE id=" + id, null);
         if(c.moveToFirst()) {
             do {
@@ -305,7 +305,6 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
     public void updateElder(ContentValues cv, int elder_id) {
-        JSONArray allData = new JSONArray();
         SQLiteDatabase db = this.getReadableDatabase();
 
         db.update(ELDER_TABLE, cv, ELDER_id + " = " + elder_id, null);

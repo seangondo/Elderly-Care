@@ -321,9 +321,12 @@ public class EditElderActivity extends AppCompatActivity {
                             cv.put("birthdate", arrObj.getString("birthdate"));
                             cv.put("address", arrObj.getString("address"));
                             cv.put("house_id", arrObj.getString("house_id"));
+                            cv.put("watch_id", arrObj.getString("watch_id"));
                             cv.put("robot_id", arrObj.getString("robot_id"));
                             cv.put("image", arrObj.getString("image"));
                             myDb.updateElder(cv, arrObj.getInt("elder_id"));
+                            Log.e("Elder ID", String.valueOf(arrObj.getInt("elder_id")));
+                            Log.e("CV", String.valueOf(cv));
                             Log.e("Update", "Berhasil update");
                         }
                     } catch (JSONException e) {

@@ -1,20 +1,28 @@
 package com.tugasakhir.elderlycare.ui;
 
+//import static com.tugasakhir.elderlycare.service.mqttServices.autoMode;
+import static com.tugasakhir.elderlycare.service.mqttServices.buttonSmartHome;
+//import static com.tugasakhir.elderlycare.service.mqttServices.fanLiving;
+//import static com.tugasakhir.elderlycare.service.mqttServices.lampKitchen;
+//import static com.tugasakhir.elderlycare.service.mqttServices.lampLiving;
+import static com.tugasakhir.elderlycare.service.mqttServices.sensorSmartHome;
 import static com.tugasakhir.elderlycare.service.mqttServices.trend;
 import static com.tugasakhir.elderlycare.service.mqttServices.trendRec;
 import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
 import static com.tugasakhir.elderlycare.ui.MainActivity.client;
 import static com.tugasakhir.elderlycare.ui.MainActivity2.swAuto;
-import static com.tugasakhir.elderlycare.service.mqttServices.bAutoMode;
-import static com.tugasakhir.elderlycare.service.mqttServices.bFanLiving;
-import static com.tugasakhir.elderlycare.service.mqttServices.bLampKitchen;
-import static com.tugasakhir.elderlycare.service.mqttServices.bLampLiving;
-import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_gas;
-import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_light;
-import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_no;
-import static com.tugasakhir.elderlycare.service.mqttServices.living_light;
-import static com.tugasakhir.elderlycare.service.mqttServices.living_no;
-import static com.tugasakhir.elderlycare.service.mqttServices.living_temp;
+//import static com.tugasakhir.elderlycare.service.mqttServices.bAutoMode;
+//import static com.tugasakhir.elderlycare.service.mqttServices.bFanLiving;
+//import static com.tugasakhir.elderlycare.service.mqttServices.bLampKitchen;
+//import static com.tugasakhir.elderlycare.service.mqttServices.bLampLiving;
+//import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_gas;
+//import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_light;
+//import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_no;
+//import static com.tugasakhir.elderlycare.service.mqttServices.living_light;
+//import static com.tugasakhir.elderlycare.service.mqttServices.living_no;
+//import static com.tugasakhir.elderlycare.service.mqttServices.living_temp;
+
+import static java.lang.Integer.parseInt;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
@@ -77,12 +85,15 @@ public class SmartHome extends Fragment implements View.OnClickListener{
     TextView COstat;
     NavigationRailView navigationRailView;
 
+    DBHandler myDb;
+    JSONObject elderData;
+
 //    public static String living_temp, living_light, kitchen_light, kitchen_gas;
 
     //Updater
     Handler handler = new Handler();
     Runnable runnable;
-    int delay = 1*100;
+    int delay = 500;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -138,6 +149,8 @@ public class SmartHome extends Fragment implements View.OnClickListener{
 
         navigationRailView = (NavigationRailView) view.findViewById(R.id.navigationBar);
 
+        myDb =  new DBHandler(getContext());
+
         COstat = (TextView) view.findViewById(R.id.COdetect);
 
         buttonFan_Living = (CardView) view.findViewById(R.id.buttonFanLiving);
@@ -163,28 +176,43 @@ public class SmartHome extends Fragment implements View.OnClickListener{
         initTrend(trendTemp, 100, 0);
         initTrend(trendGas, 1024, 0);
 
-        if(Objects.requireNonNull(living_no).size()!= 0 & Objects.requireNonNull(kitchen_no).size() != 0) {
-            setData("livingroom" ,trendTemp);
-            setData("kitchen" ,trendGas);
-        }
-
         buttonFan_Living.setOnClickListener(this);
         buttonLight_Living.setOnClickListener(this);
         buttonLight_Kitchen.setOnClickListener(this);
 
-        getData();
 
         initPieChart(roomLight);
         initPieChart(roomTemp);
         initPieChart(kitchenLight);
         initPieChart(kitchenGas);
 
-        if(living_light!=null & living_temp!=null & kitchen_light!=null & kitchen_gas!=null) {
-            showPieChart(roomLight, Integer.parseInt(living_light), 1000, "");
-            showPieChart(roomTemp, Integer.parseInt(living_temp), 100, "\u2103");
-            showPieChart(kitchenLight, Integer.parseInt(kitchen_light), 1000, "");
-            showPieChart(kitchenGas, Integer.parseInt(kitchen_gas), 1000, "");
+        try {
+            elderData = myDb.getElderData(elderSelected);
+            for(int i = 0; i < sensorSmartHome.length(); i++) {
+                JSONObject obj = sensorSmartHome.getJSONObject(i);
+                if(obj.getString("house_id").equals(elderData.getString("house_id"))) {
+                    showPieChart(roomLight, parseInt(obj.getString("living_light")), 1024, "");
+                    showPieChart(roomTemp, parseInt(obj.getString("living_temp")), 100, "\u2103");
+                    showPieChart(kitchenLight, parseInt(obj.getString("kitchen_light")), 1024, "");
+                    showPieChart(kitchenGas, parseInt(obj.getString("kitchen_gas")), 1024, "");
+
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+//        if(living_light!=null & living_temp!=null & kitchen_light!=null & kitchen_gas!=null) {
+//            showPieChart(roomLight, Integer.parseInt(living_light), 1000, "");
+//            showPieChart(roomTemp, Integer.parseInt(living_temp), 100, "\u2103");
+//            showPieChart(kitchenLight, Integer.parseInt(kitchen_light), 1000, "");
+//            showPieChart(kitchenGas, Integer.parseInt(kitchen_gas), 1000, "");
+//        }
+
+        if(trendRec.length() != 0) {
+            setData("livingroom" ,trendTemp);
+            setData("kitchen" ,trendGas);
+        }
+        getData();
     }
 
     private void initTrend(LineChart chartName,int maxVal, int minVal){
@@ -212,44 +240,57 @@ public class SmartHome extends Fragment implements View.OnClickListener{
     }
 
     private void setData(String loc, LineChart chartName) {
-        List<String> xAxisValues = null;
+        List<String> xAxisValues = new ArrayList<>();
 
         ArrayList<Entry> values = new ArrayList<>();
         if(loc.equals("kitchen")) {
-
             // CARA 1
-            xAxisValues = new ArrayList<>(mqttServices.kitchen_time);
-            for (int i = 0; i < kitchen_no.size(); i++) {
-                values.add(new Entry(i, mqttServices.kitchen_val.get(i)));
-            }
+//            xAxisValues = new ArrayList<>(mqttServices.kitchen_time);
+//            for (int i = 0; i < kitchen_no.size(); i++) {
+//                values.add(new Entry(i, mqttServices.kitchen_val.get(i)));
+//            }
 
             //CARA 2
 
-//            DBHandler myDb = new DBHandler(getContext());
-//            JSONObject obj = null;
-//            JSONObject sensor = null;
-//
-//            try {
-//                obj = myDb.getElderData(elderSelected);
-//                String house_id = obj.getString("house_id");
-//                sensor = myDb.getSensorFromId(house_id);
-//
-//                for(int i = 0; i < trendRec.length(); i++) {
-//                    if((Objects.equals(trendRec.getJSONObject(i).getString("house_id"), house_id)) &&
-//                            (Objects.equals(trendRec.getJSONObject(i).getString("type"), house_id))) {
-//
-//                    }
-//                }
-//
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
+            try {
+                String house_id = elderData.getString("house_id");
+                int j = 0;
+                for(int i = 0; i < trendRec.length(); i++) {
+                    if(trendRec.getJSONObject(i).getString("house_id").equals(house_id) &&
+                            (trendRec.getJSONObject(i).getString("type").equals("gas"))) {
+                        values.add(new Entry(j, parseInt(trendRec.getJSONObject(i).getString("value"))));
+                        xAxisValues.add(trendRec.getJSONObject(i).getString("time"));
+                        j++;
+                    }
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
         }
         if(loc.equals("livingroom")) {
-            xAxisValues = new ArrayList<>(mqttServices.living_time);
-            for (int i = 0; i < mqttServices.living_no.size(); i++) {
-                values.add(new Entry(i, mqttServices.living_val.get(i)));
+//            xAxisValues = new ArrayList<>(mqttServices.living_time);
+//            for (int i = 0; i < mqttServices.living_no.size(); i++) {
+//                values.add(new Entry(i, mqttServices.living_val.get(i)));
+//            }
+
+            //CARA 2
+
+            try {
+                String house_id = elderData.getString("house_id");
+                int j = 0;
+                for(int i = 0; i < trendRec.length(); i++) {
+                    if(trendRec.getJSONObject(i).getString("house_id").equals(house_id) &&
+                            (trendRec.getJSONObject(i).getString("type").equals("temp"))) {
+                        values.add(new Entry(j, parseInt(trendRec.getJSONObject(i).getString("value"))));
+                        xAxisValues.add(trendRec.getJSONObject(i).getString("time"));
+                        j++;
+                    }
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         }
 
@@ -286,45 +327,182 @@ public class SmartHome extends Fragment implements View.OnClickListener{
     }
 
     private void getData(){
-        if(living_light!=null & living_temp!=null & kitchen_light!=null & kitchen_gas!=null) {
-            if(Integer.parseInt(kitchen_gas) >= 700) {
-                COstat.setTextColor(Color.RED);
-                COstat.setText("Gas rate too high!");
-            } else {
-                COstat.setTextColor(Color.GREEN);
-                COstat.setText("Normal");
+        try {
+            elderData = myDb.getElderData(elderSelected);
+            for(int i = 0; i < sensorSmartHome.length(); i++) {
+                JSONObject obj = sensorSmartHome.getJSONObject(i);
+                if(obj.getString("house_id").equals(elderData.getString("house_id"))) {
+                    if(parseInt(obj.getString("kitchen_gas")) >= 700) {
+                        COstat.setTextColor(Color.RED);
+                        COstat.setText("Gas rate too high!");
+                    } else {
+                        COstat.setTextColor(Color.GREEN);
+                        COstat.setText("Normal");
+                    }
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+//        if(living_light!=null & living_temp!=null & kitchen_light!=null & kitchen_gas!=null) {
+//            if(parseInt(kitchen_gas) >= 700) {
+//                COstat.setTextColor(Color.RED);
+//                COstat.setText("Gas rate too high!");
+//            } else {
+//                COstat.setTextColor(Color.GREEN);
+//                COstat.setText("Normal");
+//            }
+//        }
+
+//        if(bLampLiving.equals("true")){
+//            living_light_label.setText("ON");
+//            living_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_on));
+//        } else if (bLampLiving.equals("false")){
+//            living_light_label.setText("OFF");
+//            living_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_off));
+//        }
+//        if(bLampKitchen.equals("true")){
+//            kitchen_light_label.setText("ON");
+//            kitchen_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_on));
+//        } else if (bLampKitchen.equals("false")){
+//            kitchen_light_label.setText("OFF");
+//            kitchen_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_off));
+//        }
+//        if(bFanLiving.equals("off")){
+//            living_fan_label.setText("OFF");
+//            living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_off_icon));
+//        } else if (bFanLiving.equals("slow")){
+//            living_fan_label.setText("SLOW");
+//            living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_slow_icon));
+//        } else if (bFanLiving.equals("fast")){
+//            living_fan_label.setText("FAST");
+//            living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_speed_icon));
+//        }
+//        if(bAutoMode.equals("true")){
+//            swAuto.setChecked(true);
+//        } else if (bAutoMode.equals("false")){
+//            swAuto.setChecked(false);
+//        }
+
+        // CARA KE 3
+
+//        for(int i = 0; i < fanLiving.length(); i++) {
+//            try {
+//                JSONObject fan = fanLiving.getJSONObject(i);
+//                if(fan.getString("elder_id").equals(elderSelected) && fan.getString("value").equals("off")){
+//                    living_fan_label.setText("OFF");
+//                    living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_off_icon));
+//                } else if (fan.getString("elder_id").equals(elderSelected) && fan.getString("value").equals("slow")){
+//                    living_fan_label.setText("SLOW");
+//                    living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_slow_icon));
+//                } else if (fan.getString("elder_id").equals(elderSelected) && fan.getString("value").equals("fast")){
+//                    living_fan_label.setText("FAST");
+//                    living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_speed_icon));
+//                }
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        for(int i = 0; i < lampLiving.length(); i++) {
+//            try {
+//                JSONObject fan = lampLiving.getJSONObject(i);
+//                if(fan.getString("elder_id").equals(elderSelected) && fan.getString("value").equals("true")){
+//                    living_light_label.setText("ON");
+//                    living_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_on));
+//                } else if (fan.getString("elder_id").equals(elderSelected) && fan.getString("value").equals("false")){
+//                    living_light_label.setText("OFF");
+//                    living_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_off));
+//                }
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        for(int i = 0; i < lampKitchen.length(); i++) {
+//            try {
+//                JSONObject fan = lampKitchen.getJSONObject(i);
+//                if(fan.getString("elder_id").equals(elderSelected) && fan.getString("value").equals("true")){
+//                    kitchen_light_label.setText("ON");
+//                    kitchen_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_on));
+//                } else if (fan.getString("elder_id").equals(elderSelected) && fan.getString("value").equals("false")){
+//                    kitchen_light_label.setText("OFF");
+//                    kitchen_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_off));
+//                }
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        for(int i = 0; i < autoMode.length(); i++) {
+//            try {
+//                JSONObject fan = autoMode.getJSONObject(i);
+//                if(fan.getString("elder_id").equals(elderSelected) && fan.getString("value").equals("true")){
+//                    swAuto.setChecked(true);
+//                } else if (fan.getString("elder_id").equals(elderSelected) && fan.getString("value").equals("false")){
+//                    swAuto.setChecked(false);
+//                }
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//        }
+
+//         CARA KE 2
+        for(int i = 0; i < buttonSmartHome.length(); i++) {
+            try {
+                JSONObject data = buttonSmartHome.getJSONObject(i);
+                if(data.getString("house_id").equals(elderData.getString("house_id"))) {
+                    if(data.getString("room").equals("livingroom")) {
+                        if(data.getString("type").equals("light")) {
+                            if(data.getString("value").equals("true")) {
+                                living_light_label.setText("ON");
+                                living_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_on));
+                            }else if (data.getString("value").equals("false")){
+                                living_light_label.setText("OFF");
+                                living_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_off));
+                            }
+                        }
+
+                        if(data.getString("type").equals("fan")) {
+                            if(data.getString("value").equals("off")){
+                                living_fan_label.setText("OFF");
+                                living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_off_icon));
+                            } else if (data.getString("value").equals("slow")){
+                                living_fan_label.setText("SLOW");
+                                living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_slow_icon));
+                            } else if (data.getString("value").equals("fast")){
+                                living_fan_label.setText("FAST");
+                                living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_speed_icon));
+                            }
+                        }
+                    }
+                    if(data.getString("room").equals("kitchen")) {
+                        if(data.getString("type").equals("light")) {
+                            if(data.getString("value").equals("true")){
+                                kitchen_light_label.setText("ON");
+                                kitchen_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_on));
+                            } else if (data.getString("value").equals("false")){
+                                kitchen_light_label.setText("OFF");
+                                kitchen_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_off));
+                            }
+                        }
+                    }
+
+                    if(data.getString("room").equals("automatic_mode")) {
+                        if(data.getString("value").equals("true")){
+                            swAuto.setChecked(true);
+                        } else if (data.getString("value").equals("false")){
+                            swAuto.setChecked(false);
+                        }
+                    }
+                }
+//                Log.e("Data Cara 2", String.valueOf(buttonSmartHome.length()));
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         }
 
-        if(bLampLiving.equals("true")){
-            living_light_label.setText("ON");
-            living_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_on));
-        } else if (bLampLiving.equals("false")){
-            living_light_label.setText("OFF");
-            living_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_off));
-        }
-        if(bLampKitchen.equals("true")){
-            kitchen_light_label.setText("ON");
-            kitchen_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_on));
-        } else if (bLampKitchen.equals("false")){
-            kitchen_light_label.setText("OFF");
-            kitchen_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_off));
-        }
-        if(bFanLiving.equals("off")){
-            living_fan_label.setText("OFF");
-            living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_off_icon));
-        } else if (bFanLiving.equals("slow")){
-            living_fan_label.setText("SLOW");
-            living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_slow_icon));
-        } else if (bFanLiving.equals("fast")){
-            living_fan_label.setText("FAST");
-            living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_speed_icon));
-        }
-        if(bAutoMode.equals("true")){
-            swAuto.setChecked(true);
-        } else if (bAutoMode.equals("false")){
-            swAuto.setChecked(false);
-        }
 
     }
 
@@ -335,18 +513,35 @@ public class SmartHome extends Fragment implements View.OnClickListener{
             public void run() {
                 getData();
                 //binding.navigationBar.setSelectedItemId(R.id.smartHome);
-                if(living_light!=null & living_temp!=null & kitchen_light!=null & kitchen_gas!=null) {
-                    showPieChart(roomLight, Integer.parseInt(living_light), 1000, "");
-                    showPieChart(roomTemp, Integer.parseInt(living_temp), 100, "\u2103");
-                    showPieChart(kitchenLight, Integer.parseInt(kitchen_light), 1000, "");
-                    showPieChart(kitchenGas, Integer.parseInt(kitchen_gas), 1000, "");
+                try {
+                    for(int i = 0; i < sensorSmartHome.length(); i++) {
+                        JSONObject obj = null;
+                            obj = sensorSmartHome.getJSONObject(i);
+                        if(obj.getString("house_id").equals(elderData.getString("house_id"))) {
+                            showPieChart(roomLight, parseInt(obj.getString("living_light")), 1024, "");
+                            showPieChart(roomTemp, parseInt(obj.getString("living_temp")), 100, "\u2103");
+                            showPieChart(kitchenLight, parseInt(obj.getString("kitchen_light")), 1024, "");
+                            showPieChart(kitchenGas, parseInt(obj.getString("kitchen_gas")), 1024, "");
+
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                if(living_no.size() != 0 & kitchen_no.size() != 0) {
-                    initTrend(trendTemp, 100, 0);
-                    initTrend(trendGas, 1024, 0);
-                    setData("livingroom" ,trendTemp);
-                    setData("kitchen" ,trendGas);
-                }
+
+//                if(living_light!=null & living_temp!=null & kitchen_light!=null & kitchen_gas!=null) {
+//                    showPieChart(roomLight, Integer.parseInt(living_light), 1024, "");
+//                    showPieChart(roomTemp, Integer.parseInt(living_temp), 100, "\u2103");
+//                    showPieChart(kitchenLight, Integer.parseInt(kitchen_light), 1024, "");
+//                    showPieChart(kitchenGas, Integer.parseInt(kitchen_gas), 1024, "");
+//                }
+
+//                if(living_no.size() != 0 & kitchen_no.size() != 0) {
+//                    initTrend(trendTemp, 100, 0);
+//                    initTrend(trendGas, 1024, 0);
+//                    setData("livingroom" ,trendTemp);
+//                    setData("kitchen" ,trendGas);
+//                }
                 handler.postDelayed(runnable, delay);
             }
         }, delay);
@@ -370,7 +565,7 @@ public class SmartHome extends Fragment implements View.OnClickListener{
         name.getDescription().setEnabled(false);
 
         //enabling the user to rotate the chart, default true
-        name.setRotationEnabled(true);
+        name.setRotationEnabled(false);
         //adding friction when rotating the pie chart
         name.setDragDecelerationFrictionCoef(0.9f);
         //setting the first entry start from right hand side, default starting from top
@@ -432,58 +627,60 @@ public class SmartHome extends Fragment implements View.OnClickListener{
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
-            case R.id.buttonFanLiving:
-                if(((String) living_fan_label.getText()).equals("OFF")){
-                    try {
-                        client.publish(elderSelected+ "/apps/control_button/livingroom/fan", "{\"value\": \"slow\", \"var\": 1}".getBytes(),0, true);
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    }
-                } else if(((String) living_fan_label.getText()).equals("SLOW")) {
-                    try {
-                        client.publish(elderSelected+ "/apps/control_button/livingroom/fan", "{\"value\": \"fast\", \"var\": 1}".getBytes(), 0, true);
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    }
-                } else if(((String) living_fan_label.getText()).equals("FAST")) {
+        if (!swAuto.isChecked()) {
+            switch (view.getId()) {
+                case R.id.buttonFanLiving:
+                    if (((String) living_fan_label.getText()).equals("OFF")) {
                         try {
-                            client.publish(elderSelected+ "/apps/control_button/livingroom/fan", "{\"value\": \"off\", \"var\": 1}".getBytes(),0, true);
+                            client.publish(elderSelected + "/apps/control_button/livingroom/fan", "{\"value\": \"slow\", \"var\": 1}".getBytes(), 0, true);
                         } catch (MqttException e) {
                             e.printStackTrace();
                         }
-                }
-                break;
-            case R.id.buttonLightsLiving:
-                if(((String) living_light_label.getText()).equals("OFF")){
-                    try {
-                        client.publish(elderSelected+"/apps/control_button/livingroom/light", "{\"value\": \"true\", \"var\": 1}".getBytes(),0, true);
-                    } catch (MqttException e) {
-                        e.printStackTrace();
+                    } else if (((String) living_fan_label.getText()).equals("SLOW")) {
+                        try {
+                            client.publish(elderSelected + "/apps/control_button/livingroom/fan", "{\"value\": \"fast\", \"var\": 1}".getBytes(), 0, true);
+                        } catch (MqttException e) {
+                            e.printStackTrace();
+                        }
+                    } else if (((String) living_fan_label.getText()).equals("FAST")) {
+                        try {
+                            client.publish(elderSelected + "/apps/control_button/livingroom/fan", "{\"value\": \"off\", \"var\": 1}".getBytes(), 0, true);
+                        } catch (MqttException e) {
+                            e.printStackTrace();
+                        }
                     }
-                } else {
-                    try {
-                        client.publish(elderSelected+"/apps/control_button/livingroom/light", "{\"value\": \"false\", \"var\": 1}".getBytes(),0, true);
-                    } catch (MqttException e) {
-                        e.printStackTrace();
+                    break;
+                case R.id.buttonLightsLiving:
+                    if (((String) living_light_label.getText()).equals("OFF")) {
+                        try {
+                            client.publish(elderSelected + "/apps/control_button/livingroom/light", "{\"value\": \"true\", \"var\": 1}".getBytes(), 0, true);
+                        } catch (MqttException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        try {
+                            client.publish(elderSelected + "/apps/control_button/livingroom/light", "{\"value\": \"false\", \"var\": 1}".getBytes(), 0, true);
+                        } catch (MqttException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-                break;
-            case R.id.buttonLightsKitchen:
-                if(((String) kitchen_light_label.getText()).equals("OFF")){
-                    try {
-                        client.publish(elderSelected+"/apps/control_button/kitchen/light", "{\"value\": \"true\", \"var\": 1}".getBytes(),0, true);
-                    } catch (MqttException e) {
-                        e.printStackTrace();
+                    break;
+                case R.id.buttonLightsKitchen:
+                    if (((String) kitchen_light_label.getText()).equals("OFF")) {
+                        try {
+                            client.publish(elderSelected + "/apps/control_button/kitchen/light", "{\"value\": \"true\", \"var\": 1}".getBytes(), 0, true);
+                        } catch (MqttException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        try {
+                            client.publish(elderSelected + "/apps/control_button/kitchen/light", "{\"value\": \"false\", \"var\": 1}".getBytes(), 0, true);
+                        } catch (MqttException e) {
+                            e.printStackTrace();
+                        }
                     }
-                } else {
-                    try {
-                        client.publish(elderSelected+"/apps/control_button/kitchen/light", "{\"value\": \"false\", \"var\": 1}".getBytes(),0, true);
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    }
-                }
-                break;
+                    break;
+            }
         }
     }
 }

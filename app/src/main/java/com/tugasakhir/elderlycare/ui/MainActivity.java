@@ -60,7 +60,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-@RequiresApi(Build.VERSION_CODES.O)
 public class MainActivity extends AppCompatActivity {
 
     public static ArrayList<ArrayList<TrendReceive>> sensorTrend;
@@ -278,6 +277,7 @@ public class MainActivity extends AppCompatActivity {
             myDb.deletePointAll();
             myDb.insertElder(dataElder);
 
+            loadingDialog.dismissDialog();
             ArrayList<Integer> getInt = new ArrayList<>();
             ArrayList<String> getHouseId = new ArrayList<>();
             JSONArray jsArray = new JSONArray(dataElder);
@@ -315,7 +315,6 @@ public class MainActivity extends AppCompatActivity {
         Intent i = new Intent(this, ElderSelectorActivity.class);
         startActivity(i);
         overridePendingTransition(0, 0);
-        loadingDialog.dismissDialog();
         finish();
     }
 
@@ -356,6 +355,18 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("Topic", subscriptionTopic);
                             subscribeToTopic(subscriptionTopic);
                         }
+//                        try {
+//                            JSONArray elderList = myDb.getElderDataAll();
+//                            for (int i = 0; i < elderList.length(); i++ ) {
+//                                JSONObject obj = elderList.getJSONObject(i);
+//                                String subscriptionTopic = String.valueOf(obj.getString("house_id"))+"/#";
+//                                Log.d("Topic", subscriptionTopic);
+//                                subscribeToTopic(subscriptionTopic);
+//                            }
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+
                         startService(new Intent(MainActivity.this, mqttServices.class));
 //                        loadingDialog.dismissDialog();
                         goToHome();

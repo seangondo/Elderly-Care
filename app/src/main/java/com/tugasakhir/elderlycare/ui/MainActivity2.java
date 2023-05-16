@@ -51,6 +51,7 @@ public class MainActivity2 extends AppCompatActivity {
     ImageButton imgBut;
     TextView eName, eAddress;
 
+
     LinearLayout layout;
     LinearLayout dropMenu;
 
@@ -168,6 +169,7 @@ public class MainActivity2 extends AppCompatActivity {
 
         setData();
 
+        binding.navigationBar.setSelectedItemId(R.id.overview);
         replaceFragment(new Overview());
 
         binding.navigationBar.setOnItemSelectedListener(item -> {
