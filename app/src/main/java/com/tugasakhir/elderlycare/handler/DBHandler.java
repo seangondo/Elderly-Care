@@ -271,6 +271,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 data.put("image", c.getString(7));
             } while (c.moveToNext());
         }
+        c.close();
         return data;
     }
 
@@ -301,6 +302,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
             } while (c.moveToNext());
         }
+        c.close();
         return allData;
     }
 
@@ -534,6 +536,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
             } while (c.moveToNext());
         }
+        c.close();
         return allData;
     }
 

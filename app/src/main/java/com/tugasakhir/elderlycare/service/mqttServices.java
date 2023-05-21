@@ -44,8 +44,6 @@ public class mqttServices extends Service {
 //    public static List<String> kitchen_date, kitchen_time, living_date, living_time;
 //    public static List<Integer> living_no, living_val, kitchen_no, kitchen_val;
 
-    DBHandler myDb = new DBHandler(this);
-
 //    public static JSONArray livingTemp = new JSONArray();
 //    public static JSONArray livingLight = new JSONArray();
 //    public static JSONArray lampLiving = new JSONArray();
@@ -166,7 +164,10 @@ public class mqttServices extends Service {
 
         if(splitTopic.get(2).equals("control_button")) {
             JSONObject obj = new JSONObject();
+
+            DBHandler myDb = new DBHandler(this);
             JSONObject elderData = myDb.getElderData(Integer.parseInt(splitTopic.get(0)));
+            myDb.close();
             obj.put("house_id", elderData.getString("house_id"));
             obj.put("room", splitTopic.get(3));
             if(!splitTopic.get(3).equals("automatic_mode")) {
@@ -201,7 +202,9 @@ public class mqttServices extends Service {
 //                kitchen_gas = arrObj.getString("kitchen_gas");
 
                 JSONObject obj = new JSONObject();
+                DBHandler myDb = new DBHandler(this);
                 JSONObject elderData = myDb.getElderData(Integer.parseInt(splitTopic.get(0)));
+                myDb.close();
                 obj.put("house_id", elderData.getString("house_id"));
                 obj.put("living_temp", arrObj.getString("livingroom_temp"));
                 obj.put("living_light", arrObj.getString("livingroom_light"));
@@ -211,7 +214,7 @@ public class mqttServices extends Service {
 //                sensorSmartHome.put(obj);
 
                 int val = dataExist(sensorSmartHome, "house_id", elderData.getString("house_id"));
-                Log.e("smart home Sensor", String.valueOf(sensorSmartHome));
+//                Log.e("smart home Sensor", String.valueOf(sensorSmartHome));
                 if(val != -1) {
                     sensorSmartHome.put(val, obj);
                 } else {
