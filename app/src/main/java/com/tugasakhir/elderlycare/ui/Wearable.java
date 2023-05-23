@@ -141,13 +141,9 @@ public class Wearable extends Fragment {
         msgSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    client.publish(elderSelected+"/apps/wearable/messages", ("\"" + msgText.getText().toString() + "\"").getBytes(),0, false);
-                    msgText.setText("");
-                    Toast.makeText(getContext(), "Message send to elder!", Toast.LENGTH_LONG).show();
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                }
+                client.publish(elderSelected+"/apps/wearable/messages", ("\"" + msgText.getText().toString() + "\"").getBytes(),0, false);
+                msgText.setText("");
+                Toast.makeText(getContext(), "Message send to elder!", Toast.LENGTH_LONG).show();
             }
         });
 

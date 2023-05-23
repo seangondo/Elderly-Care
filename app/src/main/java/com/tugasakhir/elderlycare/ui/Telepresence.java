@@ -261,36 +261,24 @@ public class Telepresence extends Fragment implements View.OnClickListener,
 
                 if(!navigate) {
                     if (bUp.isPressed()) {
-                        try {
-                            bSend = true;
-                            Log.e("Topic", String.valueOf(elderSelected) + "/apps/robot/controller/neck");
-                            Log.e("MSG", "{\"angle\": \"up\" }");
-                            client.publish(String.valueOf(elderSelected) + "/apps/robot/controller/neck", ("{\"angle\": \"up\"}").getBytes(), 0, false);
-                        } catch (MqttException e) {
-                            e.printStackTrace();
-                        }
+                        bSend = true;
+                        Log.e("Topic", String.valueOf(elderSelected) + "/apps/robot/controller/neck");
+                        Log.e("MSG", "{\"angle\": \"up\" }");
+                        client.publish(String.valueOf(elderSelected) + "/apps/robot/controller/neck", ("{\"angle\": \"up\"}").getBytes(), 0, false);
                     }
                     if (bDown.isPressed()) {
-                        try {
-                            bSend = true;
-                            client.publish(elderSelected + "/apps/robot/controller/neck", ("{\"angle\": \"down\" }").getBytes(), 0, false);
-                        } catch (MqttException e) {
-                            e.printStackTrace();
-                        }
+                        bSend = true;
+                        client.publish(elderSelected + "/apps/robot/controller/neck", ("{\"angle\": \"down\" }").getBytes(), 0, false);
                     }
                 }
                 handler.postDelayed(runnable, delay);
                 if(!forward.isPressed() && !backward.isPressed() && !left.isPressed() && !right.isPressed() && strength > 0) {
-                    try {
-                        if(bSend) {
-                            bSend = false;
-                            client.publish(elderSelected+"/apps/robot/controller/move", ("{\"angle\": 90 , \"strength\": 0 }").getBytes(),0, false);
-                            strength = 0;
-                        }
-
-                    } catch (MqttException e) {
-                        e.printStackTrace();
+                    if(bSend) {
+                        bSend = false;
+                        client.publish(elderSelected+"/apps/robot/controller/move", ("{\"angle\": 90 , \"strength\": 0 }").getBytes(),0, false);
+                        strength = 0;
                     }
+
                 }
             }
         }, delay);
@@ -313,21 +301,13 @@ public class Telepresence extends Fragment implements View.OnClickListener,
             switch (view.getId()) {
                 case R.id.teleNeckUp:
                     if (!navigate) {
-                        try {
-                            client.publish(elderSelected + "/apps/robot/controller/neck", ("{\"angle\": \"up\" }").getBytes(), 0, false);
-                        } catch (MqttException e) {
-                            e.printStackTrace();
-                        }
+                        client.publish(elderSelected + "/apps/robot/controller/neck", ("{\"angle\": \"up\" }").getBytes(), 0, false);
                     }
                     break;
 
                 case R.id.teleNeckDown:
                     if (!navigate) {
-                        try {
-                            client.publish(elderSelected + "/apps/robot/controller/neck", ("{\"angle\": \"down\" }").getBytes(), 0, false);
-                        } catch (MqttException e) {
-                            e.printStackTrace();
-                        }
+                        client.publish(elderSelected + "/apps/robot/controller/neck", ("{\"angle\": \"down\" }").getBytes(), 0, false);
                     }
                     break;
                 case R.id.teleNav:
@@ -338,12 +318,8 @@ public class Telepresence extends Fragment implements View.OnClickListener,
                             JSONObject myObj = statusRobot.getJSONObject(i);
                             if (myObj.getString("robot_id").equals(elder.getString("robot_id"))
                                     && myObj.getInt("status") != 1) {
-                                try {
-                                    client.publish(elderSelected + "/apps/robot/controller/map_coord", ("{\"x\": " + xVal + ", \"y\": " + yVal + " }").getBytes(), 0, false);
-                                    Toast.makeText(getContext(), "Navigating robot!", Toast.LENGTH_LONG).show();
-                                } catch (MqttException e) {
-                                    e.printStackTrace();
-                                }
+                                client.publish(elderSelected + "/apps/robot/controller/map_coord", ("{\"x\": " + xVal + ", \"y\": " + yVal + " }").getBytes(), 0, false);
+                                Toast.makeText(getContext(), "Navigating robot!", Toast.LENGTH_LONG).show();
                             } else {
                                 Toast.makeText(getContext(), "Robot still navigating, please wait!", Toast.LENGTH_LONG).show();
                             }
@@ -382,11 +358,7 @@ public class Telepresence extends Fragment implements View.OnClickListener,
                     break;
 
                 case R.id.teleStop:
-                    try {
-                        client.publish(elderSelected + "/apps/robot/controller/cancel", ("{\"command\": \"stop\"}").getBytes(), 0, false);
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    }
+                    client.publish(elderSelected + "/apps/robot/controller/cancel", ("{\"command\": \"stop\"}").getBytes(), 0, false);
                     break;
 
                 case R.id.teleDock:
@@ -395,12 +367,8 @@ public class Telepresence extends Fragment implements View.OnClickListener,
                             JSONObject myObj = statusRobot.getJSONObject(i);
                             if (myObj.getString("robot_id").equals(elder.getString("robot_id"))
                                     && myObj.getInt("status") != 1) {
-                                try {
-                                    client.publish(elderSelected + "/apps/robot/controller/map_coord", ("{\"x\": 2, \"y\": 0 }").getBytes(), 0, false);
-                                    Toast.makeText(getContext(), "Navigating robot!", Toast.LENGTH_LONG).show();
-                                } catch (MqttException e) {
-                                    e.printStackTrace();
-                                }
+                                client.publish(elderSelected + "/apps/robot/controller/map_coord", ("{\"x\": 2, \"y\": 0 }").getBytes(), 0, false);
+                                Toast.makeText(getContext(), "Navigating robot!", Toast.LENGTH_LONG).show();
                             } else {
                                 Toast.makeText(getContext(), "Robot still navigating, please wait!", Toast.LENGTH_LONG).show();
                             }
@@ -419,43 +387,27 @@ public class Telepresence extends Fragment implements View.OnClickListener,
         switch (v.getId()) {
             // CONTROL ROBOT CONTROLLER
             case R.id.controlForward:
-                try {
-                    bSend = true;
-                    client.publish(elderSelected+"/apps/robot/controller/move", ("{\"angle\": 90 , \"strength\": 100 }").getBytes(),0, false);
-                    strength = 100;
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                }
+                bSend = true;
+                client.publish(elderSelected+"/apps/robot/controller/move", ("{\"angle\": 90 , \"strength\": 100 }").getBytes(),0, false);
+                strength = 100;
                 break;
 
             case R.id.controlBack:
-                try {
-                    bSend = true;
-                    client.publish(elderSelected + "/apps/robot/controller/move", ("{\"angle\": 270 , \"strength\": 100 }").getBytes(), 0, false);
-                    strength = 100;
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                }
+                bSend = true;
+                client.publish(elderSelected + "/apps/robot/controller/move", ("{\"angle\": 270 , \"strength\": 100 }").getBytes(), 0, false);
+                strength = 100;
                 break;
 
             case R.id.controlLeft:
-                try {
-                    bSend = true;
-                    client.publish(elderSelected + "/apps/robot/controller/move", ("{\"angle\": 180 , \"strength\": 100 }").getBytes(), 0, false);
-                    strength = 100;
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                }
+                bSend = true;
+                client.publish(elderSelected + "/apps/robot/controller/move", ("{\"angle\": 180 , \"strength\": 100 }").getBytes(), 0, false);
+                strength = 100;
                 break;
 
             case R.id.controlRight:
-                try {
-                    bSend = true;
-                    client.publish(elderSelected + "/apps/robot/controller/move", ("{\"angle\": 0 , \"strength\": 100 }").getBytes(), 0, false);
-                    strength = 100;
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                }
+                bSend = true;
+                client.publish(elderSelected + "/apps/robot/controller/move", ("{\"angle\": 0 , \"strength\": 100 }").getBytes(), 0, false);
+                strength = 100;
                 break;
         }
         return false;

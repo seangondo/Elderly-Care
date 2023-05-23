@@ -110,17 +110,9 @@ public class MainActivity2 extends AppCompatActivity {
                     break;
                 case R.id.sw_auto:
                     if(swAuto.isChecked()) {
-                        try {
-                            client.publish(elderSelected +"/apps/control_button/automatic_mode", "{\"value\": \"true\", \"var\": 1}".getBytes(),0, true);
-                        } catch (MqttException e) {
-                            e.printStackTrace();
-                        }
+                        client.publish(elderSelected +"/apps/control_button/automatic_mode", "{\"value\": \"true\", \"var\": 1}".getBytes(),0, true);
                     } else {
-                        try {
-                            client.publish(elderSelected+"/apps/control_button/automatic_mode", "{\"value\": \"false\", \"var\": 1}".getBytes(),0, true);
-                        } catch (MqttException e) {
-                            e.printStackTrace();
-                        }
+                        client.publish(elderSelected+"/apps/control_button/automatic_mode", "{\"value\": \"false\", \"var\": 1}".getBytes(),0, true);
                     }
                     break;
             }
@@ -279,22 +271,18 @@ public class MainActivity2 extends AppCompatActivity {
 //        myDb.deleteLogin("caregiver_info", myUser);
         stopService(new Intent(this, mqttServices.class));
         stopService(new Intent(this, notificationServices.class));
-        try {
-            IMqttToken token = client.disconnect();
-            token.setActionCallback(new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    Log.e("Disconnect MQTT", "Success!");
-                }
+        IMqttToken token = client.disconnect();
+        token.setActionCallback(new IMqttActionListener() {
+            @Override
+            public void onSuccess(IMqttToken asyncActionToken) {
+                Log.e("Disconnect MQTT", "Success!");
+            }
 
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    Log.e("Disconnect MQTT", "Failed! " + exception);
-                }
-            });
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
+            @Override
+            public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                Log.e("Disconnect MQTT", "Failed! " + exception);
+            }
+        });
 
         Toast.makeText(MainActivity2.this, "Logout Success!", Toast.LENGTH_LONG).show();
 

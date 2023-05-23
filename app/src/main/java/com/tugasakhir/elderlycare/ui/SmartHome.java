@@ -646,53 +646,25 @@ public class SmartHome extends Fragment implements View.OnClickListener{
                 switch (view.getId()) {
                     case R.id.buttonFanLiving:
                         if ((living_fan_label.getText()).equals("OFF")) {
-                            try {
-                                client.publish(elderSelected + "/apps/control_button/livingroom/fan", "{\"value\": \"slow\", \"var\": 1}".getBytes(), 0, true);
-                            } catch (MqttException e) {
-                                e.printStackTrace();
-                            }
+                            client.publish(elderSelected + "/apps/control_button/livingroom/fan", "{\"value\": \"slow\", \"var\": 1}".getBytes(), 0, true);
                         } else if ((living_fan_label.getText()).equals("SLOW")) {
-                            try {
-                                client.publish(elderSelected + "/apps/control_button/livingroom/fan", "{\"value\": \"fast\", \"var\": 1}".getBytes(), 0, true);
-                            } catch (MqttException e) {
-                                e.printStackTrace();
-                            }
+                            client.publish(elderSelected + "/apps/control_button/livingroom/fan", "{\"value\": \"fast\", \"var\": 1}".getBytes(), 0, true);
                         } else if ((living_fan_label.getText()).equals("FAST")) {
-                            try {
-                                client.publish(elderSelected + "/apps/control_button/livingroom/fan", "{\"value\": \"off\", \"var\": 1}".getBytes(), 0, true);
-                            } catch (MqttException e) {
-                                e.printStackTrace();
-                            }
+                            client.publish(elderSelected + "/apps/control_button/livingroom/fan", "{\"value\": \"off\", \"var\": 1}".getBytes(), 0, true);
                         }
                         break;
                     case R.id.buttonLightsLiving:
                         if ((living_light_label.getText()).equals("OFF")) {
-                            try {
-                                client.publish(elderSelected + "/apps/control_button/livingroom/light", "{\"value\": \"true\", \"var\": 1}".getBytes(), 0, true);
-                            } catch (MqttException e) {
-                                e.printStackTrace();
-                            }
+                            client.publish(elderSelected + "/apps/control_button/livingroom/light", "{\"value\": \"true\", \"var\": 1}".getBytes(), 0, true);
                         } else {
-                            try {
-                                client.publish(elderSelected + "/apps/control_button/livingroom/light", "{\"value\": \"false\", \"var\": 1}".getBytes(), 0, true);
-                            } catch (MqttException e) {
-                                e.printStackTrace();
-                            }
+                            client.publish(elderSelected + "/apps/control_button/livingroom/light", "{\"value\": \"false\", \"var\": 1}".getBytes(), 0, true);
                         }
                         break;
                     case R.id.buttonLightsKitchen:
                         if ((kitchen_light_label.getText()).equals("OFF")) {
-                            try {
-                                client.publish(elderSelected + "/apps/control_button/kitchen/light", "{\"value\": \"true\", \"var\": 1}".getBytes(), 0, true);
-                            } catch (MqttException e) {
-                                e.printStackTrace();
-                            }
+                            client.publish(elderSelected + "/apps/control_button/kitchen/light", "{\"value\": \"true\", \"var\": 1}".getBytes(), 0, true);
                         } else {
-                            try {
-                                client.publish(elderSelected + "/apps/control_button/kitchen/light", "{\"value\": \"false\", \"var\": 1}".getBytes(), 0, true);
-                            } catch (MqttException e) {
-                                e.printStackTrace();
-                            }
+                            client.publish(elderSelected + "/apps/control_button/kitchen/light", "{\"value\": \"false\", \"var\": 1}".getBytes(), 0, true);
                         }
                         break;
                 }

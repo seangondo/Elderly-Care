@@ -166,22 +166,18 @@ public class ElderSelectorActivity extends AppCompatActivity implements Recycler
 //        myDb.deleteLogin("caregiver_info", myUser);
         stopService(new Intent(this, mqttServices.class));
         stopService(new Intent(this, notificationServices.class));
-        try {
-            IMqttToken token = client.disconnect();
-            token.setActionCallback(new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    Log.e("Disconnect MQTT", "Success!");
-                }
+        IMqttToken token = client.disconnect();
+        token.setActionCallback(new IMqttActionListener() {
+            @Override
+            public void onSuccess(IMqttToken asyncActionToken) {
+                Log.e("Disconnect MQTT", "Success!");
+            }
 
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    Log.e("Disconnect MQTT", "Failed! " + exception);
-                }
-            });
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
+            @Override
+            public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                Log.e("Disconnect MQTT", "Failed! " + exception);
+            }
+        });
 
         Toast.makeText(ElderSelectorActivity.this, "Logout Success!", Toast.LENGTH_LONG).show();
 
