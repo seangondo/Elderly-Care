@@ -90,6 +90,12 @@ public class AddExistingElder extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        goBack();
+    }
+
     private void goBack() {
         Intent i = new Intent(this, ElderSelectorActivity.class);
         startActivity(i);

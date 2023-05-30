@@ -111,4 +111,36 @@ public interface RetrofitAPI {
     Call<ResponseBody> existingElder(@Part("caregiver_id") RequestBody caregiver_id,
                                              @Part("elder_name") RequestBody name,
                                              @Part("elder_id") RequestBody elder_id);
+
+
+    @GET("/alarm/log/{elder_id}")
+    Call<Object> getLog(@Path("elder_id") String elder_id);
+
+    @GET("/alarm/count/{elder_id}")
+    Call<Object> getCountLog(@Path("elder_id") String elder_id);
+
+    @Multipart
+    @POST("/alarm/update")
+    Call<ResponseBody> alarmUpdate(@Part("id") RequestBody elder_id,
+                                    @Part("date") RequestBody date,
+                                    @Part("time") RequestBody time,
+                                    @Part("type") RequestBody type,
+                                    @Part("status") RequestBody status,
+                                    @Part("message") RequestBody msg);
+
+
+    @Multipart
+    @POST("/alarm/delete")
+    Call<ResponseBody> alarmDelete(@Part("id") RequestBody elder_id,
+                                   @Part("date") RequestBody date,
+                                   @Part("time") RequestBody time,
+                                   @Part("type") RequestBody type,
+                                   @Part("status") RequestBody status,
+                                   @Part("message") RequestBody msg);
+
+
+    @Multipart
+    @POST("/alarm/clear")
+    Call<ResponseBody> alarmClear(@Part("id") RequestBody elder_id);
+
 }

@@ -109,10 +109,7 @@ public class EditElderActivity extends AppCompatActivity {
                     }
                     break;
                 case R.id.backBtn:
-                    Intent i = new Intent(EditElderActivity.this, MainActivity2.class);
-                    startActivity(i);
-                    overridePendingTransition(0, 0);
-                    finish();
+                    goBack();
                     break;
                 case R.id.deleteElder:
                     loadingDialog.startDialog();
@@ -125,6 +122,19 @@ public class EditElderActivity extends AppCompatActivity {
             }
         }
     };
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        goBack();
+    }
+
+    private void goBack() {
+        Intent i = new Intent(EditElderActivity.this, MainActivity2.class);
+        startActivity(i);
+        overridePendingTransition(0, 0);
+        finish();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

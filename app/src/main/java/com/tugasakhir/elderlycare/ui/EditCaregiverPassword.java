@@ -81,12 +81,22 @@ public class EditCaregiverPassword extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(EditCaregiverPassword.this, EditCaregiver.class);
-                startActivity(i);
-                overridePendingTransition(0, 0);
-                finish();
+                goBack();
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        goBack();
+    }
+
+    private void goBack() {
+        Intent i = new Intent(EditCaregiverPassword.this, EditCaregiver.class);
+        startActivity(i);
+        overridePendingTransition(0, 0);
+        finish();
     }
 
     private void editPassCaregiver() {

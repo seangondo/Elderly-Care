@@ -103,17 +103,7 @@ public class EditCaregiver extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(extra.equals("selector")) {
-                    Intent i = new Intent(EditCaregiver.this, ElderSelectorActivity.class);
-                    startActivity(i);
-                    overridePendingTransition(0, 0);
-                    finish();
-                } else if(extra.equals("overview")) {
-                    Intent i = new Intent(EditCaregiver.this, MainActivity2.class);
-                    startActivity(i);
-                    overridePendingTransition(0, 0);
-                    finish();
-                }
+                goBack();
             }
         });
 
@@ -127,6 +117,12 @@ public class EditCaregiver extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        goBack();
     }
 
     private void editCaregiver() {
@@ -189,6 +185,20 @@ public class EditCaregiver extends AppCompatActivity {
             myDb.updateCaregiver(cv, caregiver.getInt("id"));
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void goBack() {
+        if(extra.equals("selector")) {
+            Intent i = new Intent(EditCaregiver.this, ElderSelectorActivity.class);
+            startActivity(i);
+            overridePendingTransition(0, 0);
+            finish();
+        } else if(extra.equals("overview")) {
+            Intent i = new Intent(EditCaregiver.this, MainActivity2.class);
+            startActivity(i);
+            overridePendingTransition(0, 0);
+            finish();
         }
     }
 }

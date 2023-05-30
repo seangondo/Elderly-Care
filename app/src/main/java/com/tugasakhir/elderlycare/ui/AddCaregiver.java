@@ -89,12 +89,23 @@ public class AddCaregiver extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(AddCaregiver.this, MainActivity.class);
-                startActivity(i);
-                overridePendingTransition(0, 0);
-                finish();
+                goBack();
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        goBack();
+    }
+
+    private void goBack() {
+        goBack();
+        Intent i = new Intent(AddCaregiver.this, MainActivity.class);
+        startActivity(i);
+        overridePendingTransition(0, 0);
+        finish();
     }
 
     private void signUpCaregiver() {

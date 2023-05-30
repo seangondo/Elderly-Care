@@ -1,9 +1,13 @@
 package com.tugasakhir.elderlycare.ui;
 
 import static android.view.View.VISIBLE;
+import static com.tugasakhir.elderlycare.service.mqttServices.sensorSmartHome;
+import static com.tugasakhir.elderlycare.service.mqttServices.trendRec;
 import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
 import static com.tugasakhir.elderlycare.ui.MainActivity.client;
 import static com.tugasakhir.elderlycare.ui.MainActivity.myServer;
+
+import static java.lang.Integer.parseInt;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
@@ -15,6 +19,7 @@ import androidx.fragment.app.FragmentTransaction;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.util.Log;
@@ -28,7 +33,10 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.gson.Gson;
 import com.tugasakhir.elderlycare.TestTabLayout;
+import com.tugasakhir.elderlycare.adapter.AlarmLogAdapter;
+import com.tugasakhir.elderlycare.api.RetrofitAPI;
 import com.tugasakhir.elderlycare.handler.DBHandler;
 import com.tugasakhir.elderlycare.R;
 import com.tugasakhir.elderlycare.databinding.ActivityMain2Binding;
@@ -38,8 +46,15 @@ import com.tugasakhir.elderlycare.service.notificationServices;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity2 extends AppCompatActivity {
 
@@ -57,7 +72,15 @@ public class MainActivity2 extends AppCompatActivity {
 
     CardView btn1, btn2, btn3, btn4, btn5;
 
+    TextView notifCount;
+    CardView notif;
+
     public static SwitchCompat swAuto;
+
+    //Updater
+    Handler handler = new Handler();
+    Runnable runnable;
+    int delay = 1000;
 
     //Data
     public static String living_temp, living_light, kitchen_light, kitchen_gas;
@@ -129,6 +152,9 @@ public class MainActivity2 extends AppCompatActivity {
         binding = ActivityMain2Binding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        notifCount = (TextView) findViewById(R.id.numberNotification);
+        notif = (CardView) findViewById(R.id.notificationNumber);
+
         tv1 = (TextView) findViewById(R.id.tv2);
         tvAuto = (TextView) findViewById(R.id.AutoSmarthome);
         eName = (TextView) findViewById(R.id.elderName);
@@ -161,8 +187,10 @@ public class MainActivity2 extends AppCompatActivity {
 
         setData();
 
-        binding.navigationBar.setSelectedItemId(R.id.overview);
-        replaceFragment(new Overview());
+        if (savedInstanceState == null) {
+            binding.navigationBar.setSelectedItemId(R.id.overview);
+            replaceFragment(new Overview());
+        }
 
         binding.navigationBar.setOnItemSelectedListener(item -> {
             switch (item.getItemId()) {
@@ -174,7 +202,7 @@ public class MainActivity2 extends AppCompatActivity {
                     break;
                 case R.id.smartHome:
                     replaceFragment(new SmartHome());
-                    tv1.setText("Smart Home");
+                    tv1.setText("Smart \nHome");
                     swAuto.setVisibility(VISIBLE);
                     tvAuto.setVisibility(VISIBLE);
                     break;
@@ -210,6 +238,41 @@ public class MainActivity2 extends AppCompatActivity {
                 TransitionManager.beginDelayedTransition(layout, new AutoTransition());
                 dropMenu.setVisibility(VISIBLE);
                 imgBut.setImageResource(R.drawable.ic_baseline_keyboard_arrow_up_24);
+            }
+        });
+        
+        getCountNotif();
+    }
+
+    public void getCountNotif() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(myServer+":8000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        RetrofitAPI retrofitAPI = retrofit.create(RetrofitAPI.class);
+        Call<Object> call = retrofitAPI.getCountLog(String.valueOf(elderSelected));
+        call.enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                String res = new Gson().toJson(response.body());
+                try {
+                    JSONObject obj = new JSONObject(res);
+                    int count = obj.getInt("n");
+                    Log.e("Count", String.valueOf(count));
+                    if(count > 0) {
+                        notifCount.setText(String.valueOf(count));
+                        notif.setVisibility(View.VISIBLE);
+                    } else {
+                        notif.setVisibility(View.GONE);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+
             }
         });
     }
@@ -298,5 +361,44 @@ public class MainActivity2 extends AppCompatActivity {
         startActivity(i);
         overridePendingTransition(0, 0);
         finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        goBack();
+    }
+
+    private void goBack() {
+        Intent i = new Intent(this, ElderSelectorActivity.class);
+        startActivity(i);
+        overridePendingTransition(0, 0);
+        finish();
+    }
+
+    public void goToAlarmLog(View view) {
+        Intent i = new Intent(this, alarm_log.class);
+        startActivity(i);
+        overridePendingTransition(0, 0);
+        finish();
+    }
+
+    @Override
+    public void onResume() {
+        handler.postDelayed(runnable = new Runnable() {
+            @Override
+            public void run() {
+                getCountNotif();
+                handler.postDelayed(runnable, delay);
+            }
+        }, delay);
+
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        handler.removeCallbacks(runnable);
+        super.onPause();
     }
 }

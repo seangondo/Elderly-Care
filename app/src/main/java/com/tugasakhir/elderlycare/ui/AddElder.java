@@ -107,16 +107,7 @@ public class AddElder extends AppCompatActivity {
                     }
                     break;
                 case R.id.backBtn:
-                    Intent i = null;
-                    if(extra.equals("overview")) {
-                        i = new Intent(AddElder.this, MainActivity2.class);
-                    } else if(extra.equals("selector")) {
-
-                        i = new Intent(AddElder.this, ElderSelectorActivity.class);
-                    }
-                    startActivity(i);
-                    overridePendingTransition(0, 0);
-                    finish();
+                    goBack();
                     break;
                 case R.id.elderAddImage:
                     Intent intent = new Intent(Intent.ACTION_PICK);
@@ -125,6 +116,25 @@ public class AddElder extends AppCompatActivity {
             }
         }
     };
+    
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        goBack();
+    }
+
+    private void goBack() {
+        Intent i = null;
+        if(extra.equals("overview")) {
+            i = new Intent(AddElder.this, MainActivity2.class);
+        } else if(extra.equals("selector")) {
+
+            i = new Intent(AddElder.this, ElderSelectorActivity.class);
+        }
+        startActivity(i);
+        overridePendingTransition(0, 0);
+        finish();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

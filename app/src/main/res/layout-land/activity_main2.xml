@@ -41,13 +41,31 @@
 
         app:menuGravity="center" />
 
+<!--    <ImageView-->
+<!--        android:layout_width="60dp"-->
+<!--        android:layout_height="60dp"-->
+<!--        android:src="@drawable/ic_baseline_notifications_24"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/frameLayout"-->
+<!--        app:layout_constraintEnd_toStartOf="@+id/linearLayout"-->
+<!--        app:layout_constraintStart_toEndOf="@+id/emergency"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        android:onClick="goToAlarmLog"/>-->
+    <include
+        layout="@layout/bell"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_baseline_notifications_24"
+        app:layout_constraintBottom_toTopOf="@+id/frameLayout"
+        app:layout_constraintEnd_toStartOf="@+id/linearLayout"
+        app:layout_constraintStart_toEndOf="@+id/emergency"
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <Button
         android:id="@+id/emergency"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="36dp"
+        android:layout_marginEnd="108dp"
         android:text="Emergency"
         app:layout_constraintEnd_toStartOf="@+id/linearLayout"
         app:layout_constraintTop_toTopOf="parent" />
@@ -57,9 +75,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="20dp"
         android:text="Overview"
-        android:textSize="40sp"
+        android:textSize="36sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/navigationBar"
         app:layout_constraintTop_toTopOf="parent" />

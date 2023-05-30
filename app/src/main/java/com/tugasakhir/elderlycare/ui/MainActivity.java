@@ -67,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static ArrayList<ArrayList<TrendReceive>> sensorTrend;
 
+    private long pressedTime;
+
     // Permission
     int PERMISSION_ALL = 1;
     String[] PERMISSIONS = {
@@ -520,5 +522,16 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (pressedTime + 2000 > System.currentTimeMillis()) {
+            finish();
+            System.exit(0);
+        } else {
+            Toast.makeText(getBaseContext(), "Press back again to Exit", Toast.LENGTH_SHORT).show();
+        }
+        pressedTime = System.currentTimeMillis();
     }
 }

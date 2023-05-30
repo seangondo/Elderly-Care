@@ -45,6 +45,8 @@ public class ElderSelectorActivity extends AppCompatActivity implements Recycler
     public static int elderSelected = 0;
     public static String elderName;
 
+    private long pressedTime;
+
     DBHandler myDb = new DBHandler(this);
 
     Button addElder, addExisting, logout, editCaregiver;
@@ -87,6 +89,17 @@ public class ElderSelectorActivity extends AppCompatActivity implements Recycler
             }
         });
         detectElder();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (pressedTime + 2000 > System.currentTimeMillis()) {
+            finish();
+            System.exit(0);
+        } else {
+            Toast.makeText(getBaseContext(), "Press back again to Exit", Toast.LENGTH_SHORT).show();
+        }
+        pressedTime = System.currentTimeMillis();
     }
 
     private void detectElder() {
