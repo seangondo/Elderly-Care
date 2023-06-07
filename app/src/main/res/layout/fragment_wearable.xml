@@ -7,7 +7,7 @@
     tools:context=".ui.Wearable">
 
     <ScrollView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -17,11 +17,9 @@
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardView1"
 
-                android:layout_width="450dp"
+                android:layout_width="match_parent"
                 android:layout_height="415dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
+                android:layout_margin="16dp"
 
                 app:cardCornerRadius="10dp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -126,11 +124,10 @@
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardView2"
 
-                android:layout_width="450dp"
+                android:layout_width="match_parent"
                 android:layout_height="415dp"
 
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
+                android:layout_margin="16dp"
                 app:cardCornerRadius="10dp"
                 app:layout_constraintStart_toStartOf="@+id/cardView1"
                 app:layout_constraintTop_toBottomOf="@id/cardView1">
@@ -230,42 +227,52 @@
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardView3"
 
-                android:layout_width="450dp"
+                android:layout_width="match_parent"
                 android:layout_height="415dp"
-                android:layout_marginTop="10dp"
+
+                android:layout_margin="16dp"
 
                 app:cardCornerRadius="10dp"
+                app:layout_constraintEnd_toEndOf="@+id/cardView2"
                 app:layout_constraintStart_toStartOf="@+id/cardView2"
                 app:layout_constraintTop_toBottomOf="@+id/cardView2">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_margin="25dp"
                     android:orientation="vertical"
-                    android:layout_marginStart="25dp"
-                    android:layout_marginTop="25dp"
                     android:weightSum="9">
 
                     <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Message"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:text="Alarm"
                         android:textSize="20sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
 
-                    <EditText
-                        android:id="@+id/msgSendElder"
+                    <TextView
+                        android:id="@+id/noAlarmWearable"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="25dp"
-                        android:maxLines="3"/>
+                        android:layout_height="0dp"
+                        android:layout_weight="7"
+                        android:text="No Alarm" />
+
+                    <ListView
+                        android:id="@+id/alarmWearable"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_margin="4dp"
+                        android:layout_weight="7"
+                        android:visibility="gone" />
 
                     <Button
-                        android:id="@+id/btnSendMsg"
+                        android:id="@+id/clearAll"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="25dp"
-                        android:text="Send message!"/>
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:text="Clear All" />
 
                 </LinearLayout>
 

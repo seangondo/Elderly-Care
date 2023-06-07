@@ -62,7 +62,9 @@ public class mqttServices extends Service {
 //    public static JSONArray trendKitchenGas = new JSONArray();
 //    public static JSONArray trendLivingTemp = new JSONArray();
 
-    public static JSONArray poseDetection = new JSONArray();
+    public static JSONArray poseDetectionLiv1 = new JSONArray();
+    public static JSONArray poseDetectionLiv2 = new JSONArray();
+    public static JSONArray poseDetectionDining = new JSONArray();
 
     public static JSONArray trendRec = new JSONArray();
     public static JSONArray HrTrendRec = new JSONArray();
@@ -549,7 +551,7 @@ public class mqttServices extends Service {
     }
 
     private void getPose() {
-        if(getTopic.contains("/apps/pose")) {
+        if(getTopic.contains("/apps/pose/living1")) {
             JSONObject pose = new JSONObject();
             JSONObject myRec = null;
             try {
@@ -558,16 +560,53 @@ public class mqttServices extends Service {
                 pose.put("camera", myRec.getString("camera"));
                 pose.put("pose", myRec.getString("pose"));
                 pose.put("alarm", myRec.getBoolean("alarm"));
-                int val = dataExist(poseDetection, "camera", myRec.getString("camera"));
+                int val = dataExist(poseDetectionLiv1, "camera", myRec.getString("camera"));
 //                int val1 = dataExist(poseDetection, "house_id", myRec.getString("house_id"));
                 if(val != -1) {
-                    poseDetection.put(val, pose);
+                    poseDetectionLiv1.put(val, pose);
                 } else {
-                    poseDetection.put(pose);
+                    poseDetectionLiv1.put(pose);
                 }
-//                poseDetection.put(pose);
-
-
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        if(getTopic.contains("/apps/pose/living2")) {
+            JSONObject pose = new JSONObject();
+            JSONObject myRec = null;
+            try {
+                myRec = new JSONObject(msg);
+                pose.put("house_id", myRec.getString("house_id"));
+                pose.put("camera", myRec.getString("camera"));
+                pose.put("pose", myRec.getString("pose"));
+                pose.put("alarm", myRec.getBoolean("alarm"));
+                int val = dataExist(poseDetectionLiv2, "camera", myRec.getString("camera"));
+//                int val1 = dataExist(poseDetection, "house_id", myRec.getString("house_id"));
+                if(val != -1) {
+                    poseDetectionLiv2.put(val, pose);
+                } else {
+                    poseDetectionLiv2.put(pose);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        if(getTopic.contains("/apps/pose/dining")) {
+            JSONObject pose = new JSONObject();
+            JSONObject myRec = null;
+            try {
+                myRec = new JSONObject(msg);
+                pose.put("house_id", myRec.getString("house_id"));
+                pose.put("camera", myRec.getString("camera"));
+                pose.put("pose", myRec.getString("pose"));
+                pose.put("alarm", myRec.getBoolean("alarm"));
+                int val = dataExist(poseDetectionDining, "camera", myRec.getString("camera"));
+//                int val1 = dataExist(poseDetection, "house_id", myRec.getString("house_id"));
+                if(val != -1) {
+                    poseDetectionDining.put(val, pose);
+                } else {
+                    poseDetectionDining.put(pose);
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }

@@ -40,12 +40,13 @@
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/activity_main2.xml" value="0.35333333333333333" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/button_list.xml" value="0.25" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/edit_elder.xml" value="0.18144833197721724" />
-        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/fragment_overview.xml" value="0.5" />
-        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/fragment_smart_home.xml" value="0.25" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/fragment_overview.xml" value="0.25" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/fragment_smart_home.xml" value="0.1763888888888889" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/fragment_telepresence.xml" value="0.25" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/fragment_test_tab_layout.xml" value="0.15" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/fragment_wearable.xml" value="0.22" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/lv_alarmlog.xml" value="0.67" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/lv_alarmlog_selected.xml" value="0.25" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/my_lvdialog.xml" value="0.14343928280358598" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/selection_card.xml" value="0.25" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout-land/sensor_list.xml" value="0.16" />
@@ -60,7 +61,7 @@
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_edit_caregiver_password.xml" value="0.12317708333333334" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_elder_selector.xml" value="0.18333333333333332" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_main.xml" value="0.1377887788778878" />
-        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_main2.xml" value="0.25" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_main2.xml" value="0.11588541666666667" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_main3.xml" value="0.1" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/activity_splash_loading.xml" value="0.128506600660066" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/bell.xml" value="1.25" />
@@ -72,6 +73,7 @@
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/fragment_test_tab_layout.xml" value="0.14036458333333332" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/fragment_wearable.xml" value="0.16" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/list_item_point.xml" value="0.1" />
+        <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/lv_alarmlog_selected.xml" value="0.18333333333333332" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/my_lvdialog.xml" value="0.128506600660066" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/layout/sensor_list.xml" value="0.1828125" />
         <entry key="..\:/TugasAkhir-Project/elderlycare/app/src/main/res/menu/navmenu.xml" value="0.1" />

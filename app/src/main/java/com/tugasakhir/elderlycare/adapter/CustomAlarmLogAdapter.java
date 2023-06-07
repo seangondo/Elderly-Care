@@ -3,25 +3,23 @@ package com.tugasakhir.elderlycare.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.tugasakhir.elderlycare.R;
 
 import java.util.ArrayList;
 
-public class AlarmLogAdapter extends BaseAdapter {
+public class CustomAlarmLogAdapter extends BaseAdapter {
     Context c;
     ArrayList date, time, type, msg, status;
     LayoutInflater inflater;
 
-    public AlarmLogAdapter(Context c, ArrayList date, ArrayList time, ArrayList type, ArrayList msg, ArrayList status) {
+    public CustomAlarmLogAdapter(Context c, ArrayList date, ArrayList time, ArrayList type, ArrayList msg, ArrayList status) {
         this.c = c;
         this.date = date;
         this.time = time;
@@ -48,10 +46,9 @@ public class AlarmLogAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        view = inflater.inflate(R.layout.lv_alarmlog, null);
+        view = inflater.inflate(R.layout.lv_alarmlog_selected, null);
         TextView mydate = (TextView) view.findViewById(R.id.tvDate);
         TextView mytime = (TextView) view.findViewById(R.id.tvTime);
-        TextView mytype = (TextView) view.findViewById(R.id.tvType);
         TextView mymsg = (TextView) view.findViewById(R.id.tvMessage);
         ImageButton img = (ImageButton) view.findViewById(R.id.clear);
 
@@ -75,7 +72,6 @@ public class AlarmLogAdapter extends BaseAdapter {
 
         mydate.setText(String.valueOf("Date : " + date.get(i)));
         mytime.setText(String.valueOf("Time : " + time.get(i)));
-        mytype.setText(String.valueOf("Type : " + type.get(i)));
         mymsg.setText(String.valueOf(msg.get(i)));
 
         if(String.valueOf(status.get(i)).equals("1")) {

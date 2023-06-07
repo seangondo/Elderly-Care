@@ -11,7 +11,9 @@ import static com.tugasakhir.elderlycare.service.mqttServices.StepsTrend;
 //import static com.tugasakhir.elderlycare.service.mqttServices.living_light;
 //import static com.tugasakhir.elderlycare.service.mqttServices.living_temp;
 import static com.tugasakhir.elderlycare.service.mqttServices.onBody;
-import static com.tugasakhir.elderlycare.service.mqttServices.poseDetection;
+import static com.tugasakhir.elderlycare.service.mqttServices.poseDetectionDining;
+import static com.tugasakhir.elderlycare.service.mqttServices.poseDetectionLiv1;
+import static com.tugasakhir.elderlycare.service.mqttServices.poseDetectionLiv2;
 import static com.tugasakhir.elderlycare.service.mqttServices.sensorSmartHome;
 import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
 
@@ -121,6 +123,10 @@ public class Overview extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Intent intent = new Intent();
+        intent.setAction("update_title");
+        intent.putExtra("title", "Overview");
+        getContext().sendBroadcast(intent);
 
         wearStatus = (TextView) view.findViewById(R.id.wearOverview);
         hrData = (TextView) view.findViewById(R.id.hrOverview);
@@ -290,15 +296,47 @@ public class Overview extends Fragment {
             addressElder.setText(elderData.getString("address"));
 
             // ----------------- < BAGIAN POSE ELDER > ----------------- //
-            for(int i = 0; i < poseDetection.length(); i++) {
-                JSONObject obj = poseDetection.getJSONObject(i);
+            for(int i = 0; i < poseDetectionLiv1.length(); i++) {
+                JSONObject obj = poseDetectionLiv1.getJSONObject(i);
                 if(obj.getString("house_id").equals(elderData.getString("house_id"))) {
                     if(obj.getString("camera").equals("Living Room 1")) {
                         poseLiving1.setText(obj.getString("pose"));
                     }
+                    if(obj.getString("alarm").equals("true")) {
+                        poseLiving1.setTextColor(Color.RED);
+                    } else {
+                        poseLiving1.setTextColor(Color.BLACK);
+                    }
                 }
             }
 
+            for(int i = 0; i < poseDetectionLiv2.length(); i++) {
+                JSONObject obj = poseDetectionLiv2.getJSONObject(i);
+                if(obj.getString("house_id").equals(elderData.getString("house_id"))) {
+                    if(obj.getString("camera").equals("Living Room 2")) {
+                        poseLiving2.setText(obj.getString("pose"));
+                    }
+                    if(obj.getString("alarm").equals("true")) {
+                        poseLiving2.setTextColor(Color.RED);
+                    } else {
+                        poseLiving2.setTextColor(Color.BLACK);
+                    }
+                }
+            }
+
+            for(int i = 0; i < poseDetectionDining.length(); i++) {
+                JSONObject obj = poseDetectionDining.getJSONObject(i);
+                if(obj.getString("house_id").equals(elderData.getString("house_id"))) {
+                    if(obj.getString("camera").equals("Dining Room")) {
+                        poseDining1.setText(obj.getString("pose"));
+                    }
+                    if(obj.getString("alarm").equals("true")) {
+                        poseDining1.setTextColor(Color.RED);
+                    } else {
+                        poseDining1.setTextColor(Color.BLACK);
+                    }
+                }
+            }
 
         } catch (JSONException e) {
             e.printStackTrace();

@@ -1,30 +1,21 @@
 package com.tugasakhir.elderlycare.ui;
 
-//import static com.tugasakhir.elderlycare.service.mqttServices.autoMode;
 import static com.tugasakhir.elderlycare.service.mqttServices.buttonSmartHome;
-//import static com.tugasakhir.elderlycare.service.mqttServices.fanLiving;
-//import static com.tugasakhir.elderlycare.service.mqttServices.lampKitchen;
-//import static com.tugasakhir.elderlycare.service.mqttServices.lampLiving;
 import static com.tugasakhir.elderlycare.service.mqttServices.sensorSmartHome;
-import static com.tugasakhir.elderlycare.service.mqttServices.trend;
 import static com.tugasakhir.elderlycare.service.mqttServices.trendRec;
 import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
 import static com.tugasakhir.elderlycare.ui.MainActivity.client;
+import static com.tugasakhir.elderlycare.ui.MainActivity.myServer;
+import static com.tugasakhir.elderlycare.ui.MainActivity2.binding;
 import static com.tugasakhir.elderlycare.ui.MainActivity2.swAuto;
-//import static com.tugasakhir.elderlycare.service.mqttServices.bAutoMode;
-//import static com.tugasakhir.elderlycare.service.mqttServices.bFanLiving;
-//import static com.tugasakhir.elderlycare.service.mqttServices.bLampKitchen;
-//import static com.tugasakhir.elderlycare.service.mqttServices.bLampLiving;
-//import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_gas;
-//import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_light;
-//import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_no;
-//import static com.tugasakhir.elderlycare.service.mqttServices.living_light;
-//import static com.tugasakhir.elderlycare.service.mqttServices.living_no;
-//import static com.tugasakhir.elderlycare.service.mqttServices.living_temp;
 
 import static java.lang.Integer.parseInt;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -39,8 +30,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
@@ -56,19 +51,30 @@ import com.github.mikephil.charting.formatter.IFillFormatter;
 import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.google.android.material.navigationrail.NavigationRailView;
+import com.google.gson.Gson;
 import com.tugasakhir.elderlycare.R;
+import com.tugasakhir.elderlycare.adapter.CustomAlarmLogAdapter;
+import com.tugasakhir.elderlycare.api.RetrofitAPI;
 import com.tugasakhir.elderlycare.handler.DBHandler;
-import com.tugasakhir.elderlycare.service.mqttServices;
 
-import org.eclipse.paho.client.mqttv3.MqttException;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -85,6 +91,17 @@ public class SmartHome extends Fragment implements View.OnClickListener{
     TextView COstat;
     NavigationRailView navigationRailView;
 
+    TextView text1;
+
+    ArrayList<String> date;
+    ArrayList<String> time;
+    ArrayList<String> message;
+    ArrayList<String> type;
+    ArrayList<String> status;
+    Button clear;
+    TextView noTextAlarm;
+    ListView alarmLog;
+
     JSONObject elderData;
 
     long lastClick = 0;
@@ -95,6 +112,8 @@ public class SmartHome extends Fragment implements View.OnClickListener{
     Handler handler = new Handler();
     Runnable runnable;
     int delay = 500;
+
+    private CustomAlarmLogAdapter customAlarmLogAdapter;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -154,6 +173,12 @@ public class SmartHome extends Fragment implements View.OnClickListener{
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
+
+        Intent intent = new Intent();
+        intent.setAction("update_title");
+        intent.putExtra("title", "Smart\nHome");
+        getContext().sendBroadcast(intent);
+
         navigationRailView = (NavigationRailView) view.findViewById(R.id.navigationBar);
 
         COstat = (TextView) view.findViewById(R.id.COdetect);
@@ -220,6 +245,43 @@ public class SmartHome extends Fragment implements View.OnClickListener{
             setData("kitchen" ,trendGas);
         }
         getData();
+
+        // ALARM
+        clear = (Button) view.findViewById(R.id.clearAll);
+        noTextAlarm = (TextView) view.findViewById(R.id.noAlarmSmartHome);
+        alarmLog = (ListView) view.findViewById(R.id.alarmSmarthome);
+
+        clear.setOnClickListener(this);
+        BroadcastReceiver buttonDelete = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals("delete_log")) {
+                    int id = intent.getIntExtra("id", 0);
+                    String date = intent.getStringExtra("date");
+                    String time = intent.getStringExtra("time");
+                    String type = intent.getStringExtra("type");
+                    String stats = intent.getStringExtra("stats");
+                    String msg = intent.getStringExtra("msg");
+
+                    deleteSelected(id, date, time, type, stats, msg);
+                }
+            }
+        };
+        IntentFilter filter = new IntentFilter("delete_log");
+        requireActivity().registerReceiver(buttonDelete, filter);
+
+        setDataAlarm();
+
+        alarmLog.setClickable(true);
+        alarmLog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                Log.e("Status List", String.valueOf(date));
+                if(status.get(i).equals("1")) {
+                    changeStatus(i);
+                }
+            }
+        });
     }
 
     private void initTrend(LineChart chartName,int maxVal, int minVal){
@@ -352,110 +414,6 @@ public class SmartHome extends Fragment implements View.OnClickListener{
             e.printStackTrace();
         }
 
-//        if(living_light!=null & living_temp!=null & kitchen_light!=null & kitchen_gas!=null) {
-//            if(parseInt(kitchen_gas) >= 700) {
-//                COstat.setTextColor(Color.RED);
-//                COstat.setText("Gas rate too high!");
-//            } else {
-//                COstat.setTextColor(Color.GREEN);
-//                COstat.setText("Normal");
-//            }
-//        }
-
-//        if(bLampLiving.equals("true")){
-//            living_light_label.setText("ON");
-//            living_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_on));
-//        } else if (bLampLiving.equals("false")){
-//            living_light_label.setText("OFF");
-//            living_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_off));
-//        }
-//        if(bLampKitchen.equals("true")){
-//            kitchen_light_label.setText("ON");
-//            kitchen_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_on));
-//        } else if (bLampKitchen.equals("false")){
-//            kitchen_light_label.setText("OFF");
-//            kitchen_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_off));
-//        }
-//        if(bFanLiving.equals("off")){
-//            living_fan_label.setText("OFF");
-//            living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_off_icon));
-//        } else if (bFanLiving.equals("slow")){
-//            living_fan_label.setText("SLOW");
-//            living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_slow_icon));
-//        } else if (bFanLiving.equals("fast")){
-//            living_fan_label.setText("FAST");
-//            living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_speed_icon));
-//        }
-//        if(bAutoMode.equals("true")){
-//            swAuto.setChecked(true);
-//        } else if (bAutoMode.equals("false")){
-//            swAuto.setChecked(false);
-//        }
-
-        // CARA KE 3
-
-//        for(int i = 0; i < fanLiving.length(); i++) {
-//            try {
-//                JSONObject fan = fanLiving.getJSONObject(i);
-//                if(fan.getString("elder_id").equals(elderSelected) && fan.getString("value").equals("off")){
-//                    living_fan_label.setText("OFF");
-//                    living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_off_icon));
-//                } else if (fan.getString("elder_id").equals(elderSelected) && fan.getString("value").equals("slow")){
-//                    living_fan_label.setText("SLOW");
-//                    living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_slow_icon));
-//                } else if (fan.getString("elder_id").equals(elderSelected) && fan.getString("value").equals("fast")){
-//                    living_fan_label.setText("FAST");
-//                    living_fan_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_fan_speed_icon));
-//                }
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        for(int i = 0; i < lampLiving.length(); i++) {
-//            try {
-//                JSONObject fan = lampLiving.getJSONObject(i);
-//                if(fan.getString("elder_id").equals(elderSelected) && fan.getString("value").equals("true")){
-//                    living_light_label.setText("ON");
-//                    living_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_on));
-//                } else if (fan.getString("elder_id").equals(elderSelected) && fan.getString("value").equals("false")){
-//                    living_light_label.setText("OFF");
-//                    living_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_off));
-//                }
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        for(int i = 0; i < lampKitchen.length(); i++) {
-//            try {
-//                JSONObject fan = lampKitchen.getJSONObject(i);
-//                if(fan.getString("elder_id").equals(elderSelected) && fan.getString("value").equals("true")){
-//                    kitchen_light_label.setText("ON");
-//                    kitchen_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_on));
-//                } else if (fan.getString("elder_id").equals(elderSelected) && fan.getString("value").equals("false")){
-//                    kitchen_light_label.setText("OFF");
-//                    kitchen_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_off));
-//                }
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        for(int i = 0; i < autoMode.length(); i++) {
-//            try {
-//                JSONObject fan = autoMode.getJSONObject(i);
-//                if(fan.getString("elder_id").equals(elderSelected) && fan.getString("value").equals("true")){
-//                    swAuto.setChecked(true);
-//                } else if (fan.getString("elder_id").equals(elderSelected) && fan.getString("value").equals("false")){
-//                    swAuto.setChecked(false);
-//                }
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//        }
-
-//         CARA KE 2
         for(int i = 0; i < buttonSmartHome.length(); i++) {
             try {
                 JSONObject data = buttonSmartHome.getJSONObject(i);
@@ -504,7 +462,6 @@ public class SmartHome extends Fragment implements View.OnClickListener{
                         }
                     }
                 }
-//                Log.e("Data Cara 2", String.valueOf(buttonSmartHome.length()));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -519,7 +476,6 @@ public class SmartHome extends Fragment implements View.OnClickListener{
             @Override
             public void run() {
                 getData();
-                //binding.navigationBar.setSelectedItemId(R.id.smartHome);
                 try {
                     for(int i = 0; i < sensorSmartHome.length(); i++) {
                         JSONObject obj = null;
@@ -541,19 +497,6 @@ public class SmartHome extends Fragment implements View.OnClickListener{
                     e.printStackTrace();
                 }
 
-//                if(living_light!=null & living_temp!=null & kitchen_light!=null & kitchen_gas!=null) {
-//                    showPieChart(roomLight, Integer.parseInt(living_light), 1024, "");
-//                    showPieChart(roomTemp, Integer.parseInt(living_temp), 100, "\u2103");
-//                    showPieChart(kitchenLight, Integer.parseInt(kitchen_light), 1024, "");
-//                    showPieChart(kitchenGas, Integer.parseInt(kitchen_gas), 1024, "");
-//                }
-
-//                if(living_no.size() != 0 & kitchen_no.size() != 0) {
-//                    initTrend(trendTemp, 100, 0);
-//                    initTrend(trendGas, 1024, 0);
-//                    setData("livingroom" ,trendTemp);
-//                    setData("kitchen" ,trendGas);
-//                }
                 handler.postDelayed(runnable, delay);
             }
         }, delay);
@@ -667,8 +610,186 @@ public class SmartHome extends Fragment implements View.OnClickListener{
                             client.publish(elderSelected + "/apps/control_button/kitchen/light", "{\"value\": \"false\", \"var\": 1}".getBytes(), 0, true);
                         }
                         break;
+                    case R.id.clearAll:
+                        clearAllLog();
+                        break;
                 }
             }
+        }
+    }
+
+    private void setDataAlarm() {
+        date = new ArrayList<>();
+        time= new ArrayList<>();
+        message = new ArrayList<>();
+        type = new ArrayList<>();
+        status = new ArrayList<>();
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(myServer+":8000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        RetrofitAPI retrofitAPI = retrofit.create(RetrofitAPI.class);
+        Call<Object> call = retrofitAPI.getLog(String.valueOf(elderSelected));
+        call.enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                String res = new Gson().toJson(response.body());
+                try {
+                    JSONArray arr = new JSONArray(res);
+                    if(arr.length() > 0) {
+                        alarmLog.setVisibility(View.VISIBLE);
+                        noTextAlarm.setVisibility(View.GONE);
+                        for(int i = 0; i < arr.length(); i++) {
+                            JSONObject arrObj = arr.getJSONObject(i);
+                            if(arrObj.getString("type").equals("Smart Home")) {
+                                date.add(arrObj.getString("date"));
+                                time.add(arrObj.getString("time"));
+                                message.add(arrObj.getString("message"));
+                                type.add(arrObj.getString("type"));
+                                status.add(String.valueOf(arrObj.getInt("status")));
+                            }
+                        }
+                        if(date.size() <= 0) {
+                            alarmLog.setVisibility(View.GONE);
+                            noTextAlarm.setVisibility(View.VISIBLE);
+                        }
+                        if (date.size()>0  || time.size()>0 || type.size()>0 || message.size()>0 || status.size()>0) {
+                            customAlarmLogAdapter = new CustomAlarmLogAdapter(getContext(), date, time, type, message, status);
+                            alarmLog.setAdapter(customAlarmLogAdapter);
+                        }
+                    } else {
+                        alarmLog.setVisibility(View.GONE);
+                        noTextAlarm.setVisibility(View.VISIBLE);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void changeStatus(int i) {
+        Log.e("Update log", String.valueOf(i));
+        RequestBody elder_id = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(elderSelected));
+        RequestBody mydate = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(date.get(i)));
+        RequestBody mytime = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(time.get(i)));
+        RequestBody mytype = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(type.get(i)));
+        RequestBody mystats = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(status.get(i)));
+        RequestBody mymsg = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(message.get(i)));
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(myServer+":8000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        RetrofitAPI retrofitAPI = retrofit.create(RetrofitAPI.class);
+        Call<ResponseBody> call = retrofitAPI.alarmUpdate(elder_id, mydate, mytime, mytype, mystats, mymsg);
+
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                String res = new Gson().toJson(response.body());
+                try {
+                    JSONObject obj = new JSONObject(response.body().string());
+                    if (obj.getString("result").equals("berhasil")) {
+                        status.set(i, "0");
+//                        CustomAlarmLogAdapter customAlarmLogAdapter = new CustomAlarmLogAdapter(getContext(), date, time, type, message, status);
+                        customAlarmLogAdapter.notifyDataSetChanged();
+//                        setDataAlarm();
+                    }
+                } catch (JSONException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e("Failed", String.valueOf(t));
+            }
+        });
+    }
+
+    private void deleteSelected(int id, String mdate, String mtime, String mtype, String stats, String msg) {
+        RequestBody elder_id = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(elderSelected));
+        RequestBody mydate = RequestBody.create(MediaType.parse("multipart/form-data"), mdate);
+        RequestBody mytime = RequestBody.create(MediaType.parse("multipart/form-data"), mtime);
+        RequestBody mytype = RequestBody.create(MediaType.parse("multipart/form-data"), mtype);
+        RequestBody mystats = RequestBody.create(MediaType.parse("multipart/form-data"), stats);
+        RequestBody mymsg = RequestBody.create(MediaType.parse("multipart/form-data"), msg);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(myServer+":8000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        RetrofitAPI retrofitAPI = retrofit.create(RetrofitAPI.class);
+        Call<ResponseBody> call = retrofitAPI.alarmDelete(elder_id, mydate, mytime, mytype, mystats, mymsg);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                String res = new Gson().toJson(response.body());
+                try {
+                    JSONObject obj = new JSONObject(response.body().string());
+                    if (obj.getString("result").equals("berhasil")) {
+                        Toast.makeText(getContext(), "Alarm Delete!", Toast.LENGTH_LONG).show();
+                        date.remove(id);
+                        time.remove(id);
+                        type.remove(id);
+                        status.remove(id);
+                        message.remove(id);
+                        customAlarmLogAdapter.notifyDataSetChanged();
+                    }
+                } catch (JSONException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e("Failed", String.valueOf(t));
+            }
+        });
+    }
+
+    private void clearAllLog(){
+        for(int i = 0; i < date.size(); i++) {
+            RequestBody elder_id = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(elderSelected));
+            RequestBody mydate = RequestBody.create(MediaType.parse("multipart/form-data"), date.get(i));
+            RequestBody mytime = RequestBody.create(MediaType.parse("multipart/form-data"), time.get(i));
+            RequestBody mytype = RequestBody.create(MediaType.parse("multipart/form-data"), type.get(i));
+            RequestBody mystats = RequestBody.create(MediaType.parse("multipart/form-data"), status.get(i));
+            RequestBody mymsg = RequestBody.create(MediaType.parse("multipart/form-data"), message.get(i));
+
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(myServer+":8000/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+            RetrofitAPI retrofitAPI = retrofit.create(RetrofitAPI.class);
+            Call<ResponseBody> call = retrofitAPI.alarmDelete(elder_id, mydate, mytime, mytype, mystats, mymsg);
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    String res = new Gson().toJson(response.body());
+                    try {
+                        JSONObject obj = new JSONObject(response.body().string());
+                        if (obj.getString("result").equals("berhasil")) {
+//                            Toast.makeText(getContext(), "Alarm cleared!", Toast.LENGTH_LONG).show();
+                            setDataAlarm();
+                        }
+                    } catch (JSONException | IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    Log.e("Failed", String.valueOf(t));
+                }
+            });
         }
     }
 }

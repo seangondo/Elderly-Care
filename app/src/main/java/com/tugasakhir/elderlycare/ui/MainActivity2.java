@@ -16,7 +16,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -66,7 +69,6 @@ public class MainActivity2 extends AppCompatActivity {
     ImageButton imgBut;
     TextView eName, eAddress;
 
-
     LinearLayout layout;
     LinearLayout dropMenu;
 
@@ -76,6 +78,8 @@ public class MainActivity2 extends AppCompatActivity {
     CardView notif;
 
     public static SwitchCompat swAuto;
+
+    public static String globalText;
 
     //Updater
     Handler handler = new Handler();
@@ -128,7 +132,7 @@ public class MainActivity2 extends AppCompatActivity {
                 case R.id.emergency:
                     Log.d("Call", "Start Call");
                     Intent callIntent = new Intent(Intent.ACTION_CALL);
-                    callIntent.setData(Uri.parse("tel:081330679849"));
+                    callIntent.setData(Uri.parse("tel:112"));
                     startActivity(callIntent);
                     break;
                 case R.id.sw_auto:
@@ -187,37 +191,61 @@ public class MainActivity2 extends AppCompatActivity {
 
         setData();
 
+        BroadcastReceiver setTitle = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals("update_title")) {
+                    String title = intent.getStringExtra("title");
+                    tv1.setText(title);
+                    if(title.equals("Smart\nHome")) {
+                        swAuto.setVisibility(VISIBLE);
+                        tvAuto.setVisibility(VISIBLE);
+                    } else {
+                        swAuto.setVisibility(View.INVISIBLE);
+                        tvAuto.setVisibility(View.INVISIBLE);
+                    }
+                }
+            }
+        };
+        IntentFilter filter = new IntentFilter("update_title");
+        this.registerReceiver(setTitle, filter);
+
         if (savedInstanceState == null) {
-            binding.navigationBar.setSelectedItemId(R.id.overview);
+            if(binding.navigationBar != null) {
+                binding.navigationBar.setSelectedItemId(R.id.overview);
+            } else if (binding.bottomnavigationBar != null) {
+                binding.bottomnavigationBar.setSelectedItemId(R.id.overview);
+            }
             replaceFragment(new Overview());
         }
 
-        binding.navigationBar.setOnItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.overview:
-                    replaceFragment(new Overview());
-                    tv1.setText("Overview");
-                    swAuto.setVisibility(View.INVISIBLE);
-                    tvAuto.setVisibility(View.INVISIBLE);
-                    break;
-                case R.id.smartHome:
-                    replaceFragment(new SmartHome());
-                    tv1.setText("Smart \nHome");
-                    swAuto.setVisibility(VISIBLE);
-                    tvAuto.setVisibility(VISIBLE);
-                    break;
-                case R.id.telepresence:
-                    replaceFragment(new Telepresence());
-                    tv1.setText("Telepresence");
-                    swAuto.setVisibility(View.INVISIBLE);
-                    tvAuto.setVisibility(View.INVISIBLE);
-                    break;
-                case R.id.wearable:
-                    replaceFragment(new Wearable());
-                    tv1.setText("Wearable");
-                    swAuto.setVisibility(View.INVISIBLE);
-                    tvAuto.setVisibility(View.INVISIBLE);
-                    break;
+        if(binding.navigationBar != null) {
+            binding.navigationBar.setOnItemSelectedListener(item -> {
+                switch (item.getItemId()) {
+                    case R.id.overview:
+                        replaceFragment(new Overview());
+//                    tv1.setText("Overview");
+//                    swAuto.setVisibility(View.INVISIBLE);
+//                    tvAuto.setVisibility(View.INVISIBLE);
+                        break;
+                    case R.id.smartHome:
+                        replaceFragment(new SmartHome());
+//                    tv1.setText("Smart \nHome");
+//                    swAuto.setVisibility(VISIBLE);
+//                    tvAuto.setVisibility(VISIBLE);
+                        break;
+                    case R.id.telepresence:
+                        replaceFragment(new Telepresence());
+//                    tv1.setText("Telepresence");
+//                    swAuto.setVisibility(View.INVISIBLE);
+//                    tvAuto.setVisibility(View.INVISIBLE);
+                        break;
+                    case R.id.wearable:
+                        replaceFragment(new Wearable());
+//                    tv1.setText("Wearable");
+//                    swAuto.setVisibility(View.INVISIBLE);
+//                    tvAuto.setVisibility(View.INVISIBLE);
+                        break;
 
 //                case R.id.testing:
 //                    replaceFragment(new TestTabLayout());
@@ -225,9 +253,47 @@ public class MainActivity2 extends AppCompatActivity {
 //                    swAuto.setVisibility(View.INVISIBLE);
 //                    tvAuto.setVisibility(View.INVISIBLE);
 //                    break;
-            }
-            return true;
-        });
+                }
+                return true;
+            });
+        } else if (binding.bottomnavigationBar != null) {
+            binding.bottomnavigationBar.setOnItemSelectedListener(item -> {
+                switch (item.getItemId()) {
+                    case R.id.overview:
+                        replaceFragment(new Overview());
+//                    tv1.setText("Overview");
+//                    swAuto.setVisibility(View.INVISIBLE);
+//                    tvAuto.setVisibility(View.INVISIBLE);
+                        break;
+                    case R.id.smartHome:
+                        replaceFragment(new SmartHome());
+//                    tv1.setText("Smart \nHome");
+//                    swAuto.setVisibility(VISIBLE);
+//                    tvAuto.setVisibility(VISIBLE);
+                        break;
+                    case R.id.telepresence:
+                        replaceFragment(new Telepresence());
+//                    tv1.setText("Telepresence");
+//                    swAuto.setVisibility(View.INVISIBLE);
+//                    tvAuto.setVisibility(View.INVISIBLE);
+                        break;
+                    case R.id.wearable:
+                        replaceFragment(new Wearable());
+//                    tv1.setText("Wearable");
+//                    swAuto.setVisibility(View.INVISIBLE);
+//                    tvAuto.setVisibility(View.INVISIBLE);
+                        break;
+
+//                case R.id.testing:
+//                    replaceFragment(new TestTabLayout());
+//                    tv1.setText("Testing");
+//                    swAuto.setVisibility(View.INVISIBLE);
+//                    tvAuto.setVisibility(View.INVISIBLE);
+//                    break;
+                }
+                return true;
+            });
+        }
 
         imgBut.setOnClickListener(view -> {
             if (dropMenu.getVisibility() == VISIBLE) {

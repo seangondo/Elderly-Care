@@ -27,15 +27,17 @@
     <!--        app:layout_constraintStart_toEndOf="@+id/emergency"-->
     <!--        app:layout_constraintTop_toTopOf="parent"-->
     <!--        android:onClick="goToAlarmLog"/>-->
+
     <include
         layout="@layout/bell"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
         android:src="@drawable/ic_baseline_notifications_24"
         app:layout_constraintBottom_toTopOf="@+id/frameLayout"
         app:layout_constraintEnd_toStartOf="@+id/linearLayout"
-        app:layout_constraintStart_toEndOf="@+id/emergency"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.2" />
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/sw_auto"
@@ -48,16 +50,14 @@
         app:layout_constraintStart_toStartOf="@+id/AutoSmarthome"
         app:layout_constraintTop_toBottomOf="@+id/AutoSmarthome" />
 
-    <com.google.android.material.navigationrail.NavigationRailView
-        android:id="@+id/navigationBar"
-        android:layout_width="100dp"
-        android:layout_height="match_parent"
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomnavigationBar"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
         app:itemIconSize="40dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:menu="@menu/navmenu"
-
         app:menuGravity="center" />
 
 
@@ -66,7 +66,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="28dp"
-        android:layout_marginEnd="96dp"
+        android:layout_marginEnd="92dp"
         android:text="Emergency"
         app:layout_constraintEnd_toStartOf="@+id/linearLayout"
         app:layout_constraintTop_toTopOf="parent" />
@@ -118,7 +118,7 @@
                     android:textStyle="bold" />
 
                 <LinearLayout
-                    android:layout_width="300dp"
+                    android:layout_width="250dp"
                     android:layout_height="0dp"
                     android:layout_weight="10"
                     android:orientation="horizontal"
@@ -277,9 +277,10 @@
         android:id="@+id/frameLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="100dp"
-        android:layout_marginTop="180dp"
+        android:layout_marginTop="200dp"
+        android:layout_marginBottom="80dp"
         android:translationZ="-10dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottomnavigationBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/navigationBar"

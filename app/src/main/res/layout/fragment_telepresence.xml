@@ -18,11 +18,10 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView1"
 
-            android:layout_width="450dp"
+            android:layout_width="match_parent"
             android:layout_height="450dp"
 
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="10dp"
+            android:layout_margin="16dp"
             app:cardCornerRadius="10dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -57,8 +56,9 @@
 
             <WebView
                 android:id="@+id/webrtc"
-                android:layout_width="400dp"
+                android:layout_width="match_parent"
                 android:layout_height="330dp"
+                android:layout_margin="5dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="10dp"
                 android:translationZ="10dp"
@@ -73,10 +73,10 @@
 
             android:id="@+id/cardView3"
 
-            android:layout_width="450dp"
+            android:layout_width="match_parent"
             android:layout_height="150dp"
 
-            android:layout_marginTop="10dp"
+            android:layout_margin="16dp"
             app:cardCornerRadius="10dp"
             app:layout_constraintStart_toStartOf="@+id/cardView1"
             app:layout_constraintTop_toBottomOf="@id/cardView4">
@@ -186,10 +186,10 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView4"
 
-            android:layout_width="450dp"
+            android:layout_width="match_parent"
             android:layout_height="250dp"
 
-            android:layout_marginTop="16dp"
+            android:layout_margin="16dp"
             app:cardCornerRadius="10dp"
             app:layout_constraintStart_toStartOf="@+id/cardView1"
             app:layout_constraintTop_toBottomOf="@+id/cardView1">
@@ -344,7 +344,58 @@
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView5"
 
+            android:layout_width="match_parent"
+            android:layout_height="415dp"
+            android:layout_margin="10dp"
+
+            app:cardCornerRadius="10dp"
+            app:layout_constraintEnd_toEndOf="@+id/cardView4"
+            app:layout_constraintStart_toStartOf="@+id/cardView4"
+            app:layout_constraintTop_toBottomOf="@+id/cardView3">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="25dp"
+                android:orientation="vertical"
+                android:weightSum="9">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="Alarm"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/noAlarmTelepresence"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="7"
+                    android:text="No Alarm" />
+
+                <ListView
+                    android:id="@+id/alarmTelepresence"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_margin="4dp"
+                    android:layout_weight="7"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/clearAll"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="Clear All" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>

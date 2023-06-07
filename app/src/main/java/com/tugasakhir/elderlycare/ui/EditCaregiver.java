@@ -1,5 +1,6 @@
 package com.tugasakhir.elderlycare.ui;
 
+import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
 import static com.tugasakhir.elderlycare.ui.MainActivity.myServer;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -189,13 +190,13 @@ public class EditCaregiver extends AppCompatActivity {
     }
 
     private void goBack() {
-        if(extra.equals("selector")) {
-            Intent i = new Intent(EditCaregiver.this, ElderSelectorActivity.class);
+        if(elderSelected == 0) {
+            Intent i = new Intent(EditCaregiver.this, MainActivity2.class);
             startActivity(i);
             overridePendingTransition(0, 0);
             finish();
-        } else if(extra.equals("overview")) {
-            Intent i = new Intent(EditCaregiver.this, MainActivity2.class);
+        } else {
+            Intent i = new Intent(EditCaregiver.this, ElderSelectorActivity.class);
             startActivity(i);
             overridePendingTransition(0, 0);
             finish();

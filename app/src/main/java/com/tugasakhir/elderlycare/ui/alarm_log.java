@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -47,7 +48,10 @@ public class alarm_log extends AppCompatActivity {
     ArrayList<String> message;
     ArrayList<String> type;
     ArrayList<String> status;
+    TextView tvnoAlarm;
     ListView alarmLog;
+
+    private AlarmLogAdapter alarmLogAdapter;
 
     View.OnClickListener myClickList = new View.OnClickListener() {
         @Override
@@ -71,6 +75,8 @@ public class alarm_log extends AppCompatActivity {
         clear = (Button) findViewById(R.id.btnClearAll);
         back = (Button) findViewById(R.id.backBtn);
 
+        tvnoAlarm = (TextView) findViewById(R.id.noAlrmText);
+
         clear.setOnClickListener(myClickList);
         back.setOnClickListener(myClickList);
 
@@ -80,13 +86,14 @@ public class alarm_log extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals("delete_log")) {
+                    int id = intent.getIntExtra("id", 0);
                     String date = intent.getStringExtra("date");
                     String time = intent.getStringExtra("time");
                     String type = intent.getStringExtra("type");
                     String stats = intent.getStringExtra("stats");
                     String msg = intent.getStringExtra("msg");
 
-                    deleteSelected(date, time, type, stats, msg);
+                    deleteSelected(id, date, time, type, stats, msg);
                 }
             }
         };
@@ -133,6 +140,8 @@ public class alarm_log extends AppCompatActivity {
                 try {
                     JSONArray arr = new JSONArray(res);
                     if(arr.length() > 0) {
+                        alarmLog.setVisibility(View.VISIBLE);
+                        tvnoAlarm.setVisibility(View.GONE);
                         for(int i = 0; i < arr.length(); i++) {
                             JSONObject arrObj = arr.getJSONObject(i);
                             date.add(arrObj.getString("date"));
@@ -141,8 +150,11 @@ public class alarm_log extends AppCompatActivity {
                             type.add(arrObj.getString("type"));
                             status.add(String.valueOf(arrObj.getInt("status")));
                         }
-                        AlarmLogAdapter alarmLogAdapter = new AlarmLogAdapter(getApplicationContext(), date, time, type, message, status);
+                        alarmLogAdapter = new AlarmLogAdapter(getApplicationContext(), date, time, type, message, status);
                         alarmLog.setAdapter(alarmLogAdapter);
+                    } else {
+                        alarmLog.setVisibility(View.GONE);
+                        tvnoAlarm.setVisibility(View.VISIBLE);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -171,6 +183,8 @@ public class alarm_log extends AppCompatActivity {
                 .build();
         RetrofitAPI retrofitAPI = retrofit.create(RetrofitAPI.class);
         Call<ResponseBody> call = retrofitAPI.alarmUpdate(elder_id, mydate, mytime, mytype, mystats, mymsg);
+
+
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -179,7 +193,8 @@ public class alarm_log extends AppCompatActivity {
                     JSONObject obj = new JSONObject(response.body().string());
                     if (obj.getString("result").equals("berhasil")) {
 //                        Toast.makeText(alarm_log.this, "Updated!", Toast.LENGTH_LONG).show();
-                        setData();
+                        status.set(i, "0");
+                        alarmLogAdapter.notifyDataSetChanged();
                     }
                 } catch (JSONException | IOException e) {
                     e.printStackTrace();
@@ -193,11 +208,11 @@ public class alarm_log extends AppCompatActivity {
         });
     }
 
-    private void deleteSelected(String date, String time, String type, String stats, String msg) {
+    private void deleteSelected(int id, String mdate, String mtime, String mtype, String stats, String msg) {
         RequestBody elder_id = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(elderSelected));
-        RequestBody mydate = RequestBody.create(MediaType.parse("multipart/form-data"), date);
-        RequestBody mytime = RequestBody.create(MediaType.parse("multipart/form-data"), time);
-        RequestBody mytype = RequestBody.create(MediaType.parse("multipart/form-data"), type);
+        RequestBody mydate = RequestBody.create(MediaType.parse("multipart/form-data"), mdate);
+        RequestBody mytime = RequestBody.create(MediaType.parse("multipart/form-data"), mtime);
+        RequestBody mytype = RequestBody.create(MediaType.parse("multipart/form-data"), mtype);
         RequestBody mystats = RequestBody.create(MediaType.parse("multipart/form-data"), stats);
         RequestBody mymsg = RequestBody.create(MediaType.parse("multipart/form-data"), msg);
 
@@ -214,8 +229,13 @@ public class alarm_log extends AppCompatActivity {
                 try {
                     JSONObject obj = new JSONObject(response.body().string());
                     if (obj.getString("result").equals("berhasil")) {
-//                        Toast.makeText(alarm_log.this, "Updated!", Toast.LENGTH_LONG).show();
-                        setData();
+                        Toast.makeText(alarm_log.this, "Alarm Delete!", Toast.LENGTH_LONG).show();
+                        date.remove(id);
+                        time.remove(id);
+                        type.remove(id);
+                        status.remove(id);
+                        message.remove(id);
+                        alarmLogAdapter.notifyDataSetChanged();
                     }
                 } catch (JSONException | IOException e) {
                     e.printStackTrace();

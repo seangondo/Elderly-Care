@@ -3,7 +3,12 @@ package com.tugasakhir.elderlycare.ui;
 import static com.tugasakhir.elderlycare.service.mqttServices.statusRobot;
 import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
 import static com.tugasakhir.elderlycare.ui.MainActivity.client;
+import static com.tugasakhir.elderlycare.ui.MainActivity.myServer;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.http.SslError;
 import android.os.Bundle;
 
@@ -31,10 +36,14 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.tugasakhir.elderlycare.R;
+import com.tugasakhir.elderlycare.adapter.CustomAlarmLogAdapter;
+import com.tugasakhir.elderlycare.api.RetrofitAPI;
 import com.tugasakhir.elderlycare.handler.DBHandler;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -42,12 +51,21 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
 import io.github.controlwear.virtual.joystick.android.JoystickView;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -89,6 +107,17 @@ public class Telepresence extends Fragment implements View.OnClickListener,
     Handler handler = new Handler();
     Runnable runnable;
     int delay = 100;
+
+    ArrayList<String> date;
+    ArrayList<String> time;
+    ArrayList<String> message;
+    ArrayList<String> type;
+    ArrayList<String> status;
+    Button clear;
+    TextView noTextAlarm;
+    ListView alarmLog;
+
+    private CustomAlarmLogAdapter customAlarmLogAdapter;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -155,6 +184,11 @@ public class Telepresence extends Fragment implements View.OnClickListener,
 ////                Log.d("Joystick Strength", String.valueOf(strength));
 //            }
 //        }, 100);
+
+        Intent intent = new Intent();
+        intent.setAction("update_title");
+        intent.putExtra("title", "Telepresence");
+        getContext().sendBroadcast(intent);
 
         pointCoordName = (AutoCompleteTextView) view.findViewById(R.id.coord_map);
 
@@ -224,6 +258,49 @@ public class Telepresence extends Fragment implements View.OnClickListener,
         bNav.setOnClickListener(this);
         bRtc.setOnClickListener(this);
         bDock.setOnClickListener(this);
+
+        // ALARM
+        clear = (Button) view.findViewById(R.id.clearAll);
+        noTextAlarm = (TextView) view.findViewById(R.id.noAlarmTelepresence);
+        alarmLog = (ListView) view.findViewById(R.id.alarmTelepresence);
+
+        clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clearAllLog();
+            }
+        });
+
+        BroadcastReceiver buttonDelete = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals("delete_log")) {
+                    int id = intent.getIntExtra("id", 0);
+                    String date = intent.getStringExtra("date");
+                    String time = intent.getStringExtra("time");
+                    String type = intent.getStringExtra("type");
+                    String stats = intent.getStringExtra("stats");
+                    String msg = intent.getStringExtra("msg");
+
+                    deleteSelected(id, date, time, type, stats, msg);
+                }
+            }
+        };
+        IntentFilter filter = new IntentFilter("delete_log");
+        requireActivity().registerReceiver(buttonDelete, filter);
+
+        setDataAlarm();
+
+        alarmLog.setClickable(true);
+        alarmLog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                Log.e("Status List", String.valueOf(date));
+                if(status.get(i).equals("1")) {
+                    changeStatus(i);
+                }
+            }
+        });
     }
 
     @Override
@@ -473,4 +550,178 @@ public class Telepresence extends Fragment implements View.OnClickListener,
         myWebView.setVisibility(View.VISIBLE);
     }
 
+    private void setDataAlarm() {
+        date = new ArrayList<>();
+        time= new ArrayList<>();
+        message = new ArrayList<>();
+        type = new ArrayList<>();
+        status = new ArrayList<>();
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(myServer+":8000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        RetrofitAPI retrofitAPI = retrofit.create(RetrofitAPI.class);
+        Call<Object> call = retrofitAPI.getLog(String.valueOf(elderSelected));
+        call.enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                String res = new Gson().toJson(response.body());
+                try {
+                    JSONArray arr = new JSONArray(res);
+                    if(arr.length() > 0) {
+                        alarmLog.setVisibility(View.VISIBLE);
+                        noTextAlarm.setVisibility(View.GONE);
+                        for(int i = 0; i < arr.length(); i++) {
+                            JSONObject arrObj = arr.getJSONObject(i);
+                            if(arrObj.getString("type").equals("Pose")) {
+                                date.add(arrObj.getString("date"));
+                                time.add(arrObj.getString("time"));
+                                message.add(arrObj.getString("message"));
+                                type.add(arrObj.getString("type"));
+                                status.add(String.valueOf(arrObj.getInt("status")));
+                            }
+                        }
+                        if(date.size() <= 0) {
+                            alarmLog.setVisibility(View.GONE);
+                            noTextAlarm.setVisibility(View.VISIBLE);
+                        }
+                        if (date.size()>0  || time.size()>0 || type.size()>0 || message.size()>0 || status.size()>0) {
+                            customAlarmLogAdapter = new CustomAlarmLogAdapter(getContext(), date, time, type, message, status);
+                            alarmLog.setAdapter(customAlarmLogAdapter);
+                        }
+                    } else {
+                        alarmLog.setVisibility(View.GONE);
+                        noTextAlarm.setVisibility(View.VISIBLE);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void changeStatus(int i) {
+        Log.e("Update log", String.valueOf(i));
+        RequestBody elder_id = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(elderSelected));
+        RequestBody mydate = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(date.get(i)));
+        RequestBody mytime = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(time.get(i)));
+        RequestBody mytype = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(type.get(i)));
+        RequestBody mystats = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(status.get(i)));
+        RequestBody mymsg = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(message.get(i)));
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(myServer+":8000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        RetrofitAPI retrofitAPI = retrofit.create(RetrofitAPI.class);
+        Call<ResponseBody> call = retrofitAPI.alarmUpdate(elder_id, mydate, mytime, mytype, mystats, mymsg);
+
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                String res = new Gson().toJson(response.body());
+                try {
+                    JSONObject obj = new JSONObject(response.body().string());
+                    if (obj.getString("result").equals("berhasil")) {
+                        status.set(i, "0");
+//                        CustomAlarmLogAdapter customAlarmLogAdapter = new CustomAlarmLogAdapter(getContext(), date, time, type, message, status);
+                        customAlarmLogAdapter.notifyDataSetChanged();
+//                        setDataAlarm();
+                    }
+                } catch (JSONException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e("Failed", String.valueOf(t));
+            }
+        });
+    }
+
+    private void deleteSelected(int id, String mdate, String mtime, String mtype, String stats, String msg) {
+        RequestBody elder_id = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(elderSelected));
+        RequestBody mydate = RequestBody.create(MediaType.parse("multipart/form-data"), mdate);
+        RequestBody mytime = RequestBody.create(MediaType.parse("multipart/form-data"), mtime);
+        RequestBody mytype = RequestBody.create(MediaType.parse("multipart/form-data"), mtype);
+        RequestBody mystats = RequestBody.create(MediaType.parse("multipart/form-data"), stats);
+        RequestBody mymsg = RequestBody.create(MediaType.parse("multipart/form-data"), msg);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(myServer+":8000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        RetrofitAPI retrofitAPI = retrofit.create(RetrofitAPI.class);
+        Call<ResponseBody> call = retrofitAPI.alarmDelete(elder_id, mydate, mytime, mytype, mystats, mymsg);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                String res = new Gson().toJson(response.body());
+                try {
+                    JSONObject obj = new JSONObject(response.body().string());
+                    if (obj.getString("result").equals("berhasil")) {
+                        Toast.makeText(getContext(), "Alarm Delete!", Toast.LENGTH_LONG).show();
+                        date.remove(id);
+                        time.remove(id);
+                        type.remove(id);
+                        status.remove(id);
+                        message.remove(id);
+                        customAlarmLogAdapter.notifyDataSetChanged();
+                    }
+                } catch (JSONException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e("Failed", String.valueOf(t));
+            }
+        });
+    }
+
+    private void clearAllLog(){
+        for(int i = 0; i < date.size(); i++) {
+            RequestBody elder_id = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(elderSelected));
+            RequestBody mydate = RequestBody.create(MediaType.parse("multipart/form-data"), date.get(i));
+            RequestBody mytime = RequestBody.create(MediaType.parse("multipart/form-data"), time.get(i));
+            RequestBody mytype = RequestBody.create(MediaType.parse("multipart/form-data"), type.get(i));
+            RequestBody mystats = RequestBody.create(MediaType.parse("multipart/form-data"), status.get(i));
+            RequestBody mymsg = RequestBody.create(MediaType.parse("multipart/form-data"), message.get(i));
+
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(myServer+":8000/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+            RetrofitAPI retrofitAPI = retrofit.create(RetrofitAPI.class);
+            Call<ResponseBody> call = retrofitAPI.alarmDelete(elder_id, mydate, mytime, mytype, mystats, mymsg);
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    String res = new Gson().toJson(response.body());
+                    try {
+                        JSONObject obj = new JSONObject(response.body().string());
+                        if (obj.getString("result").equals("berhasil")) {
+//                            Toast.makeText(getContext(), "Alarm cleared!", Toast.LENGTH_LONG).show();
+                            setDataAlarm();
+                        }
+                    } catch (JSONException | IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    Log.e("Failed", String.valueOf(t));
+                }
+            });
+        }
+    }
 }
