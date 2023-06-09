@@ -272,16 +272,16 @@ public class Wearable extends Fragment {
 
         setDataAlarm();
 
-        alarmLog.setClickable(true);
-        alarmLog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+    alarmLog.setClickable(true);
+    alarmLog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 //                Log.e("Status List", String.valueOf(date));
-                if(status.get(i).equals("1")) {
-                    changeStatus(i);
-                }
+            if(status.get(i).equals("1")) {
+                changeStatus(i);
             }
-        });
+        }
+    });
     }
 
     private void initTrend(LineChart chartName,int maxVal, int minVal){
@@ -424,7 +424,7 @@ public class Wearable extends Fragment {
         chart.getDescription().setEnabled(false);
     }
 
-    // TODO AMBIL dari HRTrend terus di parse masing2 untuk Step dan Cals
+
     private void setBarData(BarChart chart, String type, JSONArray dataType) {
 
         ArrayList<BarEntry> values = new ArrayList<>();
@@ -607,7 +607,6 @@ public class Wearable extends Fragment {
         RetrofitAPI retrofitAPI = retrofit.create(RetrofitAPI.class);
         Call<ResponseBody> call = retrofitAPI.alarmUpdate(elder_id, mydate, mytime, mytype, mystats, mymsg);
 
-
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -695,7 +694,6 @@ public class Wearable extends Fragment {
                     try {
                         JSONObject obj = new JSONObject(response.body().string());
                         if (obj.getString("result").equals("berhasil")) {
-//                            Toast.makeText(getContext(), "Alarm cleared!", Toast.LENGTH_LONG).show();
                             setDataAlarm();
                         }
                     } catch (JSONException | IOException e) {

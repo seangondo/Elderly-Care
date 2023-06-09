@@ -227,18 +227,11 @@ public class SmartHome extends Fragment implements View.OnClickListener{
                     showPieChart(roomTemp, parseInt(obj.getString("living_temp")), 100, "\u2103");
                     showPieChart(kitchenLight, parseInt(obj.getString("kitchen_light")), 1024, "");
                     showPieChart(kitchenGas, parseInt(obj.getString("kitchen_gas")), 1024, "");
-
                 }
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-//        if(living_light!=null & living_temp!=null & kitchen_light!=null & kitchen_gas!=null) {
-//            showPieChart(roomLight, Integer.parseInt(living_light), 1000, "");
-//            showPieChart(roomTemp, Integer.parseInt(living_temp), 100, "\u2103");
-//            showPieChart(kitchenLight, Integer.parseInt(kitchen_light), 1000, "");
-//            showPieChart(kitchenGas, Integer.parseInt(kitchen_gas), 1000, "");
-//        }
 
         if(trendRec.length() != 0) {
             setData("livingroom" ,trendTemp);
@@ -297,7 +290,6 @@ public class SmartHome extends Fragment implements View.OnClickListener{
         xAxis.setPosition(position);
         xAxis.enableGridDashedLine(10f, 5f, 0f);
 
-
         YAxis yAxis = chartName.getAxisLeft();
         chartName.getAxisRight().setEnabled(false);
         yAxis.enableGridDashedLine(10f, 10f, 0f);
@@ -313,13 +305,6 @@ public class SmartHome extends Fragment implements View.OnClickListener{
 
         ArrayList<Entry> values = new ArrayList<>();
         if(loc.equals("kitchen")) {
-            // CARA 1
-//            xAxisValues = new ArrayList<>(mqttServices.kitchen_time);
-//            for (int i = 0; i < kitchen_no.size(); i++) {
-//                values.add(new Entry(i, mqttServices.kitchen_val.get(i)));
-//            }
-
-            //CARA 2
 
             try {
                 String house_id = elderData.getString("house_id");
@@ -339,13 +324,6 @@ public class SmartHome extends Fragment implements View.OnClickListener{
 
         }
         if(loc.equals("livingroom")) {
-//            xAxisValues = new ArrayList<>(mqttServices.living_time);
-//            for (int i = 0; i < mqttServices.living_no.size(); i++) {
-//                values.add(new Entry(i, mqttServices.living_val.get(i)));
-//            }
-
-            //CARA 2
-
             try {
                 String house_id = elderData.getString("house_id");
                 int j = 0;
@@ -428,6 +406,7 @@ public class SmartHome extends Fragment implements View.OnClickListener{
                                 living_light_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_lightbulb_off));
                             }
                         }
+
 
                         if(data.getString("type").equals("fan")) {
                             if(data.getString("value").equals("off")){
@@ -513,58 +492,32 @@ public class SmartHome extends Fragment implements View.OnClickListener{
 
     @SuppressLint("ResourceType")
     private void initPieChart(PieChart name){
-        //using percentage as values instead of amount
         name.setUsePercentValues(true);
-
-        //remove the description label on the lower left corner, default true if not set
         name.getDescription().setEnabled(false);
-
-        //enabling the user to rotate the chart, default true
         name.setRotationEnabled(false);
-        //adding friction when rotating the pie chart
         name.setDragDecelerationFrictionCoef(0.9f);
-        //setting the first entry start from right hand side, default starting from top
         name.setRotationAngle(90);
-
-        //highlight the entry when it is tapped, default true if not set
         name.setHighlightPerTapEnabled(false);
-        //adding animation so the entries pop up from 0 degree
-        //name.animateY(1400, Easing.EaseInOutQuad);
-        //setting the color of the hole in the middle, default white
-
         name.setHoleColor(Color.parseColor(getString(com.google.android.material.R.color.cardview_dark_background)));
 
     }
 
     private void showPieChart(PieChart name, int curVal, int maxVal, String suffix){
-
         ArrayList<PieEntry> pieEntries = new ArrayList<>();
         String label = "type";
-
-        //initializing data
         Map<String, Integer> typeAmountMap = new HashMap<>();
         typeAmountMap.put(" ",curVal);
         typeAmountMap.put("",maxVal-curVal);
-
-        //initializing colors for the entries
         ArrayList<Integer> colors = new ArrayList<>();
         colors.add(Color.parseColor("#309967"));
         colors.add(Color.parseColor("#304567"));
-
-        //input data and fit data into pie chart entry
         for(String type: typeAmountMap.keySet()){
             pieEntries.add(new PieEntry(typeAmountMap.get(type).floatValue(), type));
         }
-
-        //collecting the entries with label name
         PieDataSet pieDataSet = new PieDataSet(pieEntries,"");
-        //setting text size of the value
         pieDataSet.setValueTextSize(12f);
-        //providing color list for coloring different entries
         pieDataSet.setColors(colors);
-        //grouping the data set from entry to chart
         PieData pieData = new PieData(pieDataSet);
-        //showing the value of the entries, default true if not set
         pieData.setDrawValues(false);
         name.getLegend().setEnabled(false);
         name.getDescription().setEnabled(false);

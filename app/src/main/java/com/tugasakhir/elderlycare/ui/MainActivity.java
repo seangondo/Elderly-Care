@@ -345,7 +345,7 @@ public class MainActivity extends AppCompatActivity {
             MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
             mqttConnectOptions.setConnectionTimeout(3000);
             mqttConnectOptions.setAutomaticReconnect(true);
-            mqttConnectOptions.setCleanSession(true);
+            mqttConnectOptions.setCleanSession(false);
             mqttConnectOptions.setUserName(mqttUser);
             mqttConnectOptions.setPassword(mqttPass.toCharArray());
             IMqttToken token = client.connect(mqttConnectOptions);

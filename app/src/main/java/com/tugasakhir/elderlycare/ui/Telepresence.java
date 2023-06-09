@@ -496,7 +496,6 @@ public class Telepresence extends Fragment implements View.OnClickListener,
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
         webSettings.setAllowFileAccess(true);
-//        myWebView.addJavascriptInterface(new WebAppInterface(this), "Android");
         webSettings.setMediaPlaybackRequiresUserGesture(false);
         myWebView.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -513,13 +512,6 @@ public class Telepresence extends Fragment implements View.OnClickListener,
                     Log.e("RTC", "Masok STOP");
                     myWebView.setVisibility(View.INVISIBLE);
                     myWebView.loadUrl("https://private-server.uk.to/");
-//                } else if(consoleMessage.message().contains("Room full")) {
-//                    tvWeb.setText("Room full, try again later!");
-//                    bRtc.setText("Start WebRTC");
-//                    Log.e("RTC", "Masok STOP");
-//                    myWebView.setVisibility(View.INVISIBLE);
-//                    myWebView.loadUrl("https://private-server.uk.to/");
-//                }
                 }
                 return true;
             }

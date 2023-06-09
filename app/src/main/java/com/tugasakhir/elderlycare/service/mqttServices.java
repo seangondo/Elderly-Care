@@ -39,28 +39,10 @@ public class mqttServices extends Service {
 
     public static String msg;
     public static String getTopic;
-//    public static String living_temp, living_light, kitchen_light, kitchen_gas, bLampLiving, bLampKitchen, bFanLiving, bAutoMode;
-//
-//    public static List<String> kitchen_date, kitchen_time, living_date, living_time;
-//    public static List<Integer> living_no, living_val, kitchen_no, kitchen_val;
-
-//    public static JSONArray livingTemp = new JSONArray();
-//    public static JSONArray livingLight = new JSONArray();
-//    public static JSONArray lampLiving = new JSONArray();
-//    public static JSONArray fanLiving = new JSONArray();
 
     public static JSONArray buttonSmartHome = new JSONArray();
 
     public static JSONArray sensorSmartHome = new JSONArray();
-
-//    public static JSONArray kitchenGas = new JSONArray();
-//    public static JSONArray kitchenLight = new JSONArray();
-//    public static JSONArray lampKitchen = new JSONArray();
-//    public static JSONArray autoMode = new JSONArray();
-
-
-//    public static JSONArray trendKitchenGas = new JSONArray();
-//    public static JSONArray trendLivingTemp = new JSONArray();
 
     public static JSONArray poseDetectionLiv1 = new JSONArray();
     public static JSONArray poseDetectionLiv2 = new JSONArray();
@@ -79,7 +61,7 @@ public class mqttServices extends Service {
 
     public static ArrayList<TrendReceive> trend;
 
-    // TODO buat mqtt menerima berdasarkan database sensor
+
     public mqttServices() {
 
     }
@@ -99,10 +81,7 @@ public class mqttServices extends Service {
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 getTopic = topic;
                 msg = new String(message.getPayload());
-//                Log.e("Hasil", String.valueOf(living_temp));
-//                Log.d("Mqtt Msg", msg);
                 splitTopic = splitTopic(getTopic + "/");
-//                Log.e("Split", String.valueOf(splitTopic));
                 getStatus();
                 getPose();
                 wearableData();
@@ -131,38 +110,6 @@ public class mqttServices extends Service {
 
     private void smartHomeButton() throws JSONException {
         JSONObject arrObj = new JSONObject(msg);
-//        if(getTopic.contains("/apps/control_button/livingroom/fan")) {
-//            bFanLiving = arrObj.getString("value");
-//
-////            JSONObject obj = new JSONObject();
-////            obj.put("elder_id", splitTopic.get(0));
-////            obj.put("value", arrObj.getString("value"));
-////            fanLiving.put(obj);
-//        }
-//        if(getTopic.contains("/apps/control_button/livingroom/light")) {
-//            bLampLiving = arrObj.getString("value");
-//
-////            JSONObject obj = new JSONObject();
-////            obj.put("elder_id", splitTopic.get(0));
-////            obj.put("value", arrObj.getString("value"));
-////            lampLiving.put(obj);
-//        }
-//        if(getTopic.contains("/apps/control_button/kitchen/light")) {
-//            bLampKitchen = arrObj.getString("value");
-//
-////            JSONObject obj = new JSONObject();
-////            obj.put("elder_id", splitTopic.get(0));
-////            obj.put("value", arrObj.getString("value"));
-////            lampKitchen.put(obj);
-//        }
-//        if(getTopic.contains("/apps/control_button/automatic_mode")) {
-//            bAutoMode = arrObj.getString("value");
-//
-////            JSONObject obj = new JSONObject();
-////            obj.put("elder_id", splitTopic.get(0));
-////            obj.put("value", arrObj.getString("value"));
-////            autoMode.put(obj);
-//        }
 
         if(splitTopic.get(2).equals("control_button")) {
             JSONObject obj = new JSONObject();
@@ -176,14 +123,10 @@ public class mqttServices extends Service {
                 obj.put("type", splitTopic.get(4));
             }
             obj.put("value", arrObj.getString("value"));
-//            int val = dataExist(buttonSmartHome, "house_id", elderData.getString("house_id"));
-//            int val1 = dataExist(buttonSmartHome, "room", splitTopic.get(3));
-//            int val2 = dataExist(buttonSmartHome, "type", splitTopic.get(4));
             int val = dataExistButton(buttonSmartHome,
                     "house_id", elderData.getString("house_id"),
                     "room", splitTopic.get(3)
                     , "type", splitTopic.get(4));
-//            Log.e("VAL", String.valueOf(buttonSmartHome.length()));
             if(val != -1) {
                 buttonSmartHome.put(val, obj);
             } else {
@@ -198,10 +141,6 @@ public class mqttServices extends Service {
             myRec = new JSONArray(mqttServices.msg);
             for (int i = 0; i < myRec.length(); i++) {
                 JSONObject arrObj = myRec.getJSONObject(i);
-//                living_temp = arrObj.getString("livingroom_temp");
-//                living_light = arrObj.getString("livingroom_light");
-//                kitchen_light = arrObj.getString("kitchen_light");
-//                kitchen_gas = arrObj.getString("kitchen_gas");
 
                 JSONObject obj = new JSONObject();
                 DBHandler myDb = new DBHandler(this);
@@ -213,79 +152,24 @@ public class mqttServices extends Service {
                 obj.put("kitchen_light", arrObj.getString("kitchen_light"));
                 obj.put("kitchen_gas", arrObj.getString("kitchen_gas"));
 
-//                sensorSmartHome.put(obj);
-
                 int val = dataExist(sensorSmartHome, "house_id", elderData.getString("house_id"));
-//                Log.e("smart home Sensor", String.valueOf(sensorSmartHome));
                 if(val != -1) {
                     sensorSmartHome.put(val, obj);
                 } else {
                     sensorSmartHome.put(obj);
                 }
-
             }
         }
     }
 
     private void smartHomeLogging() throws JSONException {
         JSONArray myRec = null;
-//        List<Integer> no = new ArrayList<>();
-//        List<Integer> val = new ArrayList<>();
-//        List<String> date = new ArrayList<>();
-//        List<String> time = new ArrayList<>();
-//
-//        ArrayList<TrendReceive> trend = new ArrayList<>();
-//
-//        if(getTopic.contains("/apps/trend/kitchen_gas")) {
-//            myRec = new JSONArray(mqttServices.msg);
-//            for (int i = 0; i < myRec.length(); i++) {
-//                JSONObject arrObj = myRec.getJSONObject(i);
-//                no.add(arrObj.getInt("dataNo"));
-//                val.add(arrObj.getInt("value"));
-//                date.add(arrObj.getString("date"));
-//                time.add(arrObj.getString("time"));
-//            }
-//            Collections.reverse(no);
-//            Collections.reverse(val);
-//            Collections.reverse(date);
-//            Collections.reverse(time);
-//            kitchen_no = no;
-//            kitchen_val = val;
-//            kitchen_date = date;
-//            kitchen_time = time;
-//
-//            Collections.reverse(trend);
-//        }
-//        if(getTopic.contains("/apps/trend/livingroom_temp")) {
-//            myRec = new JSONArray(mqttServices.msg);
-//            for (int i = 0; i < myRec.length(); i++) {
-//                JSONObject arrObj = myRec.getJSONObject(i);
-//                no.add(arrObj.getInt("dataNo"));
-//                val.add(arrObj.getInt("value"));
-//                date.add(arrObj.getString("date"));
-//                time.add(arrObj.getString("time"));
-//            }
-//            Collections.reverse(no);
-//            Collections.reverse(val);
-//            Collections.reverse(date);
-//            Collections.reverse(time);
-//            living_no = no;
-//            living_val = val;
-//            living_date = date;
-//            living_time = time;
-//        }
-
-        // CARA 2
         if(getTopic.contains("/apps/trend")) {
             myRec = new JSONArray(mqttServices.msg);
-//            Log.e("Data", String.valueOf(trendRec));
-//            Log.e("Input trend", String.valueOf(myRec.length()));
-//            Log.e("trendRec", String.valueOf(trendRec.length()));
 
             for (int i = myRec.length() - 1; i >= 0; i--) {
                 JSONObject data = new JSONObject();
                 JSONObject arrObj = myRec.getJSONObject(i);
-
                 for(int x = 0; x < trendRec.length(); x++) {
                     if ((Objects.equals(arrObj.getString("house_id"), trendRec.getJSONObject(x).getString("house_id"))) &&
                             (Objects.equals(arrObj.getString("type"), trendRec.getJSONObject(x).getString("type"))) &&
@@ -293,7 +177,6 @@ public class mqttServices extends Service {
                         trendRec.remove(x);
                     }
                 }
-
                 data.put("house_id", arrObj.getString("house_id"));
                 data.put("type", arrObj.getString("type"));
                 data.put("dataNo", arrObj.getInt("dataNo"));
@@ -301,40 +184,6 @@ public class mqttServices extends Service {
                 data.put("date", arrObj.getString("date"));
                 data.put("time", arrObj.getString("time"));
                 trendRec.put(data);
-
-//                if(trendRec.length() <= myRec.length()) {
-//                    data.put("house_id", arrObj.getString("house_id"));
-//                    data.put("type", arrObj.getString("type"));
-//                    data.put("dataNo", arrObj.getInt("dataNo"));
-//                    data.put("value", arrObj.getInt("value"));
-//                    data.put("date", arrObj.getString("date"));
-//                    data.put("time", arrObj.getString("time"));
-//                    trendRec.put(data);
-//                } else {
-//                    for(int x = 0; x < trendRec.length(); x++) {
-//                        if ((Objects.equals(arrObj.getString("house_id"), trendRec.getJSONObject(x).getString("house_id"))) &&
-//                                (Objects.equals(arrObj.getString("type"), trendRec.getJSONObject(x).getString("type")))) {
-//                            JSONObject curObj = trendRec.getJSONObject(x);
-//                            Log.e("Error", "masok 1");
-//                            curObj.put("house_id", arrObj.getString("house_id"));
-//                            curObj.put("type", arrObj.getString("type"));
-//                            curObj.put("dataNo", arrObj.getInt("dataNo"));
-//                            curObj.put("value", arrObj.getInt("value"));
-//                            curObj.put("date", arrObj.getString("date"));
-//                            curObj.put("time", arrObj.getString("time"));
-//
-//                        } else {
-//                            Log.e("Error", "masok 2");
-//                            data.put("house_id", arrObj.getString("house_id"));
-//                            data.put("type", arrObj.getString("type"));
-//                            data.put("dataNo", arrObj.getInt("dataNo"));
-//                            data.put("value", arrObj.getInt("value"));
-//                            data.put("date", arrObj.getString("date"));
-//                            data.put("time", arrObj.getString("time"));
-//                            trendRec.put(data);
-//                        }
-//                    }
-//                }
             }
         }
     }
@@ -415,8 +264,6 @@ public class mqttServices extends Service {
                 } else {
                     HrData.put(heartRate);
                 }
-//                HrData.put(heartRate);
-
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -489,7 +336,6 @@ public class mqttServices extends Service {
 //                    Log.e("Topic Wearable Trend", arrObj.getString("type"));
 
                     if(arrObj.getString("type").equals("heart rate")) {
-
                         for (int x = 0; x < HrTrendRec.length(); x++) {
                             if ((Objects.equals(arrObj.getString("watch_id"), HrTrendRec.getJSONObject(x).getString("watch_id"))) &&
                                     (Objects.equals(arrObj.getString("type"), HrTrendRec.getJSONObject(x).getString("type"))) &&
@@ -497,7 +343,6 @@ public class mqttServices extends Service {
                                 HrTrendRec.remove(x);
                             }
                         }
-
                         data.put("watch_id", arrObj.getString("watch_id"));
                         data.put("type", arrObj.getString("type"));
                         data.put("dataNo", arrObj.getInt("dataNo"));
@@ -561,7 +406,7 @@ public class mqttServices extends Service {
                 pose.put("pose", myRec.getString("pose"));
                 pose.put("alarm", myRec.getBoolean("alarm"));
                 int val = dataExist(poseDetectionLiv1, "camera", myRec.getString("camera"));
-//                int val1 = dataExist(poseDetection, "house_id", myRec.getString("house_id"));
+        //                int val1 = dataExist(poseDetection, "house_id", myRec.getString("house_id"));
                 if(val != -1) {
                     poseDetectionLiv1.put(val, pose);
                 } else {
@@ -660,14 +505,9 @@ public class mqttServices extends Service {
                                String value2,
                                String objName3,
                                String value3) {
-//        Log.e("Count", String.valueOf(arr.length()));
         for(int i = 0; i < arr.length(); i++) {
             try {
                 JSONObject data = arr.getJSONObject(i);
-//                Log.e("Data I", String.valueOf(data));
-//                Log.e("Data I", data.getString(objName1));
-//                Log.e("Data I", data.getString(objName2));
-//                Log.e("Data I", data.getString(objName3));
 
                 if(data.getString(objName1).equals(value1)
                         && data.getString(objName2).equals(value2)

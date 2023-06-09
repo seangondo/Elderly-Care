@@ -210,9 +210,10 @@ public class Overview extends Fragment {
                             lightLiving.setTextColor(Color.RED);
                             lightLiving.setText("Ruangan gelap!");
                         } else {
-                            tempLiving.setTextColor(Color.BLACK);
+                            lightLiving.setTextColor(Color.BLACK);
                             lightLiving.setText("Ruangan terang!");
                         }
+
 
                         // LIVING ROOM TEMP
                         if(Integer.parseInt(obj.getString("living_temp")) >= 40) {
@@ -229,7 +230,7 @@ public class Overview extends Fragment {
                             lightKitchen.setTextColor(Color.RED);
                             lightKitchen.setText("Ruangan gelap!");
                         } else {
-                            tempLiving.setTextColor(Color.BLACK);
+                            lightKitchen.setTextColor(Color.BLACK);
                             lightKitchen.setText("Ruangan terang!");
                         }
 
@@ -238,7 +239,7 @@ public class Overview extends Fragment {
                             gasKitchen.setTextColor(Color.RED);
                             gasKitchen.setText("Gas rate too high!");
                         } else {
-                            tempLiving.setTextColor(Color.BLACK);
+                            gasKitchen.setTextColor(Color.BLACK);
                             gasKitchen.setText("Normal");
                         }
                     }
