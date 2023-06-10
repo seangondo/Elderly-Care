@@ -1,12 +1,12 @@
 package com.tugasakhir.elderlycare.service;
 
-import static com.tugasakhir.elderlycare.ui.MainActivity.client;
-
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -18,21 +18,27 @@ import com.tugasakhir.elderlycare.handler.DBHandler;
 import com.tugasakhir.elderlycare.model.TrendReceive;
 import com.tugasakhir.elderlycare.ui.MainActivity2;
 
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
+
+import info.mqtt.android.service.Ack;
+import info.mqtt.android.service.MqttAndroidClient;
 
 public class mqttServices extends Service {
 
-    public static final String NOTIFICATION_CHANNEL_ID = "10001" ;
+    public static final String NOTIFICATION_CHANNEL_ID = "ElderlyCare" ;
+    public static final String NOTIFICATION_CHANNEL_FORE = "10001" ;
     private final static String default_notification_channel_id = "default" ;
 
     public static ArrayList<String> splitTopic = new ArrayList<>();
@@ -61,19 +67,58 @@ public class mqttServices extends Service {
 
     public static ArrayList<TrendReceive> trend;
 
+
+
+    // INITIALIZE MQTT CONNECTION AND SERVICES
+    public static MqttAndroidClient client;
+    public String serverUri;
+    String clientID, mqttUser, mqttPass;
+
+    //DB Local
+    DBHandler myDb = new DBHandler(this);
+
     public mqttServices() {
 
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e("Service", "MQTT Service called!");
 
+        createNotificationChannel();
+        Notification notification = createNotification();
+        startForeground(1, notification);
+//        stopForeground(true);
+
+        // MQTT INIT
+        serverUri = getString(R.string.ipServer);
+        clientID = MqttClient.generateClientId();
+        client = new MqttAndroidClient(this.getApplicationContext(), serverUri, clientID, Ack.AUTO_ACK);
+        mqttUser = getString(R.string.mqttUser);
+        mqttPass = getString(R.string.mqttPass);
+
+        ArrayList<Integer> data = new ArrayList<>();
+
+        try {
+            JSONArray elderData = myDb.getElderDataAll();
+            for(int i = 0; i < elderData.length(); i++) {
+                JSONObject obj = elderData.getJSONObject(i);
+                data.add(obj.getInt("elder_id"));
+            }
+            startMqtt(data);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         client.setCallback(new MqttCallback() {
             @Override
             public void connectionLost(Throwable cause) {
                 Log.e("Connection MQTT", String.valueOf(cause));
-
             }
 
             @Override
@@ -97,9 +142,39 @@ public class mqttServices extends Service {
             }
         });
 
-        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+//        mSensorManager.unregisterListener(this);;
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction("restart_service");
+        broadcastIntent.setClass(this, Restarter.class);
+        this.sendBroadcast(broadcastIntent);
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    NOTIFICATION_CHANNEL_ID,
+                    "MQTT Service Channel",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(channel);
+        }
+    }
+
+    private Notification createNotification() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+                .setContentTitle("MQTT Service")
+                .setContentText("MQTT service is running")
+                .setSmallIcon(R.drawable.ic_smarthome);
+
+        return builder.build();
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -233,13 +308,15 @@ public class mqttServices extends Service {
                 .setContentText(type + ": Something went wrong on " + elder_name + " house!")
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(message + "\nAddress : " + address))
                 .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setSmallIcon(R.drawable.ic_smarthome);
         if (android.os.Build.VERSION. SDK_INT >= android.os.Build.VERSION_CODES. O ) {
             int importance = NotificationManager. IMPORTANCE_HIGH ;
-            NotificationChannel notificationChannel = new NotificationChannel( NOTIFICATION_CHANNEL_ID , "NOTIFICATION_CHANNEL_NAME" , importance) ;
-            mBuilder.setChannelId( NOTIFICATION_CHANNEL_ID ) ;
+            NotificationChannel notificationChannel = new NotificationChannel( NOTIFICATION_CHANNEL_ID , "Elderly Care Apps" , importance) ;
+            mBuilder.setChannelId( NOTIFICATION_CHANNEL_ID );
             assert mNotificationManager != null;
             mNotificationManager.createNotificationChannel(notificationChannel) ;
         }
@@ -537,5 +614,50 @@ public class mqttServices extends Service {
             }
         }
         return topicSplit;
+    }
+
+    private void startMqtt(ArrayList<Integer> getData) {
+        Log.d("Token", String.valueOf(client.isConnected()));
+        if(!client.isConnected()){
+            MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
+            mqttConnectOptions.setConnectionTimeout(3000);
+            mqttConnectOptions.setAutomaticReconnect(true);
+            mqttConnectOptions.setCleanSession(false);
+            mqttConnectOptions.setUserName(mqttUser);
+            mqttConnectOptions.setPassword(mqttPass.toCharArray());
+            IMqttToken token = client.connect(mqttConnectOptions);
+            token.setActionCallback(new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    //setSubscription();
+//                        ArrayList<Integer> getData = subsElder(data);
+                    for (int i = 0; i < getData.size(); i++ ) {
+                        String subscriptionTopic = String.valueOf(getData.get(i))+"/#";
+                        Log.d("Topic", subscriptionTopic);
+                        subscribeToTopic(subscriptionTopic);
+                    }
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+
+                }
+            });
+        }
+    }
+
+    private void subscribeToTopic(String topic) {
+        client.subscribe(topic, 0, null, new IMqttActionListener() {
+            @Override
+            public void onSuccess(IMqttToken asyncActionToken) {
+                Log.w("Mqtt","Subscribed : " + topic);
+            }
+
+            @Override
+            public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                Log.w("Mqtt", "Subscribed fail!");
+            }
+        });
+
     }
 }

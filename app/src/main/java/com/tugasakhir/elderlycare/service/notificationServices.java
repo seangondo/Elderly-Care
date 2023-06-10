@@ -1,6 +1,6 @@
 package com.tugasakhir.elderlycare.service;
 
-import static com.tugasakhir.elderlycare.ui.MainActivity.client;
+import static com.tugasakhir.elderlycare.service.mqttServices.client;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;

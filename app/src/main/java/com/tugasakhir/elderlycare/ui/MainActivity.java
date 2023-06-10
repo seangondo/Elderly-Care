@@ -2,21 +2,13 @@ package com.tugasakhir.elderlycare.ui;
 
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.PendingIntent;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -25,32 +17,26 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
-import com.tugasakhir.elderlycare.handler.DBHandler;
-import com.tugasakhir.elderlycare.model.ButtonResponse;
-import com.tugasakhir.elderlycare.model.LoginResponse;
 import com.tugasakhir.elderlycare.R;
 import com.tugasakhir.elderlycare.api.RetrofitAPI;
+import com.tugasakhir.elderlycare.handler.DBHandler;
+import com.tugasakhir.elderlycare.model.LoginResponse;
 import com.tugasakhir.elderlycare.model.TrendReceive;
 import com.tugasakhir.elderlycare.service.loadingDialog;
 import com.tugasakhir.elderlycare.service.mqttServices;
-import com.tugasakhir.elderlycare.service.notificationServices;
 
-//import org.eclipse.paho.android.service.MqttAndroidClient;
-import info.mqtt.android.service.Ack;
-import info.mqtt.android.service.MqttAndroidClient;
-import org.eclipse.paho.client.mqttv3.IMqttActionListener;
-import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -92,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
     };
 
     // INITIALIZE MQTT CONNECTION AND SERVICES
-    public static MqttAndroidClient client;
-    public String serverUri;
+//    public static MqttAndroidClient client;
+//    public String serverUri;
 
     String clientID, mqttUser, mqttPass;
 
@@ -154,11 +140,11 @@ public class MainActivity extends AppCompatActivity {
         myServer = getString(R.string.ipWeb);
 
         // MQTT INIT
-        serverUri = getString(R.string.ipServer);
-        clientID = MqttClient.generateClientId();
-        client = new MqttAndroidClient(this.getApplicationContext(), serverUri, clientID, Ack.AUTO_ACK);
-        mqttUser = getString(R.string.mqttUser);
-        mqttPass = getString(R.string.mqttPass);
+//        serverUri = getString(R.string.ipServer);
+//        clientID = MqttClient.generateClientId();
+//        client = new MqttAndroidClient(this.getApplicationContext(), serverUri, clientID, Ack.AUTO_ACK);
+//        mqttUser = getString(R.string.mqttUser);
+//        mqttPass = getString(R.string.mqttPass);
 
         user = (TextInputEditText) findViewById(R.id.user_id);
         passw = (TextInputEditText) findViewById(R.id.user_passw);
@@ -300,8 +286,16 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("Remove duplicates", String.valueOf(houseId));
                 addSensorButtonDB(houseId);
 
-                //START MQTT
-                startMqtt(getInt);
+//                //START MQTT
+//                startMqtt(getInt);
+
+//                if(isServiceRunning(getApplicationContext(), mqttServices.class)) {
+//                    stopService(new Intent(MainActivity.this, mqttServices.class));
+//                }
+                Intent serviceIntent = new Intent(this, mqttServices.class);
+                startForegroundService(serviceIntent);
+
+                goToHome();
 
             } catch (JSONException e) {
                 throw new RuntimeException(e);
@@ -339,72 +333,87 @@ public class MainActivity extends AppCompatActivity {
         return getInt;
     }
 
-    private void startMqtt(ArrayList<Integer> getData) {
-        Log.d("Token", String.valueOf(client.isConnected()));
-        if(!client.isConnected()){
-            MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
-            mqttConnectOptions.setConnectionTimeout(3000);
-            mqttConnectOptions.setAutomaticReconnect(true);
-            mqttConnectOptions.setCleanSession(false);
-            mqttConnectOptions.setUserName(mqttUser);
-            mqttConnectOptions.setPassword(mqttPass.toCharArray());
-            IMqttToken token = client.connect(mqttConnectOptions);
-            token.setActionCallback(new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    //setSubscription();
-//                        ArrayList<Integer> getData = subsElder(data);
-                    for (int i = 0; i < getData.size(); i++ ) {
-                        String subscriptionTopic = String.valueOf(getData.get(i))+"/#";
-                        Log.d("Topic", subscriptionTopic);
-                        subscribeToTopic(subscriptionTopic);
-                    }
-//                        try {
-//                            JSONArray elderList = myDb.getElderDataAll();
-//                            for (int i = 0; i < elderList.length(); i++ ) {
-//                                JSONObject obj = elderList.getJSONObject(i);
-//                                String subscriptionTopic = String.valueOf(obj.getString("house_id"))+"/#";
-//                                Log.d("Topic", subscriptionTopic);
-//                                subscribeToTopic(subscriptionTopic);
-//                            }
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
+//    private void startMqtt(ArrayList<Integer> getData) {
+//        Log.d("Token", String.valueOf(client.isConnected()));
+//        if(!client.isConnected()){
+//            MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
+//            mqttConnectOptions.setConnectionTimeout(3000);
+//            mqttConnectOptions.setAutomaticReconnect(true);
+//            mqttConnectOptions.setCleanSession(false);
+//            mqttConnectOptions.setUserName(mqttUser);
+//            mqttConnectOptions.setPassword(mqttPass.toCharArray());
+//            IMqttToken token = client.connect(mqttConnectOptions);
+//            token.setActionCallback(new IMqttActionListener() {
+//                @Override
+//                public void onSuccess(IMqttToken asyncActionToken) {
+//                    //setSubscription();
+////                        ArrayList<Integer> getData = subsElder(data);
+//                    for (int i = 0; i < getData.size(); i++ ) {
+//                        String subscriptionTopic = String.valueOf(getData.get(i))+"/#";
+//                        Log.d("Topic", subscriptionTopic);
+//                        subscribeToTopic(subscriptionTopic);
+//                    }
+////                        try {
+////                            JSONArray elderList = myDb.getElderDataAll();
+////                            for (int i = 0; i < elderList.length(); i++ ) {
+////                                JSONObject obj = elderList.getJSONObject(i);
+////                                String subscriptionTopic = String.valueOf(obj.getString("house_id"))+"/#";
+////                                Log.d("Topic", subscriptionTopic);
+////                                subscribeToTopic(subscriptionTopic);
+////                            }
+////                        } catch (JSONException e) {
+////                            e.printStackTrace();
+////                        }
+//                    if(isServiceRunning(getApplicationContext(), mqttServices.class)) {
+//                        stopService(new Intent(MainActivity.this, mqttServices.class));
+//                    }
+//                    startService(new Intent(MainActivity.this, mqttServices.class));
+//                    goToHome();
+//                }
+//
+//                @Override
+//                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+//                    loadingDialog.dismissDialog();
+//                    if(String.valueOf(exception).contains("failed to connect")) {
+//                        Toast.makeText(MainActivity.this, "Server unavailable! Try again in few moment!", Toast.LENGTH_LONG).show();
+//                        Log.e("Login Failed!", "Server unavailable!");
+//                    } else if(String.valueOf(exception).contains("Not authorized to connect")) {
+//                        Toast.makeText(MainActivity.this, "Contact admin! Something wrong with this apps!", Toast.LENGTH_LONG).show();
+//                        Log.e("Login Failed!", "Wrong user/password");
+//                    }
+//                }
+//            });
+//        }
+//    }
+//
+//
+//
+//    private void subscribeToTopic(String topic) {
+//        client.subscribe(topic, 0, null, new IMqttActionListener() {
+//            @Override
+//            public void onSuccess(IMqttToken asyncActionToken) {
+//                Log.w("Mqtt","Subscribed : " + topic);
+//            }
+//
+//            @Override
+//            public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+//                Log.w("Mqtt", "Subscribed fail!");
+//                loadingDialog.dismissDialog();
+//            }
+//        });
+//    }
 
-                    startService(new Intent(MainActivity.this, mqttServices.class));
-//                        loadingDialog.dismissDialog();
-                    goToHome();
+    public static boolean isServiceRunning(Context context, Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        if (manager != null) {
+            // Iterate through the running services and check if the service class is present
+            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                if (serviceClass.getName().equals(service.service.getClassName())) {
+                    return true; // Service is running
                 }
-
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    loadingDialog.dismissDialog();
-                    if(String.valueOf(exception).contains("failed to connect")) {
-                        Toast.makeText(MainActivity.this, "Server unavailable! Try again in few moment!", Toast.LENGTH_LONG).show();
-                        Log.e("Login Failed!", "Server unavailable!");
-                    } else if(String.valueOf(exception).contains("Not authorized to connect")) {
-                        Toast.makeText(MainActivity.this, "Contact admin! Something wrong with this apps!", Toast.LENGTH_LONG).show();
-                        Log.e("Login Failed!", "Wrong user/password");
-                    }
-                }
-            });
+            }
         }
-    }
-
-    private void subscribeToTopic(String topic) {
-        client.subscribe(topic, 0, null, new IMqttActionListener() {
-            @Override
-            public void onSuccess(IMqttToken asyncActionToken) {
-                Log.w("Mqtt","Subscribed : " + topic);
-            }
-
-            @Override
-            public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                Log.w("Mqtt", "Subscribed fail!");
-                loadingDialog.dismissDialog();
-            }
-        });
-
+        return false; // Service is not running
     }
 
     private void addSensorButtonDB(List<String> id) {

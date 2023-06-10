@@ -1,12 +1,7 @@
 package com.tugasakhir.elderlycare.ui;
 
-import static com.tugasakhir.elderlycare.ui.MainActivity.client;
-import static com.tugasakhir.elderlycare.ui.MainActivity.dataElder;
+import static com.tugasakhir.elderlycare.service.mqttServices.client;
 import static com.tugasakhir.elderlycare.ui.MainActivity.myServer;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,17 +10,19 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.tugasakhir.elderlycare.R;
 import com.tugasakhir.elderlycare.adapter.RecyclerViewAdapter;
 import com.tugasakhir.elderlycare.api.RecyclerViewInterface;
 import com.tugasakhir.elderlycare.handler.DBHandler;
-import com.tugasakhir.elderlycare.service.loadingDialog;
 import com.tugasakhir.elderlycare.service.mqttServices;
 import com.tugasakhir.elderlycare.service.notificationServices;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

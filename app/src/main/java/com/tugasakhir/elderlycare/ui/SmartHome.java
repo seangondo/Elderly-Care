@@ -1,15 +1,13 @@
 package com.tugasakhir.elderlycare.ui;
 
 import static com.tugasakhir.elderlycare.service.mqttServices.buttonSmartHome;
+import static com.tugasakhir.elderlycare.service.mqttServices.client;
 import static com.tugasakhir.elderlycare.service.mqttServices.sensorSmartHome;
 import static com.tugasakhir.elderlycare.service.mqttServices.trendRec;
 import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
-import static com.tugasakhir.elderlycare.ui.MainActivity.client;
 import static com.tugasakhir.elderlycare.ui.MainActivity.myServer;
-import static com.tugasakhir.elderlycare.ui.MainActivity2.binding;
 import static com.tugasakhir.elderlycare.ui.MainActivity2.swAuto;
 import static com.tugasakhir.elderlycare.ui.MainActivity2.title;
-
 import static java.lang.Integer.parseInt;
 
 import android.annotation.SuppressLint;
@@ -20,12 +18,6 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
-import androidx.fragment.app.Fragment;
-
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,6 +29,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;

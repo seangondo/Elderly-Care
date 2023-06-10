@@ -8,7 +8,6 @@ import static com.tugasakhir.elderlycare.service.mqttServices.StepsData;
 import static com.tugasakhir.elderlycare.service.mqttServices.StepsTrend;
 import static com.tugasakhir.elderlycare.service.mqttServices.onBody;
 import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
-import static com.tugasakhir.elderlycare.ui.MainActivity.client;
 import static com.tugasakhir.elderlycare.ui.MainActivity.myServer;
 import static com.tugasakhir.elderlycare.ui.MainActivity2.title;
 
@@ -19,11 +18,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,6 +31,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
@@ -59,7 +57,6 @@ import com.tugasakhir.elderlycare.adapter.CustomAlarmLogAdapter;
 import com.tugasakhir.elderlycare.api.RetrofitAPI;
 import com.tugasakhir.elderlycare.handler.DBHandler;
 
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

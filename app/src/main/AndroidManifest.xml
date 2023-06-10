@@ -21,6 +21,7 @@
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -78,7 +79,19 @@
             </intent-filter>
         </activity>
 
-        <service android:name="info.mqtt.android.service.MqttService" />
+        <service android:name="info.mqtt.android.service.MqttService"
+            android:foregroundServiceType="dataSync|location|connectedDevice"
+            android:stopWithTask="false" />
+
+        <receiver
+            android:name=".service.Restarter"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="restart_service" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

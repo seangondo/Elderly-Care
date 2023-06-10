@@ -1,20 +1,9 @@
 package com.tugasakhir.elderlycare.ui;
 
 import static android.view.View.VISIBLE;
-import static com.tugasakhir.elderlycare.service.mqttServices.sensorSmartHome;
-import static com.tugasakhir.elderlycare.service.mqttServices.trendRec;
+import static com.tugasakhir.elderlycare.service.mqttServices.client;
 import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
-import static com.tugasakhir.elderlycare.ui.MainActivity.client;
 import static com.tugasakhir.elderlycare.ui.MainActivity.myServer;
-
-import static java.lang.Integer.parseInt;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
-import androidx.cardview.widget.CardView;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -34,22 +23,24 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
-import com.tugasakhir.elderlycare.TestTabLayout;
-import com.tugasakhir.elderlycare.adapter.AlarmLogAdapter;
-import com.tugasakhir.elderlycare.api.RetrofitAPI;
-import com.tugasakhir.elderlycare.handler.DBHandler;
 import com.tugasakhir.elderlycare.R;
+import com.tugasakhir.elderlycare.api.RetrofitAPI;
 import com.tugasakhir.elderlycare.databinding.ActivityMain2Binding;
+import com.tugasakhir.elderlycare.handler.DBHandler;
 import com.tugasakhir.elderlycare.service.mqttServices;
-import com.tugasakhir.elderlycare.service.notificationServices;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -409,7 +400,6 @@ public class MainActivity2 extends AppCompatActivity {
         myDb.deletePointAll();
 //        myDb.deleteLogin("caregiver_info", myUser);
         stopService(new Intent(this, mqttServices.class));
-        stopService(new Intent(this, notificationServices.class));
         IMqttToken token = client.disconnect();
         token.setActionCallback(new IMqttActionListener() {
             @Override

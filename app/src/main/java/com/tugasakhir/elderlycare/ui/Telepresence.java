@@ -1,8 +1,8 @@
 package com.tugasakhir.elderlycare.ui;
 
+import static com.tugasakhir.elderlycare.service.mqttServices.client;
 import static com.tugasakhir.elderlycare.service.mqttServices.statusRobot;
 import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
-import static com.tugasakhir.elderlycare.ui.MainActivity.client;
 import static com.tugasakhir.elderlycare.ui.MainActivity.myServer;
 import static com.tugasakhir.elderlycare.ui.MainActivity2.title;
 
@@ -12,14 +12,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.http.SslError;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.os.Handler;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -35,11 +29,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.google.gson.Gson;
 import com.tugasakhir.elderlycare.R;
@@ -47,7 +44,6 @@ import com.tugasakhir.elderlycare.adapter.CustomAlarmLogAdapter;
 import com.tugasakhir.elderlycare.api.RetrofitAPI;
 import com.tugasakhir.elderlycare.handler.DBHandler;
 
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,9 +52,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.List;
 
-import io.github.controlwear.virtual.joystick.android.JoystickView;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -421,9 +415,7 @@ public class Telepresence extends Fragment implements View.OnClickListener,
                             JSONObject obj;
                             for (int i = 0; i < array.length(); i++) {
                                 obj = array.getJSONObject(i);
-                                if (obj.getInt("autoLog") == 1) {
-                                    startWebRTC(obj.getString("username"), obj.getString("password"), String.valueOf(elderSelected));
-                                }
+                                startWebRTC(obj.getString("username"), obj.getString("password"), String.valueOf(elderSelected));
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
