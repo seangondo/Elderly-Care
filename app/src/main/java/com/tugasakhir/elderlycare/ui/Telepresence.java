@@ -4,6 +4,7 @@ import static com.tugasakhir.elderlycare.service.mqttServices.statusRobot;
 import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
 import static com.tugasakhir.elderlycare.ui.MainActivity.client;
 import static com.tugasakhir.elderlycare.ui.MainActivity.myServer;
+import static com.tugasakhir.elderlycare.ui.MainActivity2.title;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -275,14 +276,16 @@ public class Telepresence extends Fragment implements View.OnClickListener,
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals("delete_log")) {
-                    int id = intent.getIntExtra("id", 0);
-                    String date = intent.getStringExtra("date");
-                    String time = intent.getStringExtra("time");
-                    String type = intent.getStringExtra("type");
-                    String stats = intent.getStringExtra("stats");
-                    String msg = intent.getStringExtra("msg");
+                    if(title.equals("Telepresence")) {
+                        int id = intent.getIntExtra("id", 0);
+                        String date = intent.getStringExtra("date");
+                        String time = intent.getStringExtra("time");
+                        String type = intent.getStringExtra("type");
+                        String stats = intent.getStringExtra("stats");
+                        String msg = intent.getStringExtra("msg");
 
-                    deleteSelected(id, date, time, type, stats, msg);
+                        deleteSelected(id, date, time, type, stats, msg);
+                    }
                 }
             }
         };
@@ -659,7 +662,7 @@ public class Telepresence extends Fragment implements View.OnClickListener,
                 try {
                     JSONObject obj = new JSONObject(response.body().string());
                     if (obj.getString("result").equals("berhasil")) {
-                        Toast.makeText(getContext(), "Alarm Delete!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity2.getAppContext(), "Alarm Delete!", Toast.LENGTH_LONG).show();
                         date.remove(id);
                         time.remove(id);
                         type.remove(id);

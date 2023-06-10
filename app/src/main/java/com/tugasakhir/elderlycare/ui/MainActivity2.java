@@ -61,6 +61,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity2 extends AppCompatActivity {
 
+    public static String title;
+
+    private static Context context;
+
+    public static Context getAppContext() {
+        return MainActivity2.context;
+    }
+
     DBHandler myDb = new DBHandler(this);
 
     TextView tv1, tvAuto;
@@ -150,6 +158,7 @@ public class MainActivity2 extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MainActivity2.context = getAppContext();
 
         setContentView(R.layout.activity_main2);
 
@@ -195,7 +204,7 @@ public class MainActivity2 extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals("update_title")) {
-                    String title = intent.getStringExtra("title");
+                    title = intent.getStringExtra("title");
                     tv1.setText(title);
                     if(title.equals("Smart\nHome")) {
                         swAuto.setVisibility(VISIBLE);
@@ -209,6 +218,7 @@ public class MainActivity2 extends AppCompatActivity {
         };
         IntentFilter filter = new IntentFilter("update_title");
         this.registerReceiver(setTitle, filter);
+
 
         if (savedInstanceState == null) {
             if(binding.navigationBar != null) {

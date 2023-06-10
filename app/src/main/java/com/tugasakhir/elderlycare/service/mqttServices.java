@@ -61,7 +61,6 @@ public class mqttServices extends Service {
 
     public static ArrayList<TrendReceive> trend;
 
-
     public mqttServices() {
 
     }
