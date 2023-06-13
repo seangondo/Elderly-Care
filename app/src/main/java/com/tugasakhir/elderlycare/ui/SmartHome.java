@@ -163,14 +163,6 @@ public class SmartHome extends Fragment implements View.OnClickListener{
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        try {
-            Class.forName("dalvik.system.CloseGuard")
-                    .getMethod("setEnabled", boolean.class)
-                    .invoke(null, true);
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
-        }
 
         Intent intent = new Intent();
         intent.setAction("update_title");
@@ -207,7 +199,6 @@ public class SmartHome extends Fragment implements View.OnClickListener{
         buttonFan_Living.setOnClickListener(this);
         buttonLight_Living.setOnClickListener(this);
         buttonLight_Kitchen.setOnClickListener(this);
-
 
         initPieChart(roomLight);
         initPieChart(roomTemp);
@@ -688,7 +679,7 @@ public class SmartHome extends Fragment implements View.OnClickListener{
                 try {
                     JSONObject obj = new JSONObject(response.body().string());
                     if (obj.getString("result").equals("berhasil")) {
-                        Toast.makeText(MainActivity2.getAppContext(), "Alarm Delete!", Toast.LENGTH_LONG).show();
+//                        toastDelete();
                         date.remove(id);
                         time.remove(id);
                         type.remove(id);
@@ -706,6 +697,10 @@ public class SmartHome extends Fragment implements View.OnClickListener{
                 Log.e("Failed", String.valueOf(t));
             }
         });
+    }
+
+    private void toastDelete() {
+        Toast.makeText(getContext(), "Alarm Delete!", Toast.LENGTH_LONG).show();
     }
 
     private void clearAllLog(){

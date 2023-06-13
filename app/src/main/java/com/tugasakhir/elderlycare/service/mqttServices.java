@@ -158,9 +158,9 @@ public class mqttServices extends Service {
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
-                    NOTIFICATION_CHANNEL_ID,
+                    NOTIFICATION_CHANNEL_FORE,
                     "MQTT Service Channel",
-                    NotificationManager.IMPORTANCE_HIGH
+                    NotificationManager.IMPORTANCE_MIN
             );
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
@@ -168,7 +168,7 @@ public class mqttServices extends Service {
     }
 
     private Notification createNotification() {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_FORE)
                 .setContentTitle("MQTT Service")
                 .setContentText("MQTT service is running")
                 .setSmallIcon(R.drawable.ic_smarthome);
@@ -658,6 +658,5 @@ public class mqttServices extends Service {
                 Log.w("Mqtt", "Subscribed fail!");
             }
         });
-
     }
 }

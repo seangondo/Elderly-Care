@@ -654,7 +654,7 @@ public class Telepresence extends Fragment implements View.OnClickListener,
                 try {
                     JSONObject obj = new JSONObject(response.body().string());
                     if (obj.getString("result").equals("berhasil")) {
-                        Toast.makeText(MainActivity2.getAppContext(), "Alarm Delete!", Toast.LENGTH_LONG).show();
+//                        toastDelete();
                         date.remove(id);
                         time.remove(id);
                         type.remove(id);
@@ -672,6 +672,10 @@ public class Telepresence extends Fragment implements View.OnClickListener,
                 Log.e("Failed", String.valueOf(t));
             }
         });
+    }
+
+    private void toastDelete() {
+        Toast.makeText(getContext(), "Alarm Delete!", Toast.LENGTH_LONG).show();
     }
 
     private void clearAllLog(){

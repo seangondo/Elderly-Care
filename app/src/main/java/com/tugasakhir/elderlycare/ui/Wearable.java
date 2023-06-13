@@ -11,7 +11,6 @@ import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
 import static com.tugasakhir.elderlycare.ui.MainActivity.myServer;
 import static com.tugasakhir.elderlycare.ui.MainActivity2.title;
 
-import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,9 +24,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,10 +43,10 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IFillFormatter;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 import com.tugasakhir.elderlycare.R;
 import com.tugasakhir.elderlycare.adapter.CustomAlarmLogAdapter;
@@ -81,24 +77,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public class Wearable extends Fragment {
 
-    DBHandler myDb;
     JSONObject elderData;
 
     TextView steps, cals, hr, wear;
-    EditText msgText;
-    Button msgSend;
-    ImageView img;
 
     LineChart hrTrend;
     BarChart stepsTrend, calsTrend;
 
-    FrameLayout simpleFrameLayout;
-    TabLayout tabLayout;
-
     //Updater
     Handler handler = new Handler();
     Runnable runnable;
-    int delay = 1*100;
+    int delay = 500;
 
 
     ArrayList<String> date;
@@ -161,8 +150,7 @@ public class Wearable extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
+//        super.onViewCreated(view, savedInstanceState);
 
         Intent intent = new Intent();
         intent.setAction("update_title");
@@ -174,69 +162,74 @@ public class Wearable extends Fragment {
         hr = (TextView) view.findViewById(R.id.hrView);
         wear = (TextView) view.findViewById(R.id.wearStat);
 
-        myDb = new DBHandler(getContext());
 
         hrTrend = (LineChart) view.findViewById(R.id.hrTrend);
         stepsTrend = (BarChart) view.findViewById(R.id.stepsTrend);
         calsTrend = (BarChart) view.findViewById(R.id.trendCals);
 
         initTrend(hrTrend, 200, 0);
-
         initBar(stepsTrend);
         initBar(calsTrend);
+
         try {
+            DBHandler myDb = new DBHandler(getContext());
             elderData = myDb.getElderData(elderSelected);
+            myDb.close();
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        if(HrTrendRec.length() != 0) {
-            for(int i = 0; i < HrTrendRec.length(); i ++) {
-                try {
-//                    JSONObject elder = myDb.getElderData(elderSelected);
-                    JSONObject elder = elderData;
-                    if(HrTrendRec.getJSONObject(i).getString("watch_id").equals(elder.getString("watch_id"))) {
-                        setChart(hrTrend);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-            setChart(hrTrend);
-        }
-        if(StepsTrend.length() != 0) {
-            for(int i = 0; i < StepsTrend.length(); i ++) {
-                try {
-//                    JSONObject elder = myDb.getElderData(elderSelected);
-                    JSONObject elder = elderData;
-                    if(StepsTrend.getJSONObject(i).getString("watch_id").equals(elder.getString("watch_id"))) {
-                        setBarData(stepsTrend, "steps", StepsTrend);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
 
-        if(CalsTrend.length() != 0) {
-            for(int i = 0; i < CalsTrend.length(); i ++) {
-                try {
-//                    JSONObject elder = myDb.getElderData(elderSelected);
-                    JSONObject elder = elderData;
-                    if(CalsTrend.getJSONObject(i).getString("watch_id").equals(elder.getString("watch_id"))) {
-                        setBarData(calsTrend, "calories", CalsTrend);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }
+        getData();
 //        Log.e("Elder Id", String.valueOf(elderSelected));
         Log.e("Data", String.valueOf(StepsTrend));
         Log.e("Data", String.valueOf(CalsTrend));
         Log.e("Data", String.valueOf(HrTrendRec));
-        getData();
+
+        if(HrTrendRec.length() != 0) {
+//            for(int i = 0; i < HrTrendRec.length(); i ++) {
+//                try {
+////                    JSONObject elder = myDb.getElderData(elderSelected);
+//                    JSONObject elder = elderData;
+//                    if(HrTrendRec.getJSONObject(i).getString("watch_id").equals(elder.getString("watch_id"))) {
+//                        setChart(hrTrend);
+//                    }
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+            setChart(hrTrend);
+        }
+
+        if(StepsTrend.length() != 0) {
+//            for(int i = 0; i < StepsTrend.length(); i ++) {
+//                try {
+////                    JSONObject elder = myDb.getElderData(elderSelected);
+//                    JSONObject elder = elderData;
+//                    if(StepsTrend.getJSONObject(i).getString("watch_id").equals(elder.getString("watch_id"))) {
+//                        setBarData(stepsTrend, "steps", StepsTrend);
+//                    }
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+            setBarData(stepsTrend, "steps", StepsTrend);
+        }
+
+        if(CalsTrend.length() != 0) {
+//            for(int i = 0; i < CalsTrend.length(); i ++) {
+//                try {
+////                    JSONObject elder = myDb.getElderData(elderSelected);
+//                    JSONObject elder = elderData;
+//                    if(CalsTrend.getJSONObject(i).getString("watch_id").equals(elder.getString("watch_id"))) {
+//                        setBarData(calsTrend, "calories", CalsTrend);
+//                    }
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+            setBarData(calsTrend, "calories", CalsTrend);
+        }
 
         // ALARM
         clear = (Button) view.findViewById(R.id.clearAll);
@@ -272,16 +265,16 @@ public class Wearable extends Fragment {
 
         setDataAlarm();
 
-    alarmLog.setClickable(true);
-    alarmLog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//                Log.e("Status List", String.valueOf(date));
-            if(status.get(i).equals("1")) {
-                changeStatus(i);
+        alarmLog.setClickable(true);
+        alarmLog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+    //                Log.e("Status List", String.valueOf(date));
+                if(status.get(i).equals("1")) {
+                    changeStatus(i);
+                }
             }
-        }
-    });
+        });
     }
 
     private void initTrend(LineChart chartName,int maxVal, int minVal){
@@ -295,8 +288,9 @@ public class Wearable extends Fragment {
         XAxis xAxis = chartName.getXAxis();
         XAxis.XAxisPosition position = XAxis.XAxisPosition.BOTTOM;
         xAxis.setPosition(position);
+        xAxis.setLabelCount(10, true);
+        xAxis.setLabelRotationAngle(-45);
         xAxis.enableGridDashedLine(10f, 5f, 0f);
-
 
         YAxis yAxis = chartName.getAxisLeft();
         chartName.getAxisRight().setEnabled(false);
@@ -309,58 +303,60 @@ public class Wearable extends Fragment {
     }
 
     private void setChart(LineChart chartName) {
-        List<String> xAxisValues = new ArrayList<>();
+        ArrayList<String> xAxisValues = new ArrayList<>();
+
         ArrayList<Entry> values = new ArrayList<>();
 
         try {
 //            JSONObject elder = myDb.getElderData(elderSelected);
             JSONObject elder = elderData;
-
-            for(int i = 0; i < HrTrendRec.length(); i++) {
+            int j = 0;
+            for (int i = 0; i < HrTrendRec.length(); i++) {
                 JSONObject obj = HrTrendRec.getJSONObject(i);
-                if(elder.getString("watch_id").equals(obj.getString("watch_id"))) {
-                    values.add(new Entry(i, obj.getInt("value")));
-                    xAxisValues.add(obj.getString("time"));
+                if (elder.getString("watch_id").equals(obj.getString("watch_id"))) {
+                    values.add(new Entry(j, obj.getInt("value")));
+                    xAxisValues.add(j, obj.getString("time"));
+                    j++;
                 }
             }
-
-            XAxis xAxis = chartName.getXAxis();
-            xAxis.setValueFormatter(new com.github.mikephil.charting.formatter.IndexAxisValueFormatter(xAxisValues));
-            LineDataSet set1;
-
-            set1 = new LineDataSet(values, "");
-
-            set1.setDrawIcons(false);
-            set1.setColor(Color.BLACK);
-            set1.setCircleColor(Color.BLACK);
-            set1.setLineWidth(1f);
-            set1.setCircleRadius(2f);
-            set1.setDrawCircleHole(false);
-            set1.setFormLineWidth(1f);
-            set1.setFormSize(15.f);
-            set1.setValueTextSize(9f);
-            set1.setDrawFilled(true);
-            set1.setFillFormatter(new IFillFormatter() {
-                @Override
-                public float getFillLinePosition(ILineDataSet dataSet, LineDataProvider dataProvider) {
-                    return chartName.getAxisLeft().getAxisMinimum();
-                }
-            });
-
-            set1.setFillColor(Color.BLACK);
-            ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-            dataSets.add(set1);
-            LineData data = new LineData(dataSets);
-
-            chartName.setData(data);
-            chartName.invalidate();
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        XAxis xAxis = chartName.getXAxis();
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(xAxisValues));
+        LineDataSet set1;
+
+        set1 = new LineDataSet(values, "");
+
+        set1.setDrawIcons(false);
+        set1.setColor(Color.BLACK);
+        set1.setCircleColor(Color.BLACK);
+        set1.setLineWidth(1f);
+        set1.setCircleRadius(2f);
+        set1.setDrawCircleHole(false);
+        set1.setFormLineWidth(1f);
+        set1.setFormSize(15.f);
+        set1.setValueTextSize(9f);
+        set1.setDrawFilled(true);
+        set1.setFillFormatter(new IFillFormatter() {
+            @Override
+            public float getFillLinePosition(ILineDataSet dataSet, LineDataProvider dataProvider) {
+                return chartName.getAxisLeft().getAxisMinimum();
+            }
+        });
+
+        set1.setFillColor(Color.BLACK);
+        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        dataSets.add(set1);
+        LineData data = new LineData(dataSets);
+
+        chartName.setData(data);
+        chartName.notifyDataSetChanged();
+        chartName.invalidate();
     }
 
-    @SuppressLint("SetTextI18n")
     private void getData() {
         try {
 //            JSONObject elder = myDb.getElderData(elderSelected);
@@ -418,6 +414,9 @@ public class Wearable extends Fragment {
         XAxis xAxis = chart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
+        xAxis.setDrawLabels(true);
+        xAxis.setLabelCount(7, true);
+        xAxis.setLabelRotationAngle(-45);
 
         chart.getAxisLeft().setDrawGridLines(false);
         chart.getLegend().setEnabled(false);
@@ -433,12 +432,14 @@ public class Wearable extends Fragment {
         try {
 //            JSONObject elder = myDb.getElderData(elderSelected);
             JSONObject elder = elderData;
+            int j = 0;
             for(int i = 0; i < dataType.length(); i ++) {
                 JSONObject obj = dataType.getJSONObject(i);
                 if(elder.getString("watch_id").equals(obj.getString("watch_id"))
                         && obj.getString("type").equals(type)) {
-                    values.add(new BarEntry(i, obj.getInt("value")));
-                    xAxisValues.add(obj.getString("date"));
+                    values.add(new BarEntry(j, obj.getInt("value")));
+                    xAxisValues.add(j, obj.getString("date"));
+                    j++;
                 }
             }
 
@@ -475,51 +476,52 @@ public class Wearable extends Fragment {
             public void run() {
                 getData();
 
-                initTrend(hrTrend, 200, 0);
-                initBar(stepsTrend);
-                initBar(calsTrend);
+//                initTrend(hrTrend, 200, 0);
+//                initBar(stepsTrend);
+//                initBar(calsTrend);
 
                 if(HrTrendRec.length() != 0) {
-                    for(int i = 0; i < HrTrendRec.length(); i ++) {
-                        try {
-//                            JSONObject elder = myDb.getElderData(elderSelected);
-                            JSONObject elder = elderData;
-                            if(HrTrendRec.getJSONObject(i).getString("watch_id").equals(elder.getString("watch_id"))) {
-                                setChart(hrTrend);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
+//                    for(int i = 0; i < HrTrendRec.length(); i ++) {
+//                        try {
+////                            JSONObject elder = myDb.getElderData(elderSelected);
+//                            JSONObject elder = elderData;
+//                            if(HrTrendRec.getJSONObject(i).getString("watch_id").equals(elder.getString("watch_id"))) {
+//                                setChart(hrTrend);
+//                            }
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
                     setChart(hrTrend);
                 }
                 if(StepsTrend.length() != 0) {
-                    for(int i = 0; i < StepsTrend.length(); i ++) {
-                        try {
-//                            JSONObject elder = myDb.getElderData(elderSelected);
-                            JSONObject elder = elderData;
-                            if(StepsTrend.getJSONObject(i).getString("watch_id").equals(elder.getString("watch_id"))) {
-                                setBarData(stepsTrend, "steps", StepsTrend);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
+//                    for(int i = 0; i < StepsTrend.length(); i ++) {
+//                        try {
+////                            JSONObject elder = myDb.getElderData(elderSelected);
+//                            JSONObject elder = elderData;
+//                            if(StepsTrend.getJSONObject(i).getString("watch_id").equals(elder.getString("watch_id"))) {
+//                                setBarData(stepsTrend, "steps", StepsTrend);
+//                            }
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+                    setBarData(stepsTrend, "steps", StepsTrend);
                 }
 
                 if(CalsTrend.length() != 0) {
-                    for(int i = 0; i < CalsTrend.length(); i ++) {
-                        try {
-//                            JSONObject elder = myDb.getElderData(elderSelected);
-                            JSONObject elder = elderData;
-                            if(CalsTrend.getJSONObject(i).getString("watch_id").equals(elder.getString("watch_id"))) {
-                                setBarData(calsTrend, "calories", CalsTrend);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
+//                    for(int i = 0; i < CalsTrend.length(); i ++) {
+//                        try {
+////                            JSONObject elder = myDb.getElderData(elderSelected);
+//                            JSONObject elder = elderData;
+//                            if(CalsTrend.getJSONObject(i).getString("watch_id").equals(elder.getString("watch_id"))) {
+//                                setBarData(calsTrend, "calories", CalsTrend);
+//                            }
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+                    setBarData(calsTrend, "calories", CalsTrend);
                 }
 
                 handler.postDelayed(runnable, delay);
@@ -652,7 +654,7 @@ public class Wearable extends Fragment {
                 try {
                     JSONObject obj = new JSONObject(response.body().string());
                     if (obj.getString("result").equals("berhasil")) {
-                        Toast.makeText(MainActivity2.getAppContext(), "Alarm Delete!", Toast.LENGTH_LONG).show();
+//                        toastDelete();
                         date.remove(id);
                         time.remove(id);
                         type.remove(id);
@@ -670,6 +672,10 @@ public class Wearable extends Fragment {
                 Log.e("Failed", String.valueOf(t));
             }
         });
+    }
+
+    private void toastDelete() {
+        Toast.makeText(getContext(), "Alarm Delete!", Toast.LENGTH_LONG).show();
     }
 
     private void clearAllLog(){

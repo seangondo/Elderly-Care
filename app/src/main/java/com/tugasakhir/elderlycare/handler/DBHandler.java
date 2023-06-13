@@ -63,6 +63,14 @@ public class DBHandler extends SQLiteOpenHelper {
     static String POINT_Y = "y";
 
 
+    //Alarm Log DB
+    static String ALARM_TABLE = "caregiver_info";
+    static String ALARM_elder = "id";
+    static String ALARM_date = "name";
+    static String ALARM_time = "username";
+    static String ALARM_message = "password";
+    static String ALARM_type = "email";
+    static String ALARM_status = "phoneNumber";
 
     public DBHandler (Context c) {
         super(c, DB_name, null, DB_ver);

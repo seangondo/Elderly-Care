@@ -56,6 +56,8 @@ public class MainActivity2 extends AppCompatActivity {
 
     private static Context context;
 
+    private int countNow, countOld;
+
     public static Context getAppContext() {
         return MainActivity2.context;
     }
@@ -325,13 +327,7 @@ public class MainActivity2 extends AppCompatActivity {
                 try {
                     JSONObject obj = new JSONObject(res);
                     int count = obj.getInt("n");
-                    Log.e("Count", String.valueOf(count));
-                    if(count > 0) {
-                        notifCount.setText(String.valueOf(count));
-                        notif.setVisibility(View.VISIBLE);
-                    } else {
-                        notif.setVisibility(View.GONE);
-                    }
+                    countNow = count;
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -455,6 +451,16 @@ public class MainActivity2 extends AppCompatActivity {
             @Override
             public void run() {
                 getCountNotif();
+                if(countNow != countOld) {
+                    countOld = countNow;
+                    Log.e("Count", String.valueOf(countNow));
+                    if (countNow > 0) {
+                        notifCount.setText(String.valueOf(countNow));
+                        notif.setVisibility(View.VISIBLE);
+                    } else {
+                        notif.setVisibility(View.GONE);
+                    }
+                }
                 handler.postDelayed(runnable, delay);
             }
         }, delay);
