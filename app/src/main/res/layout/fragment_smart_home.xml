@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".ui.SmartHome">
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
@@ -18,7 +18,8 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView1"
 
-            android:layout_width="450dp"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="16dp"
             android:layout_height="@dimen/lengthC"
 
             android:layout_marginStart="16dp"
@@ -46,14 +47,28 @@
                     android:layout_width="match_parent"
                     android:layout_height="120dp"
                     android:orientation="horizontal"
-                    android:layout_marginTop="5dp">
+                    android:layout_marginTop="5dp"
+                    android:weightSum="8">
 
-                    <com.github.mikephil.charting.charts.PieChart
-                        android:id="@+id/tempLiving"
-                        android:layout_width="120dp"
-                        android:layout_height="120dp"
-                        android:layout_gravity="center"/>
+                    <LinearLayout
+                        android:gravity="center"
+                        android:layout_width="0dp"
+                        android:layout_weight="2"
+                        android:layout_height="match_parent">
+                        <com.github.mikephil.charting.charts.PieChart
+                            android:id="@+id/tempLiving"
+                            android:layout_width="120dp"
+                            android:layout_height="120dp"
+                            android:layout_gravity="center"
+                            />
+                    </LinearLayout>
 
+
+                    <LinearLayout
+                        android:gravity="center"
+                        android:layout_width="0dp"
+                        android:layout_weight="2"
+                        android:layout_height="match_parent">
                     <androidx.cardview.widget.CardView
                         android:id="@+id/buttonFanLiving"
                         android:layout_width="100dp"
@@ -96,14 +111,26 @@
 
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
+                    </LinearLayout>
 
+                    <LinearLayout
+                        android:gravity="center"
+                        android:layout_width="0dp"
+                        android:layout_weight="2"
+                        android:layout_height="match_parent">
                     <com.github.mikephil.charting.charts.PieChart
                         android:id="@+id/lightLiving"
                         android:layout_width="120dp"
                         android:layout_height="120dp"
                         android:layout_gravity="center"
                         />
+                    </LinearLayout>
 
+                    <LinearLayout
+                        android:gravity="center"
+                        android:layout_width="0dp"
+                        android:layout_weight="2"
+                        android:layout_height="match_parent">
                     <androidx.cardview.widget.CardView
                         android:id="@+id/buttonLightsLiving"
                         android:layout_width="100dp"
@@ -146,7 +173,7 @@
 
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
-
+                    </LinearLayout>
                 </LinearLayout>
 
                 <LinearLayout
@@ -181,8 +208,9 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView2"
 
-            android:layout_width="450dp"
+            android:layout_width="match_parent"
             android:layout_height="@dimen/lengthC"
+            android:layout_marginEnd="16dp"
 
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
@@ -209,14 +237,26 @@
                     android:layout_width="match_parent"
                     android:layout_height="120dp"
                     android:orientation="horizontal"
-                    android:layout_marginTop="5dp">
+                    android:layout_marginTop="5dp"
+                    android:weightSum="8">
 
+                    <LinearLayout
+                        android:gravity="center"
+                        android:layout_width="0dp"
+                        android:layout_weight="2"
+                        android:layout_height="match_parent">
                     <com.github.mikephil.charting.charts.PieChart
                         android:id="@+id/lightKitchen"
                         android:layout_width="120dp"
                         android:layout_height="120dp"
                         android:layout_gravity="center"/>
+                    </LinearLayout>
 
+                    <LinearLayout
+                        android:gravity="center"
+                        android:layout_width="0dp"
+                        android:layout_weight="2"
+                        android:layout_height="match_parent">
                     <androidx.cardview.widget.CardView
                         android:id="@+id/buttonLightsKitchen"
                         android:layout_width="100dp"
@@ -259,14 +299,26 @@
 
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
+                    </LinearLayout>
 
+                    <LinearLayout
+                        android:gravity="center"
+                        android:layout_width="0dp"
+                        android:layout_weight="2"
+                        android:layout_height="match_parent">
                     <com.github.mikephil.charting.charts.PieChart
                         android:id="@+id/gasKitchen"
                         android:layout_width="120dp"
                         android:layout_height="120dp"
                         android:layout_gravity="center"
                         />
+                    </LinearLayout>
 
+                    <LinearLayout
+                        android:gravity="center"
+                        android:layout_width="0dp"
+                        android:layout_weight="2"
+                        android:layout_height="match_parent">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -286,6 +338,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Normal" />
+                    </LinearLayout>
                     </LinearLayout>
 
 
@@ -324,9 +377,10 @@
 
             android:id="@+id/cardView3"
 
-            android:layout_width="450dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
 
+            android:layout_marginEnd="16dp"
             android:layout_marginTop="10dp"
             app:cardCornerRadius="10dp"
             app:layout_constraintStart_toStartOf="@+id/cardView1"
@@ -363,7 +417,9 @@
                         android:textStyle="bold" />
                     <com.github.mikephil.charting.charts.LineChart
                         android:id="@+id/tempTrend"
-                        android:layout_width="280dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_width="match_parent"
                         android:layout_height="160dp"
                         android:layout_gravity="center"
                         />
@@ -384,7 +440,9 @@
 
                         <com.github.mikephil.charting.charts.LineChart
                             android:id="@+id/gasTrend"
-                            android:layout_width="280dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:layout_width="match_parent"
                             android:layout_height="160dp"
                             android:layout_gravity="center"/>
                     </LinearLayout>
@@ -420,9 +478,10 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView4"
 
-            android:layout_width="450dp"
+            android:layout_width="match_parent"
             android:layout_height="415dp"
-            android:layout_margin="10dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
 
             app:cardCornerRadius="10dp"
             app:layout_constraintEnd_toEndOf="@+id/cardView3"
@@ -452,6 +511,7 @@
                     android:text="No Alarm" />
 
                 <ListView
+                    android:nestedScrollingEnabled="true"
                     android:id="@+id/alarmSmarthome"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
@@ -472,5 +532,5 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </FrameLayout>

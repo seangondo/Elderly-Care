@@ -1,15 +1,8 @@
 package com.tugasakhir.elderlycare.ui;
 
 import static com.tugasakhir.elderlycare.service.mqttServices.CalsData;
-import static com.tugasakhir.elderlycare.service.mqttServices.CalsTrend;
 import static com.tugasakhir.elderlycare.service.mqttServices.HrData;
-import static com.tugasakhir.elderlycare.service.mqttServices.HrTrendRec;
 import static com.tugasakhir.elderlycare.service.mqttServices.StepsData;
-import static com.tugasakhir.elderlycare.service.mqttServices.StepsTrend;
-//import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_gas;
-//import static com.tugasakhir.elderlycare.service.mqttServices.kitchen_light;
-//import static com.tugasakhir.elderlycare.service.mqttServices.living_light;
-//import static com.tugasakhir.elderlycare.service.mqttServices.living_temp;
 import static com.tugasakhir.elderlycare.service.mqttServices.onBody;
 import static com.tugasakhir.elderlycare.service.mqttServices.poseDetectionDining;
 import static com.tugasakhir.elderlycare.service.mqttServices.poseDetectionLiv1;
@@ -17,22 +10,19 @@ import static com.tugasakhir.elderlycare.service.mqttServices.poseDetectionLiv2;
 import static com.tugasakhir.elderlycare.service.mqttServices.sensorSmartHome;
 import static com.tugasakhir.elderlycare.ui.ElderSelectorActivity.elderSelected;
 
-import static java.lang.Integer.parseInt;
-
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.tugasakhir.elderlycare.R;
 import com.tugasakhir.elderlycare.handler.DBHandler;
@@ -320,7 +310,8 @@ public class Overview extends Fragment {
                     if(obj.getString("alarm").equals("true")) {
                         poseLiving2.setTextColor(Color.RED);
                     } else {
-                        poseLiving2.setTextColor(Color.BLACK);
+//                        poseLiving2.setTextColor(Color.BLACK);
+                        poseLiving2.setTextColor(getActivity().getTitleColor());
                     }
                 }
             }

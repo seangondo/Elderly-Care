@@ -580,30 +580,32 @@ public class SmartHome extends Fragment implements View.OnClickListener{
                 String res = new Gson().toJson(response.body());
                 try {
                     JSONArray arr = new JSONArray(res);
-                    if(arr.length() > 0) {
-                        alarmLog.setVisibility(View.VISIBLE);
-                        noTextAlarm.setVisibility(View.GONE);
-                        for(int i = 0; i < arr.length(); i++) {
-                            JSONObject arrObj = arr.getJSONObject(i);
-                            if(arrObj.getString("type").equals("Smart Home")) {
-                                date.add(arrObj.getString("date"));
-                                time.add(arrObj.getString("time"));
-                                message.add(arrObj.getString("message"));
-                                type.add(arrObj.getString("type"));
-                                status.add(String.valueOf(arrObj.getInt("status")));
+                    if(isAdded()) {
+                        if(arr.length() > 0) {
+                            alarmLog.setVisibility(View.VISIBLE);
+                            noTextAlarm.setVisibility(View.GONE);
+                            for(int i = 0; i < arr.length(); i++) {
+                                JSONObject arrObj = arr.getJSONObject(i);
+                                if (arrObj.getString("type").equals("Smart Home")) {
+                                    date.add(arrObj.getString("date"));
+                                    time.add(arrObj.getString("time"));
+                                    message.add(arrObj.getString("message"));
+                                    type.add(arrObj.getString("type"));
+                                    status.add(String.valueOf(arrObj.getInt("status")));
+                                }
                             }
-                        }
-                        if(date.size() <= 0) {
+                            if(date.size() <= 0) {
+                                alarmLog.setVisibility(View.GONE);
+                                noTextAlarm.setVisibility(View.VISIBLE);
+                            }
+                            if (date.size()>0  || time.size()>0 || type.size()>0 || message.size()>0 || status.size()>0) {
+                                customAlarmLogAdapter = new CustomAlarmLogAdapter(getContext(), date, time, type, message, status);
+                                alarmLog.setAdapter(customAlarmLogAdapter);
+                            }
+                        } else {
                             alarmLog.setVisibility(View.GONE);
                             noTextAlarm.setVisibility(View.VISIBLE);
                         }
-                        if (date.size()>0  || time.size()>0 || type.size()>0 || message.size()>0 || status.size()>0) {
-                            customAlarmLogAdapter = new CustomAlarmLogAdapter(getContext(), date, time, type, message, status);
-                            alarmLog.setAdapter(customAlarmLogAdapter);
-                        }
-                    } else {
-                        alarmLog.setVisibility(View.GONE);
-                        noTextAlarm.setVisibility(View.VISIBLE);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
